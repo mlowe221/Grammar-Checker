@@ -13,6 +13,8 @@
 html,body{margin:0;height:100%;background:#0b2a3a;overflow:hidden;font-family:'Alegreya Sans',system-ui,sans-serif;color:var(--sand)}
 canvas{display:block;position:fixed;inset:0;width:100vw;height:100vh;cursor:crosshair;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html,body{overscroll-behavior:none}
+#toast{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translate(-50%,20px);max-width:min(520px,calc(100vw - 32px));background:rgba(26,19,16,.95);color:#f1e6cf;border:2px solid #e8b44a;border-radius:8px;padding:12px 16px;font:15px/1.4 'Alegreya Sans',sans-serif;text-align:center;z-index:30;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 #fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:20;display:none;cursor:wait}
 #ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(10,8,6,.72);padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));z-index:5}
 @media(max-width:600px),(max-height:500px){.panel{padding:20px 16px;max-height:calc(100vh - 24px)}h1{font-size:30px}h2{font-size:23px}.sub{font-size:15px;margin-bottom:12px}button{font-size:15px;padding:10px 16px}.keys{font-size:14px;gap:3px 10px;padding:10px 12px}.story{font-size:15px;padding:12px}.isle{min-height:96px;padding:10px}.isles{gap:8px}}
@@ -96,6 +98,7 @@ button.lucky:hover,button.lucky:focus-visible{background:#164008}
 </style></head><body>
 <div id="safe" style="position:fixed;inset:0;pointer-events:none;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)"></div>
 <canvas id="c"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
 <canvas id="fx" aria-label="Style reveal"></canvas>
 <div id="ov"><div class="panel" id="panel"></div></div>
 <script>
@@ -386,7 +389,7 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;co
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;if(state==='play')showPause();});
 cv.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
-cv.addEventListener('mousedown',e=>{if(e.button===0)click=true;});
+cv.addEventListener('mousedown',e=>{if(e.button!==0)return;if(state==='play'&&!touchMode&&fsSupported()){const b=fsBtnRect();if(e.clientX>=b.x&&e.clientX<=b.x+b.w&&e.clientY>=b.y&&e.clientY<=b.y+b.h){toggleFS();return;}}click=true;});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 /* ---------- touch / mobile controls ---------- */
 let touchMode=false;try{touchMode=(window.matchMedia&&matchMedia('(pointer: coarse)').matches)||(('ontouchstart' in window)&&(navigator.maxTouchPoints||0)>0);}catch(e){}
@@ -400,12 +403,13 @@ function touchBtns(){if(!P||state!=='play')return[];const s=TS(),G=hudGeom(),out
  const mm=mmMove();if(mm)items.push({id:'mm',r:24*s,lab:'8',name:mm.n,cd:P.mmcd,max:mm.cd,pref:212});
  const placed=[{x:A.x,y:A.y,r:atkR}],minX=W*0.5,blocks=[{x:G.mx0-8,y:G.my0-8,w:G.mmW+16,h:G.mmH+16}];
  const fits=(x,y,r)=>{if(x-r<Math.max(SAFE.l+m,minX)||x+r>W-SAFE.r-m||y-r<SAFE.t+m||y+r>H-SAFE.b-m)return false;for(const p of placed)if(Math.hypot(x-p.x,y-p.y)<r+p.r+gap)return false;for(const b of blocks)if(x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h)return false;return true;};
+ {const pb={id:'pause',x:G.mx0-14-20*s,y:G.my0+20*s,r:20*s,lab:'II'};out.push(pb);placed.push(pb);if(fsSupported()){const fb={id:'fs',x:pb.x,y:pb.y+48*s,r:20*s,lab:isFS()?'⤡':'⛶'};out.push(fb);placed.push(fb);}}
  const qy=G.my0+G.mmH+16+22*s;if(has('b3')){const b={id:'q',x:W-SAFE.r-16-22*s,y:qy,r:22*s,lab:'Q',cd:P.qCD,max:7};out.push(b);placed.push(b);}if(has('s4')){const b={id:'f',x:W-SAFE.r-16-22*s-(has('b3')?52*s:0),y:qy,r:22*s,lab:'F',cd:P.fCD,max:15};out.push(b);placed.push(b);}
  for(const it of items){let done=false;for(let pass=0;pass<2&&!done;pass++){const rr2=pass?it.r*0.82:it.r;for(let ring=0;ring<7&&!done;ring++){const R=atkR+gap+rr2+ring*(50*s+gap);for(let k=0;k<=90&&!done;k++){const off=Math.ceil(k/2)*3*(k%2?1:-1),deg=it.pref+off;if(deg<110||deg>300)continue;const a=deg*Math.PI/180,x=A.x+Math.cos(a)*R,y=A.y+Math.sin(a)*R;if(fits(x,y,rr2)){placed.push({x,y,r:rr2});out.push(Object.assign(it,{x,y,r:rr2}));done=true;}}}}}
  if(chests.some(ch=>!ch.open&&dist(P.x,P.y,ch.x,ch.y)<36))out.push({id:'e',x:W*0.36,y:H-SAFE.b-16-30*s,r:30*s,lab:'Open'});
- out.push({id:'pause',x:G.mx0-14-20*s,y:G.my0+20*s,r:20*s,lab:'II'});return out;}
+ return out;}
 function btnAt(x,y){for(const b of touchBtns())if(Math.hypot(x-b.x,y-b.y)<b.r+8)return b;return null;}
-function pressBtn(b,id){held[b.id]=id;switch(b.id){case'dodge':dash();break;case'crouch':P.crouch=!P.crouch;break;case'ult':awaken();break;case'e':openChest();break;case'pause':showPause();break;case'mm':useMM();break;case'q':whirl();break;case'f':smoke();break;default:if(b.id.startsWith('ab'))useMove(+b.id.slice(2));}}
+function pressBtn(b,id){held[b.id]=id;switch(b.id){case'dodge':dash();break;case'crouch':P.crouch=!P.crouch;break;case'ult':awaken();break;case'e':openChest();break;case'pause':showPause();break;case'mm':useMM();break;case'fs':toggleFS();break;case'q':whirl();break;case'f':smoke();break;default:if(b.id.startsWith('ab'))useMove(+b.id.slice(2));}}
 function tStart(t){if(state!=='play')return;const x=t.clientX,y=t.clientY,b=btnAt(x,y);if(b){pressBtn(b,t.identifier);return;}if(x<W*0.55&&joy.id===null){joy.id=t.identifier;joy.bx=joy.x=x;joy.by=joy.y=y;}}
 function tMove(t){if(t.identifier===joy.id){joy.x=t.clientX;joy.y=t.clientY;const R=62*TS(),dx=joy.x-joy.bx,dy=joy.y-joy.by,l=Math.hypot(dx,dy);if(l>R*1.25){joy.bx=joy.x-dx/l*R*1.25;joy.by=joy.y-dy/l*R*1.25;}}}
 function tEnd(t){if(t.identifier===joy.id){joy.id=null;joySprint=false;}for(const k in held)if(held[k]===t.identifier)delete held[k];}
@@ -436,13 +440,13 @@ function showTitle(){state='menu';
  show(`<h1>Shadows of Kerkos</h1><p class="sub">An island stealth adventure · 431 BC</p>
  <div class="story">Tyrants have seized the islands of the eastern sea, one after another. You are Nyra, an exile come home by night boat. Free five islands, grow your skills, and reach the tyrant-king at Akropyle.</div>
  ${touchMode?`<div class="keys"><b>Left thumb</b><span>Drag anywhere on the left to move. Push to the edge to sprint</span><b>⚔ button</b><span>Strike (hold to keep attacking). Auto-aims at the nearest enemy</span><b>Roll / Crouch</b><span>Dodge roll and sneak</span><b>1 – 7</b><span>Your style\u2019s abilities (they aim automatically)</span><b>V</b><span>Ultimate when the meter is full</span><b>Open</b><span>Appears next to treasure jars</span><b>II</b><span>Pause, skills and style spinner</span></div>${H>W?'<p class="note" style="margin:-8px 0 12px;font-weight:700">Tip: turn your phone sideways for the best view.</p>':''}`:`<div class="keys"><b>W A S D</b><span>Move (mouse to aim)</span><b>Click</b><span>Strike. Unaware enemies fall instantly</span><b>C</b><span>Crouch: slower, much harder to spot</span><b>Shift</b><span>Sprint</span><b>Space</b><span>Dodge roll</span><b>E</b><span>Open amphora caches</span><b>Q / F</b><span>Whirlwind / Smoke Pot (once learned)</span><b>1 – 7</b><span>Your style\u2019s abilities (rarer styles have more)</span><b>V</b><span>Ultimate: Awaken when the meter is full</span><b>8 / M</b><span>Mastery move / Mastery screen</span><b>T / Y</b><span>Skill tree / Style Spinner</span><b>Esc / P</b><span>Pause</span></div>`}
- ${dailyMsg?`<p class="res" style="font-weight:700">${dailyMsg}</p>`:''}${hasSave?'<button data-a="cont">Continue</button><button data-a="neu" class="ghost">New game</button>':'<button data-a="neu">Begin</button>'}<button data-a="code" class="ghost">Redeem code</button><button data-a="sc" class="ghost">Save code</button>
- <p class="note">${touchMode?'Touch controls detected.':'Keyboard and mouse detected. On a phone or tablet you get touch controls.'} Progress is saved in this browser.</p>`,0,{cont:showIslands,neu:()=>{const red=prog.redeemed,day=prog.lastDay;prog=fresh();prog.redeemed=red;prog.lastDay=day;save();hasSave=true;showIslands();},code:()=>showCodes(showTitle),sc:()=>showSaveCode(showTitle)});}
+ ${dailyMsg?`<p class="res" style="font-weight:700">${dailyMsg}</p>`:''}${hasSave?'<button data-a="cont">Continue</button><button data-a="neu" class="ghost">New game</button>':'<button data-a="neu">Begin</button>'}<button data-a="code" class="ghost">Redeem code</button><button data-a="sc" class="ghost">Save code</button><button data-a="fs" class="ghost">${fsLabel()}</button>
+ <p class="note">${touchMode?'Touch controls detected.':'Keyboard and mouse detected. On a phone or tablet you get touch controls.'} Progress is saved in this browser.</p>`,0,{cont:showIslands,neu:()=>{const red=prog.redeemed,day=prog.lastDay;prog=fresh();prog.redeemed=red;prog.lastDay=day;save();hasSave=true;showIslands();},code:()=>showCodes(showTitle),sc:()=>showSaveCode(showTitle),fs:toggleFS});}
 function showIslands(){state='menu';
  const cards=ISLANDS.map((I,i)=>{const lock=i>=prog.unlocked,done=prog.cleared.includes(i);
   return `<button class="isle" data-a="go" data-i="${i}" style="--c:${PAL[I.pal].sea}" ${lock?'disabled':''}><b>${i+1}. ${esc(I.name)}</b><span>${esc(I.sub)} · ${I.comps.length} tyrants</span><em>${lock?'Locked':done?'✓ Freed':'Danger '+'◆'.repeat(i+1)}</em></button>`;}).join('');
- show(`<h2>Choose an island</h2>${who()}<div class="isles">${cards}</div><button data-a="tree">Skill tree${prog.sp?' ('+prog.sp+')':''}</button><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="code">Redeem code</button><button data-a="duel">⚔ 1v1 Duel</button><button data-a="troph" class="ghost">🏆 Trophy Road</button><button data-a="sc" class="ghost">Save code</button><button data-a="mast">Mastery${prog.mp?' ('+prog.mp+')':''}</button><button data-a="back" class="ghost">Title</button>`,1,
-  {go:b=>startIsland(+b.dataset.i),tree:()=>showTree(showIslands),spin:()=>showSpin(showIslands),code:()=>showCodes(showIslands),duel:showDuel,troph:()=>showTrophies(showIslands),sc:()=>showSaveCode(showIslands),mast:()=>showMastery(showIslands),back:showTitle});}
+ show(`<h2>Choose an island</h2>${who()}<div class="isles">${cards}</div><button data-a="tree">Skill tree${prog.sp?' ('+prog.sp+')':''}</button><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="code">Redeem code</button><button data-a="duel">⚔ 1v1 Duel</button><button data-a="troph" class="ghost">🏆 Trophy Road</button><button data-a="fs" class="ghost">${fsLabel()}</button><button data-a="sc" class="ghost">Save code</button><button data-a="mast">Mastery${prog.mp?' ('+prog.mp+')':''}</button><button data-a="back" class="ghost">Title</button>`,1,
+  {go:b=>startIsland(+b.dataset.i),tree:()=>showTree(showIslands),spin:()=>showSpin(showIslands),code:()=>showCodes(showIslands),duel:showDuel,troph:()=>showTrophies(showIslands),fs:toggleFS,sc:()=>showSaveCode(showIslands),mast:()=>showMastery(showIslands),back:showTitle});}
 function showCodes(back,note,good){if(state==='play')state='pause';
  show(`<h2>Redeem a Code</h2>${who()}<form id="codef" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 10px"><label for="codein" style="position:absolute;left:-9999px">Code</label><input id="codein" autocomplete="off" spellcheck="false" maxlength="24" placeholder="Enter code" style="font:700 18px Cinzel,serif;padding:10px 14px;border-radius:6px;border:3px solid var(--ink);background:#f6ead0;color:var(--ink);width:min(280px,100%);text-transform:uppercase;letter-spacing:.08em"><button type="submit">Redeem</button></form>
  <p class="res" style="font-weight:700;color:${good?'#1a3a10':'#3a0a05'}">${note?esc(note):prog.lvl<7?'Codes unlock at level 7. You are level '+prog.lvl+'.':'Codes can be used once each.'}</p><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="back" class="ghost">Done</button>`,0,
@@ -475,9 +479,9 @@ function showCodes(back,note,good){if(state==='play')state='pause';
   if(P&&P.hp>maxHP())P.hp=maxHP();
   save();showCodes(back,'Code accepted! '+t,true);if(rev)playReveal(rev);};
 }
-function showPause(){state='pause';if(duel){show(`<h2>Paused</h2><p class="sub">Your opponent can still move while you're paused.</p><button data-a="rs">Resume</button><button data-a="leave" class="ghost">Leave duel</button>`,0,{rs:resume,leave:leaveDuel});return;}
- show(`<h2>Paused</h2><p class="sub">${esc(ISLANDS[isl].name)} · ${esc(ISLANDS[isl].sub)}</p>${who()}<button data-a="rs">Resume</button><button data-a="tree">Skill tree${prog.sp?' ('+prog.sp+')':''}</button><button data-a="spin">Style Spinner</button><button data-a="mast">Mastery</button><br><button data-a="rt" class="ghost">Restart island</button><button data-a="isl" class="ghost">Islands</button>`,0,
-  {rs:resume,tree:()=>showTree(showPause),spin:()=>showSpin(showPause),mast:()=>showMastery(showPause),rt:()=>startIsland(isl),isl:showIslands});}
+function showPause(){state='pause';if(duel){show(`<h2>Paused</h2><p class="sub">Your opponent can still move while you're paused.</p><button data-a="rs">Resume</button><button data-a="leave" class="ghost">Leave duel</button><button data-a="fs" class="ghost">${fsLabel()}</button>`,0,{rs:resume,leave:leaveDuel,fs:toggleFS});return;}
+ show(`<h2>Paused</h2><p class="sub">${esc(ISLANDS[isl].name)} · ${esc(ISLANDS[isl].sub)}</p>${who()}<button data-a="rs">Resume</button><button data-a="tree">Skill tree${prog.sp?' ('+prog.sp+')':''}</button><button data-a="spin">Style Spinner</button><button data-a="mast">Mastery</button><br><button data-a="rt" class="ghost">Restart island</button><button data-a="isl" class="ghost">Islands</button><button data-a="fs" class="ghost">${fsLabel()}</button>`,0,
+  {fs:toggleFS,rs:resume,tree:()=>showTree(showPause),spin:()=>showSpin(showPause),mast:()=>showMastery(showPause),rt:()=>startIsland(isl),isl:showIslands});}
 function resume(){state='play';ov.classList.add('hide');}
 function showTree(back){if(state==='play')state='pause';
  const cols=BRANCH.map((bn,b)=>{const list=SKILLS.filter(s=>s.br===b);
@@ -1428,6 +1432,25 @@ function drawMoveHUD(){drawEval();const S=curStyle();if(!S||!MOVES[S.id]||touchM
  {const L=LC[S.id];ctx.textAlign='left';ctx.font='700 12px Alegreya Sans';ctx.fillStyle=c;ctx.fillText('Click: '+(L?L.n:'Strike')+(L&&L.fin?' · combo '+(P.clicks%L.fin[L.fin.length-1].every)+'/'+L.fin[L.fin.length-1].every:''),x0,y-8);}
  if(ready&&!aw){ctx.strokeStyle=S.tr;ctx.globalAlpha=0.5+0.5*Math.sin(now*6);ctx.lineWidth=3;rr(x0+NV*(w+8)-3,y-3,w+6,60,10);ctx.stroke();ctx.globalAlpha=1;}}
 
+/* ---------- full screen ---------- */
+const fsEl=()=>document.documentElement;
+const fsSupported=()=>{try{const d=fsEl();return !!(d&&(d.requestFullscreen||d.webkitRequestFullscreen));}catch(e){return false;}};
+const isFS=()=>{try{return !!(document.fullscreenElement||document.webkitFullscreenElement);}catch(e){return false;}};
+const fsLabel=()=>isFS()?'Exit full screen':'⛶ Full screen';
+function toast(t){let el=document.getElementById('toast');if(!el)return;el.textContent=t;el.classList.add('on');clearTimeout(toast.tm);toast.tm=setTimeout(()=>el.classList.remove('on'),4200);}
+function fsFail(){const ios=/iPhone|iPod/.test(navigator.userAgent||'');toast(ios?'iPhone doesn’t allow full screen for websites. Tip: tap Share → Add to Home Screen, then open the game from your home screen for a full-screen view.':'Full screen isn’t available here. Try opening the game in its own browser tab.');}
+function toggleFS(){try{if(isFS()){const ex=document.exitFullscreen||document.webkitExitFullscreen;if(ex){const r=ex.call(document);if(r&&r.catch)r.catch(()=>{});}return;}
+ const d=fsEl(),req=d&&(d.requestFullscreen||d.webkitRequestFullscreen);if(!req){fsFail();return;}const r=req.call(d,{navigationUI:'hide'});
+ const lock=()=>{try{const so=window.screen&&window.screen.orientation;if(touchMode&&so&&so.lock){const p=so.lock('landscape');if(p&&p.catch)p.catch(()=>{});}}catch(e){}};
+ if(r&&r.then)r.then(lock).catch(fsFail);else lock();}catch(e){fsFail();}}
+function syncFsButtons(){try{document.querySelectorAll('[data-a=fs]').forEach(b=>{b.textContent=fsLabel();});}catch(e){}}
+try{document.addEventListener('fullscreenchange',syncFsButtons);document.addEventListener('webkitfullscreenchange',syncFsButtons);}catch(e){}
+function fsBtnRect(){const G=hudGeom();return{x:G.mx0-46,y:G.my0,w:34,h:34};}
+function drawFsBtn(){if(touchMode||!fsSupported())return;const b=fsBtnRect(),hov=mx>=b.x&&mx<=b.x+b.w&&my>=b.y&&my<=b.y+b.h;ctx.save();ctx.fillStyle=hov?'rgba(60,44,30,.95)':'rgba(26,19,16,.82)';rr(b.x,b.y,b.w,b.h,7);ctx.fill();ctx.strokeStyle='#e8b44a';ctx.lineWidth=2;const x=b.x+9,y=b.y+9,w=16,f=isFS(),k=5;ctx.beginPath();
+ if(!f){ctx.moveTo(x,y+k);ctx.lineTo(x,y);ctx.lineTo(x+k,y);ctx.moveTo(x+w-k,y);ctx.lineTo(x+w,y);ctx.lineTo(x+w,y+k);ctx.moveTo(x+w,y+w-k);ctx.lineTo(x+w,y+w);ctx.lineTo(x+w-k,y+w);ctx.moveTo(x+k,y+w);ctx.lineTo(x,y+w);ctx.lineTo(x,y+w-k);}
+ else{ctx.moveTo(x+k,y);ctx.lineTo(x+k,y+k);ctx.lineTo(x,y+k);ctx.moveTo(x+w-k,y);ctx.lineTo(x+w-k,y+k);ctx.lineTo(x+w,y+k);ctx.moveTo(x+w,y+w-k);ctx.lineTo(x+w-k,y+w-k);ctx.lineTo(x+w-k,y+w);ctx.moveTo(x,y+w-k);ctx.lineTo(x+k,y+w-k);ctx.lineTo(x+k,y+w);}
+ ctx.stroke();ctx.restore();}
+
 /* ---------- save codes ---------- */
 const SC_PREFIX='KRK2-';
 const scK=(()=>{const a=[];for(let i=0;i<28;i++)a.push(String.fromCharCode(35+((i*53+17)*(i+11)+i*i*7)%88));return a.join('');})();
@@ -1808,6 +1831,7 @@ function drawHUD(){const G=hudGeom(),t=G.t,mh=maxHP();
  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(mx0+P.x*ms,my0+P.y*ms,3,0,6.283);ctx.fill();
  ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1;ctx.strokeRect(mx0+cam.x*ms,my0+cam.y*ms,W/ZOOM*ms,H/ZOOM*ms);
  const my=t?Math.max(H*0.2,G.stack+34):H*0.2,mf=t?14:17;ctx.textAlign='center';msgs.forEach((m,i)=>{const a=Math.min(1,m.a*4,(m.d-m.a)*2);ctx.globalAlpha=a;ctx.font='700 '+mf+'px Alegreya Sans';const tw=Math.min(W-40,ctx.measureText(m.t).width);ctx.fillStyle='rgba(26,19,16,.82)';rr(W/2-tw/2-14,my+i*(mf+16)-mf-3,tw+28,mf+12,6);ctx.fill();ctx.fillStyle='#f1e6cf';ctx.fillText(m.t,W/2,my+i*(mf+16),W-40);});ctx.globalAlpha=1;
+ drawFsBtn();
  if(P.hp/mh<0.3){ctx.fillStyle='rgba(160,20,10,'+(0.12+0.08*Math.sin(now*6))+')';ctx.fillRect(0,0,W,H);}
 }
 function draw(){
@@ -1831,7 +1855,7 @@ function menuBg(){if(!rects)return;cam.x=(WW-W)/2+Math.sin(now*0.05)*300;cam.y=(
 build(0);buildBG();cam={x:0,y:0};P=null;arrows=[];parts=[];floats=[];smokes=[];msgs=[];
 showTitle();
 requestAnimationFrame(loop);
-window.__game={get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn}};
+window.__game={get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn}};
 }
 </script>
 </body></html>
