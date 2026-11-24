@@ -951,13 +951,29 @@ const FX={
   c.fillStyle='#2b2f3a';c.beginPath();c.arc(cx,cy-R*0.05,R*0.5,Math.PI*1.05,Math.PI*1.95);c.fill();c.fillStyle='#ff3b5c';c.fillRect(cx-R*0.47,cy+R*0.05,R*0.94,R*0.28);
   c.fillStyle='#fff';c.fillRect(cx-R*0.22,cy-R*0.08,R*0.1,R*0.06);c.fillRect(cx+R*0.12,cy-R*0.08,R*0.1,R*0.06);
   for(let i=0;i<14;i++){const a=t*2+i,r=R*(1.2+((t*0.7+i*0.13)%1)*1.5);c.fillStyle=i%2?'#ffe08a':'#ff3b5c';c.globalAlpha=0.7;c.fillRect(cx+Math.cos(a)*r,cy+Math.sin(a*1.3)*r*0.6,4,4);}c.globalAlpha=1;},
- archmage(c,t,p,w,h,cx,cy,R,S){const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'#05081a');g.addColorStop(1,'#1a1440');c.fillStyle=g;c.fillRect(0,0,w,h);
-  for(let i=0;i<120;i++){const x=(i*97.3)%w,y=(i*53.7)%h;c.fillStyle='rgba(255,255,255,'+(0.3+0.5*Math.abs(Math.sin(t*2+i)))+')';c.fillRect(x,y,2,2);}
-  c.save();c.translate(cx,cy);for(let k=0;k<3;k++){const r=R*(1.1+k*0.55)*Math.min(1,p*2.2);c.rotate((k%2?-1:1)*t*0.4);c.strokeStyle='rgba(127,216,255,'+(0.75-k*0.18)+')';c.lineWidth=2;c.beginPath();c.arc(0,0,r,0,6.283);c.stroke();
-   for(let j=0;j<12+k*6;j++){const a=j*6.283/(12+k*6);c.beginPath();c.moveTo(Math.cos(a)*r,Math.sin(a)*r);c.lineTo(Math.cos(a)*(r-10),Math.sin(a)*(r-10));c.stroke();}}c.restore();
-  c.fillStyle='#e9e4f5';c.beginPath();c.moveTo(cx-R*0.6,cy+R*1.2);c.lineTo(cx,cy-R*0.1);c.lineTo(cx+R*0.6,cy+R*1.2);c.fill();c.fillStyle='#f4e8d8';c.beginPath();c.arc(cx,cy-R*0.25,R*0.32,0,6.283);c.fill();
-  c.fillStyle='#6a4a8a';c.beginPath();c.arc(cx,cy-R*0.32,R*0.34,Math.PI,0);c.fill();c.strokeStyle='#c9a86a';c.lineWidth=4;c.beginPath();c.moveTo(cx+R*0.55,cy+R*1.2);c.lineTo(cx+R*0.75,cy-R*0.6);c.stroke();
-  c.fillStyle='#7fd8ff';c.shadowColor='#7fd8ff';c.shadowBlur=20;c.beginPath();c.arc(cx+R*0.75,cy-R*0.66,R*0.1*(1+0.2*Math.sin(t*6)),0,6.283);c.fill();c.shadowBlur=0;},
+ archmage(c,t,p,w,h,cx,cy,R,S){c.fillStyle='#02020a';c.fillRect(0,0,w,h);
+  const grow=Math.min(1,p*1.6),col=p>0.78?Math.min(1,(p-0.78)/0.08):0,after=p>0.86,hr=R*(0.25+0.85*grow)*(1-col*0.95);
+  for(let i=0;i<220;i++){const a0=(i*137.508)%360*Math.PI/180,r0=((i*7919)%1000)/1000*Math.max(w,h)*0.75+40;
+   const pull=after?0:Math.min(1,p*1.25),rr=r0*(1-pull*0.92*((i%7)/7*0.5+0.5)),a=a0+pull*(600/(rr+60))*(t*0.6+1);
+   const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*0.85;if(rr<hr*1.05&&!after)continue;
+   c.fillStyle='rgba('+(200+(i%3)*20)+','+(210+(i%2)*30)+',255,'+(0.35+0.6*Math.abs(Math.sin(t*3+i)))+')';const sz=1+(i%4===0?1.5:0);c.fillRect(x,y,sz,sz);
+   if(pull>0.3&&!after&&i%3===0){c.strokeStyle='rgba(180,210,255,.18)';c.lineWidth=1;c.beginPath();c.moveTo(x,y);c.lineTo(cx+Math.cos(a-0.25)*(rr+18),cy+Math.sin(a-0.25)*(rr+18)*0.85);c.stroke();}}
+  if(!after){
+   const glow=c.createRadialGradient(cx,cy,hr*0.9,cx,cy,hr*3.2);glow.addColorStop(0,'rgba(140,90,255,.45)');glow.addColorStop(0.4,'rgba(60,40,160,.18)');glow.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=glow;c.fillRect(0,0,w,h);
+   c.save();c.translate(cx,cy);c.scale(1,0.32);
+   for(let k=0;k<70;k++){const rr=hr*(1.35+k*0.028),sp=t*(2.6-k*0.02);c.strokeStyle='hsla('+(38-k*1.3)+',100%,'+(72-k*0.55)+'%,'+(0.55-k*0.007)*grow+')';c.lineWidth=2;c.beginPath();c.arc(0,0,rr,sp,sp+Math.PI*1.25);c.stroke();c.beginPath();c.arc(0,0,rr,sp+Math.PI*1.4,sp+Math.PI*1.9);c.stroke();}
+   c.restore();
+   c.save();c.strokeStyle='rgba(255,210,150,'+(0.75*grow)+')';c.lineWidth=3;c.shadowColor='#ffb46a';c.shadowBlur=24;c.beginPath();c.ellipse(cx,cy-hr*0.15,hr*1.25,hr*1.05,0,Math.PI*1.05,Math.PI*1.95);c.stroke();c.restore();
+   c.fillStyle='#000';c.beginPath();c.arc(cx,cy,hr,0,6.283);c.fill();
+   c.strokeStyle='rgba(255,230,190,'+(0.9*grow)+')';c.lineWidth=2;c.shadowColor='#ffd9a0';c.shadowBlur=18;c.beginPath();c.arc(cx,cy,hr*1.04,0,6.283);c.stroke();c.shadowBlur=0;
+   c.save();c.translate(cx,cy);c.scale(1,0.32);for(let k=0;k<40;k++){const rr=hr*(1.35+k*0.03),sp=t*(2.6-k*0.02);c.strokeStyle='hsla('+(40-k*1.5)+',100%,'+(75-k*0.6)+'%,'+(0.6-k*0.012)*grow+')';c.lineWidth=2.5;c.beginPath();c.arc(0,0,rr,sp,sp+Math.PI);c.stroke();}c.restore();
+   if(col>0){c.fillStyle='rgba(255,255,255,'+col*0.9+')';c.fillRect(0,0,w,h);}}
+  else{const q=Math.min(1,(p-0.86)/0.14),fl=1-q;
+   if(fl>0){c.fillStyle='rgba(255,255,255,'+fl*0.85+')';c.fillRect(0,0,w,h);}
+   c.save();c.translate(cx,cy);for(let k=0;k<3;k++){const r=R*(0.9+k*0.5)*(0.6+0.4*q);c.rotate((k%2?-1:1)*t*0.5);c.strokeStyle='rgba(127,216,255,'+(0.7-k*0.18)*q+')';c.lineWidth=2;c.beginPath();c.arc(0,0,r,0,6.283);c.stroke();for(let j=0;j<12+k*6;j++){const a=j*6.283/(12+k*6);c.beginPath();c.moveTo(Math.cos(a)*r,Math.sin(a)*r);c.lineTo(Math.cos(a)*(r-9),Math.sin(a)*(r-9));c.stroke();}}c.restore();
+   c.globalAlpha=q;c.fillStyle='#e9e4f5';c.beginPath();c.moveTo(cx-R*0.6,cy+R*1.2);c.lineTo(cx,cy-R*0.1);c.lineTo(cx+R*0.6,cy+R*1.2);c.fill();c.fillStyle='#f4e8d8';c.beginPath();c.arc(cx,cy-R*0.25,R*0.32,0,6.283);c.fill();
+   c.fillStyle='#6a4a8a';c.beginPath();c.arc(cx,cy-R*0.32,R*0.34,Math.PI,0);c.fill();c.strokeStyle='#c9a86a';c.lineWidth=4;c.beginPath();c.moveTo(cx+R*0.55,cy+R*1.2);c.lineTo(cx+R*0.75,cy-R*0.6);c.stroke();
+   c.fillStyle='#000';c.strokeStyle='#ffd9a0';c.lineWidth=2;c.shadowColor='#b48aff';c.shadowBlur=22;c.beginPath();c.arc(cx+R*0.75,cy-R*0.66,R*0.11*(1+0.15*Math.sin(t*6)),0,6.283);c.fill();c.stroke();c.shadowBlur=0;c.globalAlpha=1;}},
  midas(c,t,p,w,h,cx,cy,R,S){c.fillStyle='#120e08';c.fillRect(0,0,w,h);const fy=h*0.72,fl=ease(cl01((p-0.3)/0.3));
   c.fillStyle='#2a241c';c.fillRect(0,fy,w,h-fy);
   if(fl>0){c.save();c.beginPath();c.ellipse(cx,fy+20,Math.max(1,w*fl*0.9),Math.max(1,(h-fy)*1.6*fl+10),0,0,6.283);c.clip();const g=c.createLinearGradient(0,fy,0,h);g.addColorStop(0,'#fff2b0');g.addColorStop(1,'#a87a10');c.fillStyle=g;c.fillRect(0,fy,w,h-fy);c.restore();}
@@ -1047,7 +1063,7 @@ function landFX(st){const cv=document.getElementById('reelfx');if(!cv||!cv.getCo
   for(const p of ps){const d=p.s*t*(DUR/1000),x=cx+Math.cos(p.a)*d,y=cy+Math.sin(p.a)*d*0.6+(kind==='mist'?-30*t:kind==='dust'?24*t*t:0);c.globalAlpha=1-t;c.fillStyle=p.c;if(kind==='spark')c.fillRect(x-2,y-2,4,4);else if(kind==='foot'){c.beginPath();c.ellipse(x,y,3,4.5,p.a,0,6.283);c.fill();}else{c.beginPath();c.arc(x,y,kind==='dust'?4.5:3,0,6.283);c.fill();}}
   c.globalAlpha=1;requestAnimationFrame(fr);};requestAnimationFrame(fr);}
 function rollStyle(lucky){const x=Math.random()*100;let acc=0,ri=4;for(let i=0;i<RAR.length;i++){acc+=lucky?LUCK[i]:RAR[i].p;if(x<acc){ri=i;break;}}const pool=STYLES.filter(t=>t.r===ri);return pool[Math.random()*pool.length|0];}
-let reelLucky=false,spinning=false,reelHTML=null,reelX=0,spinTimer=null,spinFinish=null,autoOn=false,screen='',autoN=0;
+let reelLucky=false,spinning=false,reelHTML=null,reelX=0,spinTimer=null,spinFinish=null,autoOn=false,autoLucky=false,screen='',autoN=0;
 function showSpin(back,result){if(state==='play')state='pause';
  const can=!spinning&&(prog.spins>0||prog.dr>=SPIN_COST);
  if(!reelHTML){reelHTML=Array.from({length:12},()=>cardHTML(STYLES[Math.random()*STYLES.length|0],false)).join('');reelX=0;}
@@ -1056,17 +1072,17 @@ function showSpin(back,result){if(state==='play')state='pause';
  const res=result?`<b style="color:${RAR[result.st.r].c}">${RAR[result.st.r].n}: ${esc(result.st.name)}</b><br>${result.dup?'Duplicate! You already own this style. +75 drachmae back.':esc(result.st.d)+' (equipped)'}${result.meter?'<br><b style="color:#1f5a10;font-size:17px">🍀 Luck meter full! +1 Lucky spin</b>':''}`:'Spin the reel for a random style. Each one gives a different power.';
  show(`<h2>Style Spinner</h2>${who()}<div class="reel ${reelLucky?'lucky':''} ${result&&!spinning?'landed':''}" id="reel"><canvas class="reelfx" id="reelfx" aria-hidden="true"></canvas><div class="strip" id="strip" style="transform:translateX(${reelX}px)">${reelHTML}</div><div class="mark"></div></div>
  <p class="res" id="res">${res}</p>
- ${spinning?'<button data-a="skip" id="skipbtn">Skip ⏭</button>':`<button data-a="spin" id="spinbtn" ${can?'':'disabled'}>${prog.spins?'Free spin ('+prog.spins+' left)':'Spin · '+SPIN_COST+' ₯'}</button><button data-a="lucky" class="lucky" ${!spinning&&!autoOn&&prog.lucky>0?'':'disabled'}>🍀 Lucky spin (${prog.lucky})</button>`}<button data-a="quick" class="ghost" aria-pressed="${prog.quick}" ${spinning?'disabled':''}>Quick spin: ${prog.quick?'On ⚡':'Off'}</button>${autoOn?'<button data-a="auto">Stop auto-spin ■</button>':`<button data-a="auto" class="ghost" ${spinning||!can?'disabled':''}>Auto-spin ▶</button>`}<br><button data-a="code" class="ghost" ${spinning||autoOn?'disabled':''}>Redeem code</button><button data-a="back" class="ghost" ${spinning||autoOn?'disabled':''}>Done</button>${autoOn?`<p class="note" style="margin:6px 0 0">Auto-spinning · ${autoN} spin${autoN===1?'':'s'} so far. Uses free spins first, then drachmae.</p>`:''}
+ ${spinning?'<button data-a="skip" id="skipbtn">Skip ⏭</button>':`<button data-a="spin" id="spinbtn" ${can?'':'disabled'}>${prog.spins?'Free spin ('+prog.spins+' left)':'Spin · '+SPIN_COST+' ₯'}</button><button data-a="lucky" class="lucky" ${!spinning&&!autoOn&&prog.lucky>0?'':'disabled'}>🍀 Lucky spin (${prog.lucky})</button>`}<button data-a="quick" class="ghost" aria-pressed="${prog.quick}" ${spinning?'disabled':''}>Quick spin: ${prog.quick?'On ⚡':'Off'}</button>${autoOn?'<button data-a="auto">Stop auto-spin ■</button>':`<button data-a="auto" class="ghost" ${spinning||!can?'disabled':''}>Auto-spin ▶</button><button data-a="autoL" class="lucky" ${spinning||!(prog.lucky>0)?'disabled':''}>🍀 Auto lucky ▶</button>`}<br><button data-a="code" class="ghost" ${spinning||autoOn?'disabled':''}>Redeem code</button><button data-a="back" class="ghost" ${spinning||autoOn?'disabled':''}>Done</button>${autoOn?`<p class="note" style="margin:6px 0 0">Auto-spinning · ${autoN} spin${autoN===1?'':'s'} so far. ${autoLucky?'Using Lucky spins until they run out.':'Uses free spins first, then drachmae.'}</p>`:''}
  ${!can&&!spinning&&!prog.spins?'<p class="note">Open amphora caches on the islands for drachmae. Every island you free for the first time gives a free spin.</p>':''}
  <p class="note" style="margin:10px 0 0">Luck meter: ${prog.luck}/10 normal spins until your next free Lucky spin</p><div class="luckbar" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="${prog.luck}"><i style="width:${prog.luck*10}%"></i></div>
  <div class="odds"><b style="width:100%;font-size:14px">Normal spin</b>${RAR.map(r=>`<span style="--rc:${r.c}">${r.n} ${r.p}%</span>`).join('')}</div>
  <div class="odds"><b style="width:100%;font-size:14px;color:#1f5a10">🍀 Lucky spin (no Commons, much better odds)</b>${RAR.map((r,i)=>LUCK[i]?`<span style="--rc:${r.c}">${r.n} ${LUCK[i]}%</span>`:'').join('')}</div>
  <h3>Wardrobe · ${prog.owned.length} / ${STYLES.length}</h3><div class="ward">${ward}</div>`,1,
-  {spin:()=>{if(!autoOn)doSpin(back);},lucky:()=>{if(!autoOn)doSpin(back,true);},skip:()=>{if(spinFinish)spinFinish();},quick:()=>{if(spinning)return;prog.quick=!prog.quick;save();showSpin(back,result);},auto:()=>{if(autoOn){autoOn=false;if(!spinning)showSpin(back,result);else{const b=panel.querySelector('[data-a=auto]');if(b){b.disabled=true;b.textContent='Stopping after this spin…';}}return;}if(spinning)return;autoOn=true;autoN=0;doSpin(back);},code:()=>{if(!spinning&&!autoOn)showCodes(()=>showSpin(back));},back:()=>{if(!spinning&&!autoOn)back();},eq:b=>{if(spinning)return;prog.style=b.dataset.id||null;save();if(P&&P.hp>maxHP())P.hp=maxHP();showSpin(back,result);}});
+  {spin:()=>{if(!autoOn)doSpin(back);},lucky:()=>{if(!autoOn)doSpin(back,true);},skip:()=>{if(spinFinish)spinFinish();},quick:()=>{if(spinning)return;prog.quick=!prog.quick;save();showSpin(back,result);},auto:()=>{if(autoOn){autoOn=false;autoLucky=false;if(!spinning)showSpin(back,result);else{const b=panel.querySelector('[data-a=auto]');if(b){b.disabled=true;b.textContent='Stopping after this spin…';}}return;}if(spinning)return;autoOn=true;autoLucky=false;autoN=0;doSpin(back);},autoL:()=>{if(spinning||autoOn||!(prog.lucky>0))return;autoOn=true;autoLucky=true;autoN=0;doSpin(back,true);},code:()=>{if(!spinning&&!autoOn)showCodes(()=>showSpin(back));},back:()=>{if(!spinning&&!autoOn)back();},eq:b=>{if(spinning)return;prog.style=b.dataset.id||null;save();if(P&&P.hp>maxHP())P.hp=maxHP();showSpin(back,result);}});
  screen='spin';
  if(result&&result.st.r>=4&&!result.dup&&!result.seen){result.seen=1;panel.classList.add('mythic');}
 }
-function doSpin(back,lucky){if(spinning)return;if(lucky){if(prog.lucky>0)prog.lucky--;else return;}else if(prog.spins>0)prog.spins--;else if(prog.dr>=SPIN_COST)prog.dr-=SPIN_COST;else{if(autoOn){autoOn=false;showSpin(back,lastSpin);}return;}if(autoOn)autoN++;
+function doSpin(back,lucky){if(spinning)return;if(lucky){if(prog.lucky>0)prog.lucky--;else{if(autoOn){autoOn=false;autoLucky=false;showSpin(back,lastSpin);}return;}}else if(prog.spins>0)prog.spins--;else if(prog.dr>=SPIN_COST)prog.dr-=SPIN_COST;else{if(autoOn){autoOn=false;showSpin(back,lastSpin);}return;}if(autoOn)autoN++;
  const st=rollStyle(lucky),dup=prog.owned.includes(st.id);
  let meter=false;if(!lucky){prog.luck=(prog.luck||0)+1;if(prog.luck>=10){prog.luck=0;prog.lucky++;meter=true;}}
  if(dup)prog.dr+=75;else{prog.owned.push(st.id);prog.style=st.id;}save();
@@ -1083,7 +1099,7 @@ function doSpin(back,lucky){if(spinning)return;if(lucky){if(prog.lucky>0)prog.lu
  requestAnimationFrame(()=>{strip.style.transition=`transform ${dur}ms cubic-bezier(.12,.75,.12,1)`;strip.style.transform=`translateX(${first}px)`;});
  if(st.r>=3)setTimeout(()=>{const rl=document.getElementById('reel');if(rl&&spinning)rl.classList.add('hint'+st.r);},Math.max(0,dur-1300));
  spinFinish=()=>{if(!spinning)return;clearTimeout(spinTimer);spinning=false;spinFinish=null;reelX=target;lastSpin={st,dup,meter};showSpin(back,lastSpin);landFX(st);if(st.r>=2){panel.classList.add('shake');setTimeout(()=>panel.classList.remove('shake'),600);}
-  const next=()=>{if(!autoOn)return;if(screen!=='spin'||!(prog.spins>0||prog.dr>=SPIN_COST)){autoOn=false;if(screen==='spin')showSpin(back,lastSpin);return;}doSpin(back);};
+  const next=()=>{if(!autoOn)return;if(screen!=='spin'||!(autoLucky?prog.lucky>0:(prog.spins>0||prog.dr>=SPIN_COST))){autoOn=false;autoLucky=false;if(screen==='spin')showSpin(back,lastSpin);return;}doSpin(back,autoLucky);};
   if(!dup&&st.r>=3)playReveal(st,()=>{if(autoOn)setTimeout(next,600);});else if(autoOn)setTimeout(next,prog.quick?500:900);if(P&&P.hp>maxHP())P.hp=maxHP();};
  if(st.r===5&&!reduce)spinTimer=setTimeout(()=>{if(!spinning)return;const sp2=document.getElementById('strip');if(sp2){sp2.style.transition='transform 750ms cubic-bezier(.3,1.7,.5,1)';sp2.style.transform=`translateX(${target}px)`;}document.getElementById('res').textContent='…wait…';spinTimer=setTimeout(spinFinish,900);},dur+250);
  else spinTimer=setTimeout(spinFinish,dur+150);
