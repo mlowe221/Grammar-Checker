@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Shadows of Kerkos</title>
+<title>Shadows of Kirkos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Alegreya+Sans:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: sun-baked, tense, mythic but playful
@@ -128,7 +128,7 @@ const PAL={
  night:{sea:'#0f2f4a',shal:'#2a5672',sand:'#9b9a8a',land:'#7d806e',road:'#8d8c7a',road2:'#76766a',grass:'#4f6a3a',roof:'#6a3a3a',roof2:'#82504a',tree:'#2f4a2a',tint:'rgba(10,20,70,.16)',range:0.82,dark:0.55}
 };
 const ISLANDS=[
- {name:'Kerkos',sub:'The Three Tyrants',seed:11,diff:1,pal:'sun',comps:[['villa','A',0,'Archon Kleitos'],['temple','B',0,'High Priest Damon'],['market','C',0,'Phaidon the Merchant']],
+ {name:'Kirkos',sub:'The Three Tyrants',seed:11,diff:1,pal:'sun',comps:[['villa','A',0,'Archon Kleitos'],['temple','B',0,'High Priest Damon'],['market','C',0,'Phaidon the Merchant']],
   intro:'Three tyrants have seized your home island. Bring them down.'},
  {name:'Lemnara',sub:'Salt and Iron',seed:23,diff:1.2,pal:'salt',comps:[['camp','D',1,'Warlord Brasos'],['villa','B',0,'Archon Melitta'],['market','C',0,'Lykos the Moneylender']],
   intro:'The salt isle pays its tyrants in silver and blood. Mercenaries guard a war camp.'},
@@ -215,29 +215,17 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'da71f6924ba31ba5d0bc09bd':{mid:1,lucky:3,t:'King Midas and +3 Lucky spins'},'e6c6705a85b7c24975f6e00d':{spins:10,t:'+10 free spins'},'3502e8ec5bb9ae3c6bd80215':{spins:5,t:'+5 free spins'},'18c10e1c1c33fe10dc28c008':{spins:25,t:'+25 free spins'},'fb31630f50c2e8b825b75a26':{spins:50,t:'+50 free spins'},'c958eed06d1289428619f79a':{dr:2000,t:'+2000 drachmae'},'ab55977a100193744a82aa58':{mythic:1,t:'A free Mythic style'},
- '4cf20a596eaf2ef2a9e3faa6':{spins:100,t:'+100 free spins'},'819b0a6a24014c1d4f4b40be':{spins:30,t:'+30 free spins'},'59e5f5c4d53abdd89ae33a5c':{spins:1,t:'+1 free spin'},'bab6d1c7da36a6e35e5ad047':{spins:15,t:'+15 free spins'},
- '8d079dd33300b83c8c222df8':{dr:5000,t:'+5000 drachmae'},'9009814059ba6e1276ae7624':{sp:10,t:'+10 skill points'},'cc1b1064987392e029633262':{lvl:5,t:'+5 levels (and 5 skill points)'},
- '21689925d03a6979472fbc0f':{leg:1,t:'A free Legendary style'},'25934c157285be65829d4876':{lim:1,t:'The Limited Pitbull style'},'4c16499cb2db2e36d94f9b8f':{lucky:5,t:'+5 Lucky spins'},
- 'bb6c40faa741e6e01643e1e7':{spins:200,t:'+200 free spins'},'85c49fb1d5be83957b2bb6db':{spins:75,t:'+75 free spins'},'d5aa95267457071f5efb28d8':{spins:20,t:'+20 free spins'},
- 'bbde7c02762e545b3be84855':{lucky:50,t:'+50 Lucky spins'},'6e2b7227ab3125758c53b630':{lucky:10,t:'+10 Lucky spins'},
- 'd6e93720b749a1a608c4c33a':{dr:10000,t:'+10000 drachmae'},'f22ef23a0e6edbb7982a1169':{dr:1000,t:'+1000 drachmae'},
- 'df1980b6177bc432c374630d':{sp:25,t:'+25 skill points'},'2a1cb20b3e9e8b121e29b8c4':{lvl:15,t:'+15 levels (and 15 skill points)'},
- '2bf752cf98ade6197a4b0eb9':{isl:1,t:'Every island unlocked'},'0464b429dc8b2b2b1bc4e0b6':{mythic:1,lucky:5,t:'A free Mythic style and +5 Lucky spins'},
- 'e6f25a07d67856c3f530e1b6':{spins:10,lucky:3,dr:500,sp:3,t:'+10 spins, +3 Lucky spins, +500 drachmae and +3 skill points'},
- '8655ec2c9de74dc537708d45':{spins:60,lucky:6,t:'+60 free spins and +6 Lucky spins'},'7be762aad1e2b5bc42ff89c6':{lucky:15,t:'+15 Lucky spins'},'d83736543193b66b469f9763':{spins:40,sp:5,t:'+40 free spins and +5 skill points'},
- '05e6012bc524e8b6d51f2bbb':{gm:1,lucky:5,t:'The Grandmaster and +5 Lucky spins'},'4ad329b722f38ec95695dbb8':{limall:1,t:'Every Limited style unlocked'},'3a213ab31b573d6083aed34b':{spins:300,t:'+300 free spins'},
- '7cc3f076251792d426eda1b0':{dr:3000,lucky:3,t:'+3000 drachmae and +3 Lucky spins'},'24571f28f11c791086396f03':{mythic:1,t:'A free Mythic style'},'dd5c597ab3d3e831c3afc870':{psy:1,lucky:5,t:'Psycho and +5 Lucky spins'},
- '8a5a241d155e29853aa4d264':{lucky:100,t:'+100 Lucky spins'},'2cfdd6f6e58329fe4591d6c9':{lvl:10,sp:10,t:'+10 levels and +20 skill points'},'268ab34037c4e07d25b74a46':{spins:25,dr:2500,t:'+25 free spins and +2500 drachmae'},
- '31b93f8e0f3fab9a58e86431':{drk:1,t:'The Limited style The Drakon'},'84864bbfe1c8760538306de0':{mp:5,t:'+5 Mastery Points'},'302d7389397636d3992d6414':{mp:20,t:'+20 Mastery Points'},'4a791a14b0fc32cb0bea2c3a':{mp:50,t:'+50 Mastery Points'},'368d048405be8b4f9fbdecc4':{mp:10,lucky:10,t:'+10 Mastery Points and +10 Lucky spins'},'40ff691e8b9444fcbb2a5aef':{psy:1,t:'The Limited style Psycho'},'0350b367b95742ada0b49a93':{lim:1,lucky:10,t:'Pitbull and +10 Lucky spins'},'8d4bed986ba1f5281ad690ec':{gm:1,t:'The Grandmaster'},'d8a22e805cf4e034d8f554a4':{lucky:20,t:'+20 Lucky spins'},'abf3908b131fec69954c2480':{lucky:4,t:'+4 Lucky spins'},'b920ce844ad6da0bdde00e51':{allm:1,t:'Every Mythic style unlocked'},'15052d186fa9bf3637761f58':{all:1,t:'Every style unlocked'}};
+const CODES_H={};
 const SPIN_COST=150;
 const LUCK=[0,40,35,17,6.5,1.5];
-const SAVEKEY='kerkos-save-v2';
+const SAVEKEY='kerkos-save-v3';
+let wiped=false;try{const o=localStorage.getItem('kerkos-save-v2');if(o!==null){localStorage.setItem('kerkos-save-v2-archive',o);localStorage.removeItem('kerkos-save-v2');wiped=true;}}catch(e){}
 const fresh=()=>({unlocked:1,cleared:[],lvl:1,xp:0,dr:0,sp:1,skills:[],owned:[],style:null,spins:10,redeemed:[],lastDay:'',quick:false,lucky:1,luck:0,mp:0,trophies:0,trophyClaimed:[],mastery:{},bossKills:0});
 let prog=fresh();let duel=null;
 try{const s=JSON.parse(localStorage.getItem(SAVEKEY));if(s&&s.lvl)prog=Object.assign(fresh(),s);}catch(e){}
 let hasSave=prog.lvl>1||prog.cleared.length>0||prog.skills.length>0||prog.owned.length>0;
-let dailyMsg='';{const d=new Date(),today=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(prog.lastDay!==today){if(prog.lastDay)dailyMsg='Daily login bonus: +1 free style spin!';prog.lastDay=today;if(dailyMsg)prog.spins++;try{localStorage.setItem('kerkos-save-v2',JSON.stringify(prog));}catch(e){}}}
+let dailyMsg='';{const d=new Date(),today=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();if(prog.lastDay!==today){if(prog.lastDay)dailyMsg='Daily login bonus: +1 free style spin!';prog.lastDay=today;if(dailyMsg)prog.spins++;try{localStorage.setItem(SAVEKEY,JSON.stringify(prog));}catch(e){}}}
+if(wiped){dailyMsg='Fresh start! All progress has been reset. You begin again with 10 spins and 1 Lucky spin.';save();}
 function save(){try{localStorage.setItem(SAVEKEY,JSON.stringify(prog));}catch(e){}}
 const has=id=>prog.skills.includes(id);
 const xpNeed=()=>prog.lvl*120;
@@ -439,7 +427,7 @@ function show(html,wide,acts){screen='';panel.className='panel'+(wide?' wide':''
  panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>acts[b.dataset.a](b));const f=panel.querySelector('button:not([disabled])');if(f)f.focus();}
 const who=()=>`<div class="who"><span>Nyra · Level ${prog.lvl}</span><span style="color:${trophyRank(prog.trophies||0)[2]};text-shadow:0 1px 0 #000">🏆 ${prog.trophies||0}</span><span>${prog.dr} drachmae</span><span>${prog.sp} skill point${prog.sp===1?'':'s'}</span>${prog.spins?`<span>${prog.spins} free spin${prog.spins===1?'':'s'}</span>`:''}${prog.mp?`<span style="color:#3a1a5a">✦ ${prog.mp} Mastery</span>`:''}${prog.lucky?`<span style="color:#1f5a10">🍀 ${prog.lucky} lucky spin${prog.lucky===1?'':'s'}</span>`:''}</div>`;
 function showTitle(){state='menu';
- show(`<h1>Shadows of Kerkos</h1><p class="sub">An island stealth adventure · 431 BC</p>
+ show(`<h1>Shadows of Kirkos</h1><p class="sub">An island stealth adventure · 431 BC</p>
  <div class="story">Tyrants have seized the islands of the eastern sea, one after another. You are Nyra, an exile come home by night boat. Free five islands, grow your skills, and reach the tyrant-king at Akropyle.</div>
  ${touchMode?`<div class="keys"><b>Left thumb</b><span>Drag anywhere on the left to move. Push to the edge to sprint</span><b>⚔ button</b><span>Strike (hold to keep attacking). Auto-aims at the nearest enemy</span><b>Roll / Crouch</b><span>Dodge roll and sneak</span><b>1 – 7</b><span>Your style\u2019s abilities (they aim automatically)</span><b>V</b><span>Ultimate when the meter is full</span><b>Open</b><span>Appears next to treasure jars</span><b>II</b><span>Pause, skills and style spinner</span></div>${H>W?'<p class="note" style="margin:-8px 0 12px;font-weight:700">Tip: turn your phone sideways for the best view.</p>':''}`:`<div class="keys"><b>W A S D</b><span>Move (mouse to aim)</span><b>Click</b><span>Strike. Unaware enemies fall instantly</span><b>C</b><span>Crouch: slower, much harder to spot</span><b>Shift</b><span>Sprint</span><b>Space</b><span>Dodge roll</span><b>E</b><span>Open amphora caches</span><b>Q / F</b><span>Whirlwind / Smoke Pot (once learned)</span><b>1 – 7</b><span>Your style\u2019s abilities (rarer styles have more)</span><b>V</b><span>Ultimate: Awaken when the meter is full</span><b>8 / M</b><span>Mastery move / Mastery screen</span><b>T / Y</b><span>Skill tree / Style Spinner</span><b>Esc / P</b><span>Pause</span></div>`}
  ${dailyMsg?`<p class="res" style="font-weight:700">${dailyMsg}</p>`:''}${hasSave?'<button data-a="cont">Continue</button><button data-a="neu" class="ghost">New game</button>':'<button data-a="neu">Begin</button>'}<button data-a="code" class="ghost">Redeem code</button><button data-a="sc" class="ghost">Save code</button><button data-a="fs" class="ghost">${fsLabel()}</button>
@@ -1736,12 +1724,12 @@ function drawFsBtn(){if(touchMode||!fsSupported())return;const b=fsBtnRect(),hov
  ctx.stroke();ctx.restore();}
 
 /* ---------- save codes ---------- */
-const SC_PREFIX='KRK2-';
+const SC_PREFIX='KRK3-';
 const scK=(()=>{const a=[];for(let i=0;i<28;i++)a.push(String.fromCharCode(35+((i*53+17)*(i+11)+i*i*7)%88));return a.join('');})();
-const scSig=b=>sha256(scK+'|'+sha256(scK.split('').reverse().join('')+'#'+b)).slice(0,22);
+const scSig=b=>sha256(scK+'|v3|'+sha256(scK.split('').reverse().join('')+'#'+b)).slice(0,22);
 function scHash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h.toString(36).slice(-5).padStart(5,'0');}
 function scEncode(){const data=JSON.stringify(prog);const b=btoa(unescape(encodeURIComponent(data)));return SC_PREFIX+scSig(b)+'-'+b;}
-function scDecode(txt){const t=String(txt||'').replace(/\s+/g,'');if(t.startsWith('KRK1-'))throw new Error('This is an old-style save code. Open the game where it came from and make a new one with Save code.');if(!t.startsWith(SC_PREFIX))throw new Error('That isn’t a Shadows of Kerkos save code.');const rest=t.slice(SC_PREFIX.length),i=rest.indexOf('-');if(i<0)throw new Error('This save code is incomplete.');const h=rest.slice(0,i),b=rest.slice(i+1);if(scSig(b)!==h)throw new Error('This save code is invalid. It was changed, damaged or copied incompletely.');let o;try{o=JSON.parse(decodeURIComponent(escape(atob(b))));}catch(e){throw new Error('This save code could not be read.');}if(!o||typeof o!=='object'||Array.isArray(o))throw new Error('This save code could not be read.');return scClean(o);}
+function scDecode(txt){const t=String(txt||'').replace(/\s+/g,'');if(t.startsWith('KRK1-')||t.startsWith('KRK2-'))throw new Error('This save code is from before the progress reset, so it can no longer be loaded.');if(!t.startsWith(SC_PREFIX))throw new Error('That isn’t a Shadows of Kirkos save code.');const rest=t.slice(SC_PREFIX.length),i=rest.indexOf('-');if(i<0)throw new Error('This save code is incomplete.');const h=rest.slice(0,i),b=rest.slice(i+1);if(scSig(b)!==h)throw new Error('This save code is invalid. It was changed, damaged or copied incompletely.');let o;try{o=JSON.parse(decodeURIComponent(escape(atob(b))));}catch(e){throw new Error('This save code could not be read.');}if(!o||typeof o!=='object'||Array.isArray(o))throw new Error('This save code could not be read.');return scClean(o);}
 function scClean(o){const f=fresh(),num=(v,d,lo,hi)=>{v=+v;return isFinite(v)?Math.max(lo,Math.min(hi,Math.floor(v))):d;},ids=new Set(STYLES.map(s=>s.id)),skills=new Set(SKILLS.map(s=>s.id));
  const out=Object.assign({},f);out.unlocked=num(o.unlocked,1,1,ISLANDS.length);out.cleared=Array.isArray(o.cleared)?[...new Set(o.cleared.map(Number).filter(n=>n>=0&&n<ISLANDS.length&&Number.isInteger(n)))]:[];
  out.lvl=num(o.lvl,1,1,999);out.xp=num(o.xp,0,0,1e9);out.dr=num(o.dr,0,0,1e12);out.sp=num(o.sp,0,0,1e6);out.spins=num(o.spins,0,0,1e7);out.lucky=num(o.lucky,0,0,1e7);out.luck=num(o.luck,0,0,9);out.mp=num(o.mp,0,0,1e6);out.trophies=num(o.trophies,0,0,1e7);out.trophyClaimed=Array.isArray(o.trophyClaimed)?[...new Set(o.trophyClaimed.map(Number).filter(v=>TROPHY_ROAD.some(m=>m.at===v)))]:[];out.bossKills=num(o.bossKills,0,0,1e6);
@@ -1752,7 +1740,7 @@ function showSaveCode(back,note,good,pending){if(state==='play')state='pause';le
  const sum=`Level ${prog.lvl} · ${prog.owned.length} styles · ${prog.spins} spins · ${prog.lucky} Lucky · ${prog.mp} Mastery`;
  show(`<h2>Save Code</h2><p class="sub">Move your progress to another device or browser.</p>
  <div class="story" style="font-size:15px"><b>Your code</b> (${esc(sum)})<textarea id="scout" readonly rows="3" style="width:100%;margin-top:6px;font:12px monospace;padding:8px;border-radius:6px;border:2px solid var(--ink);background:#fffaf0;resize:vertical;word-break:break-all">${esc(code)}</textarea><button type="button" id="sccopy" style="margin:6px 0 0">Copy code</button></div>
- <div class="story" style="font-size:15px"><b>Load a code</b><br>Paste a save code here. This replaces the progress on this device.<textarea id="scin" rows="3" placeholder="KRK1-…" style="width:100%;margin-top:6px;font:12px monospace;padding:8px;border-radius:6px;border:2px solid var(--ink);background:#fffaf0;resize:vertical;word-break:break-all"></textarea>
+ <div class="story" style="font-size:15px"><b>Load a code</b><br>Paste a save code here. This replaces the progress on this device.<textarea id="scin" rows="3" placeholder="KRK3-…" style="width:100%;margin-top:6px;font:12px monospace;padding:8px;border-radius:6px;border:2px solid var(--ink);background:#fffaf0;resize:vertical;word-break:break-all"></textarea>
  ${pending?`<p style="margin:6px 0;font-weight:700">Load this save? ${esc(pending.sum)}<br>Your current progress on this device will be replaced.</p><button type="button" id="scyes">Yes, load it</button><button type="button" id="scno" class="ghost">Cancel</button>`:'<button type="button" id="scload" style="margin:6px 0 0">Load save</button>'}</div>
  <p class="res" id="scmsg" style="font-weight:700;color:${good?'#1a3a10':'#3a0a05'}">${note?esc(note):''}</p><button data-a="back" class="ghost">Done</button>`,1,{back});
  const out=document.getElementById('scout'),cp=document.getElementById('sccopy'),msgEl=document.getElementById('scmsg');
@@ -1826,7 +1814,7 @@ function showDuel(){state='menu';show(`<h2>⚔ 1v1 Duel</h2><p class="sub">Conne
   <div class="story" style="font-size:15px">Both players open this game, type the <b>same match code</b>, and press Join. ${r.p2p?'The first to join hosts the match, then your friend joins with that code. ':''}Health and damage are evened out so any style can win.<br><small>Connection: ${r.p2p?'direct player-to-player (no sign-in needed)':'Claude live room'}</small></div>
   <form id="duelf" style="display:grid;gap:10px;justify-content:center;margin:0 0 12px">
    <label style="font-weight:700">Your name <input id="dnick" maxlength="14" value="${esc(nickSaved||'Nyra')}" autocomplete="off" style="font:700 17px Alegreya Sans;padding:9px 12px;border-radius:6px;border:3px solid var(--ink);background:#f6ead0;width:220px;display:block;margin-top:4px"></label>
-   <label style="font-weight:700">Match code <input id="dcode" maxlength="8" value="${esc(code)}" placeholder="e.g. kerkos7" autocomplete="off" spellcheck="false" style="font:700 17px Cinzel;padding:9px 12px;border-radius:6px;border:3px solid var(--ink);background:#f6ead0;width:220px;display:block;margin-top:4px;text-transform:lowercase"></label>
+   <label style="font-weight:700">Match code <input id="dcode" maxlength="8" value="${esc(code)}" placeholder="e.g. kirkos7" autocomplete="off" spellcheck="false" style="font:700 17px Cinzel;padding:9px 12px;border-radius:6px;border:3px solid var(--ink);background:#f6ead0;width:220px;display:block;margin-top:4px;text-transform:lowercase"></label>
    <div><button type="submit">Join</button><button type="button" id="dgen" class="ghost">New code</button></div></form>
   <p class="note" id="dmsg">Your equipped style: <b>${esc((curStyle()||{name:'No style'}).name)}</b>. Change it in the Style Spinner first if you like.</p><button data-a="back" class="ghost">Back</button>`,0,{back:showIslands});
   const f=document.getElementById('duelf'),g=document.getElementById('dgen');
