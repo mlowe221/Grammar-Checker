@@ -169,7 +169,7 @@ const STYLES=[
  {id:'tide',r:2,name:'Tidecaller Robe',d:'Dodge twice as often and roll further.',cl:'#1f5f8a',hd:'#2f86b8',tr:'#9fe3f0'},
  {id:'viper',r:2,name:'Viper Silk',d:'Strikes poison: 12 damage a second for 5 seconds.',cl:'#1f3a24',hd:'#2c5a34',tr:'#9cff6a'},
  {id:'ember',r:2,name:'Ember Mantle',d:'Every takedown bursts into flame, burning enemies nearby.',cl:'#5a1a10',hd:'#8a2a14',tr:'#ffb040'},
- {id:'gorgon',r:3,name:"Gorgon's Veil",d:'Guards who spot you turn to stone for 3 seconds. Stone guards fall in one strike.',cl:'#3a4a3a',hd:'#5f6f5a',tr:'#c9e0b0'},
+ {id:'gorgon',r:3,name:"Gorgon's Veil",d:'Serpent magic. Guards who spot you are poisoned, and your gaze and serpents fill enemies with venom.',cl:'#3a4a3a',hd:'#5f6f5a',tr:'#c9e0b0'},
  {id:'storm',r:3,name:'Storm Herald',d:'Every 4th strike calls lightning down on every alerted enemy nearby.',cl:'#2a2f5a',hd:'#3f4a8a',tr:'#fff27a'},
  {id:'midnight',r:3,name:'Midnight Wing',d:'Guards see 40% less far.',cl:'#120f1f',hd:'#241e3a',tr:'#8f7aff'},
  {id:'titan',r:4,name:'Aegis of the Titans',d:'ULTRA OVERPOWERED. You take no damage, every strike destroys everything around you, and you move 40% faster.',cl:'#e8b44a',hd:'#ffd77a',tr:'#ffffff'},
@@ -729,7 +729,7 @@ function drawHUD(){const G=hudGeom(),t=G.t,mh=maxHP();
  bar(bx,hy+hh+(t?4:5),bw,t?5:6,P.st/100,'#d9c06a');
  const sy=py+ph-(t?7:9),vis=P.vanish>0?['Vanished','#cfe8ff']:P.hidden?['Hidden','#a8e07a']:P.crouch?['Sneaking','#cfe8ff']:['Visible','#bba98a'];
  ctx.textAlign='left';ctx.fillStyle=vis[1];ctx.beginPath();ctx.arc(bx+4,sy-4,3.5,0,6.283);ctx.fill();ctx.font=fs+'px Alegreya Sans';ctx.fillText(vis[0]+(P.phoenix&&!t?' · Phoenix':''),bx+12,sy,bw*0.4);
- const info=!CS?'':sty('olive')?(P.bush?'Bush form':P.crouch?'Hold still…':''):sty('bronze')?'Crit in '+(3-P.bc%3):sty('grandmaster')?(P.queen?'Queen '+Math.ceil(P.queen.t)+'s':'Promote '+(P.caps%10)+'/10'):sty('hooligan')?(hM().n+' · '+(P.egoT>0?'RIOT '+Math.ceil(P.egoT)+'s':'Ego '+Math.floor(P.ego||0)+'%')):sty('pitbull')?('Pups '+P.pups.length+'/2'):sty('lion')?('Roar '+Math.ceil(Math.max(0,P.roar))+'s'):'';
+ const info=!CS?'':sty('olive')?(P.bush?'Bush form':P.crouch?'Hold still…':''):sty('bronze')?'Crit in '+(3-P.bc%3):sty('grandmaster')?(P.queen?'Queen '+Math.ceil(P.queen.t)+'s':'Promote '+(P.caps%10)+'/10'):sty('hooligan')?(hM().n+' · '+(P.egoT>0?['RIOT','AWAKENED RIOT','ASCENDED RIOT'][P.rTier||0]+' '+Math.ceil(P.egoT)+'s':'Ego '+Math.floor(P.ego||0)+'%')):sty('pitbull')?('Pups '+P.pups.length+'/2'):sty('lion')?('Roar '+Math.ceil(Math.max(0,P.roar))+'s'):'';
  ctx.textAlign='right';ctx.font='700 '+fs+'px Alegreya Sans';ctx.fillStyle=rc;ctx.fillText(CS?CS.name+(info?' · '+info:''):(t?'No style':'No style · Y to spin'),bx+bw,sy,bw*0.58);ctx.textAlign='left';
  if(!t&&(has('b3')||has('s4'))){ability(px+pw+10,py+(ph-56)/2,'Q','Whirlwind',P.qCD,7,has('b3'));ability(px+pw+78,py+(ph-56)/2,'F','Smoke',P.fCD,15,has('s4'));}
  if(!duel){const ox=G.left,oy=G.top;hpanel(ox,oy,G.objW,G.objH,10);ctx.fillStyle=endless?'#c06aff':'#e8b44a';rr(ox+5,oy+9,3,G.objH-18,1.5);ctx.fill();
@@ -1211,7 +1211,7 @@ function killEnemy(e,silent){if(e.dead)return;if(e.type==='rival'){rivalHit(e,{k
  if(sty('viper')&&e.poison>0){let n=0;for(const o of enemies)if(!o.dead&&o.poison<=0&&dist(o.x,o.y,e.x,e.y)<130){o.poison=5;n++;burst(o.x,o.y,'#9cff6a',8,60);}if(n)float(e.x,e.y-30,'PLAGUE SPREADS','#9cff6a');}
  if(sty('pitbull')&&P.pups.length<2){P.pups.push({x:e.x,y:e.y,ang:0,run:0,t:6,tg:null});float(e.x,e.y-36,'+ghost pup','#ffb0f0');}
  if(has('b4'))P.hp=Math.min(maxHP(),P.hp+10);
- if(has('s3')&&!enemies.some(o=>!o.dead&&o!==e&&o.st==='alert'))P.vanish=2.5;
+ if(has('s3')&&!sty('midnight')&&!enemies.some(o=>!o.dead&&o!==e&&o.st==='alert'))P.vanish=2.5;
  if(e.type==='target'){gainXP(Math.round(120*D));msg(e.name+' has fallen.',4);float(e.x,e.y-30,'TYRANT SLAIN','#e8b44a');
   if(enemies.every(x=>x.type!=='target'||x.dead)){allDead=true;msg('Every tyrant is dead. Reach the boat at the southern dock!',6);}}
  else if(e.type==='boss'){const firstB=!prog.bossKills;prog.bossKills=(prog.bossKills||0)+1;prog.mp=(prog.mp||0)+(firstB?5:3);save();msg('+'+(firstB?5:3)+' Mastery Points! Spend them in Mastery (M or the pause menu).',5);allDead=true;gainXP(Math.round(600*D));shake=24;bossFx=[];for(const o of enemies)if(o.type==='head'&&!o.dead){o.dead=true;}startBossDeath(e);float(e.x,e.y-60,'BOSS DEFEATED','#ffe08a');for(let k=0;k<4;k++)fxPush({k:'ring',x:e.x,y:e.y,r:120+k*80,col:'#9effc8',life:.6+k*0.15});}
@@ -1268,10 +1268,10 @@ function playerAttack(){if(duelLocked())return;if(duel)duel.a++;{const A=awA();i
  if(!hit)burst(P.x+Math.cos(P.face)*30,P.y+Math.sin(P.face)*30,'#e9d3a2',3,40);
  while(fq.length)fq.shift()();}
 
-function hurtPlayer(d,fromX,fromY){if(P.inv>0||state!=='play')return;const hard=!!endless||(bossSeen&&!!bossAlive());if((!hard&&P.awT>0)||P.buf.immune>0){P.inv=0.3;float(P.x,P.y-24,'Immune','#ffd77a');burst(P.x,P.y,'#ffd77a',6,80);return;}d=Math.round(d*(1-pf('dmgTaken'))*(sty('grandmaster')?0.75:1)*(P.egoT>0?0.7:1)*(hard&&P.awT>0?0.4:1));P.hp-=d;P.hurt=0.25;P.inv=0.35;const a=Math.atan2(P.y-fromY,P.x-fromX);P.x+=Math.cos(a)*14;P.y+=Math.sin(a)*14;resolve(P);float(P.x,P.y-20,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);
+function hurtPlayer(d,fromX,fromY){if(P.inv>0||state!=='play')return;const hard=!!endless||(bossSeen&&!!bossAlive());if((!hard&&P.awT>0)||P.buf.immune>0){P.inv=0.3;float(P.x,P.y-24,'Immune','#ffd77a');burst(P.x,P.y,'#ffd77a',6,80);return;}d=Math.round(d*(1-pf('dmgTaken'))*(sty('grandmaster')?0.75:1)*(P.egoT>0?[0.7,0.55,0.4][P.rTier||0]:1)*(hard&&P.awT>0?0.4:1));P.hp-=d;P.hurt=0.25;P.inv=0.35;const a=Math.atan2(P.y-fromY,P.x-fromX);P.x+=Math.cos(a)*14;P.y+=Math.sin(a)*14;resolve(P);float(P.x,P.y-20,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);
  if(P.hp<=0){if(sty('hydra')&&!P.hydraRev){P.hydraRev=true;P.hp=maxHP();P.inv=1.8;msg('The Hydra King regrows!',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#9effc8',life:.7});burst(P.x,P.y,'#9effc8',40,180);return;}if(endless&&endless.b.rev>0){endless.b.rev--;P.hp=Math.round(maxHP()*0.5);P.inv=1.5;msg('Phoenix Feather! You rise again.',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#ff9a3a',life:.7});return;}if(P.phoenix){P.phoenix=false;P.hp=maxHP()*0.5;P.inv=1.5;msg('Phoenix! You rise again.',3);burst(P.x,P.y,'#ffb040',40,180);return;}P.hp=0;endScreen(false);}}
 
-function stone(e){if(sty('gorgon')&&!e.stoned&&!(P.stoneT>now)&&e.type!=='boss'){P.stoneT=now+6;e.stoned=true;e.stun=Math.max(e.stun,1.5);float(e.x,e.y-30,'Stone!','#c9e0b0');}}
+function stone(e){if(sty('gorgon')&&!(P.stoneT>now)&&e.type!=='boss'){P.stoneT=now+12;e.poison=Math.max(e.poison,4);float(e.x,e.y-30,'Venom!','#9cff6a');}}
 function alertE(e,spread){if(e.st!=='alert'){stone(e);if(e.st!=='search'&&!spread)stats.spotted++;e.st='alert';e.sus=1;e.cool=0.6;float(e.x,e.y-30,'!','#ff4a3a');}
  e.seenT=now;e.lx=P.x;e.ly=P.y;
  if(spread){stats.spotted++;for(const o of enemies)if(!o.dead&&o!==e&&o.st!=='alert'&&dist(o.x,o.y,e.x,e.y)<(endless?260:260+50*isl)){o.st='alert';o.sus=1;o.seenT=now;o.lx=P.x;o.ly=P.y;o.cool=0.8;}}}
@@ -1368,14 +1368,18 @@ function update(dt){
   else if(k==='dust')parts.push({x:P.x+(rnd()-.5)*10,y:P.y+(rnd()-.5)*10,vx:(rnd()-.5)*30,vy:(rnd()-.5)*30,l:.55,a:0,c,sz:6,sh:1});
   else if(k==='spark')parts.push({x:P.x,y:P.y,vx:(rnd()-.5)*90,vy:(rnd()-.5)*90,l:.35,a:0,c,sz:3});
   else parts.push({x:P.x+(rnd()-.5)*14,y:P.y+(rnd()-.5)*14,vx:(rnd()-.5)*10,vy:-14,l:.9,a:0,c,sz:5,sh:1});}}}
- if(sty('hooligan')){P.ego=P.ego||0;
-  if(P.ego>=100&&!(P.egoT>0)){P.egoT=10;P.ego=0;P.egoCD=0.3;P.egoX=P.x;P.egoY=P.y;shake=12;fxPush({k:'ring',x:P.x,y:P.y,r:200,col:'#b04aff',life:.7});fxPush({k:'pillar',x:P.x,y:P.y,col:'#b04aff',life:.7});burst(P.x,P.y,'#b04aff',40,200);msg('RIOT answers your call!',2.5);float(P.x,P.y-50,'COME OUT, RIOT!','#d08aff');}
-  if(P.egoT>0){P.egoT-=dt;P.egoCD-=dt;P.egoPunch=Math.max(0,(P.egoPunch||0)-dt);
-   let tg=null,bd=170;for(const e of enemies){if(e.dead)continue;const d=dist(e.x,e.y,P.x,P.y);if(d<bd){bd=d;tg=e;}}
-   const hx=tg?P.x+(tg.x-P.x)*0.45:P.x-Math.cos(P.face)*34,hy=tg?P.y+(tg.y-P.y)*0.45:P.y-Math.sin(P.face)*34-8;P.egoX+=(hx-P.egoX)*Math.min(1,dt*10);P.egoY+=(hy-P.egoY)*Math.min(1,dt*10);P.egoA=tg?Math.atan2(tg.y-P.egoY,tg.x-P.egoX):P.face;
-   P.egoSp=(P.egoSp||1)-dt;if(tg&&P.egoSp<=0){P.egoSp=2.2;hSpell(tg.x,tg.y,0.9,undefined,true);float(P.egoX,P.egoY-60,'RIOT: '+hM().sp+'!',hM().c);}
-   if(tg&&P.egoCD<=0){P.egoCD=0.32;P.egoPunch=0.18;hitE(tg,{dmg:16,ego:1,col:'#d08aff'},P.egoX,P.egoY);if(rnd()<0.35)hitE(tg,{push:20,stun:0.15,ego:1},P.egoX,P.egoY);fxPush({k:'flash',x:tg.x+(rnd()-.5)*16,y:tg.y+(rnd()-.5)*16,r:22,col:'#d08aff',rot:rnd()*3,life:.15});}
-   if(P.egoT<=0){msg('Riot fades back inside you.',2);burst(P.egoX,P.egoY,'#b04aff',20,120);}}}
+ if(sty('hooligan')){P.ego=P.ego||0;const tier=P.awT>0?(P.ascAw?2:1):0,TN=['RIOT','AWAKENED RIOT','ASCENDED RIOT'],TC=['#b04aff','#ff3b5c','#ffd84a'];
+  if((P.ego>=100||tier>0)&&!(P.egoT>0)){P.egoT=10;P.ego=0;P.egoCD=0.3;P.egoX=P.x;P.egoY=P.y;P.rTier=tier;shake=12+tier*4;fxPush({k:'ring',x:P.x,y:P.y,r:200+tier*60,col:TC[tier],life:.7});fxPush({k:'pillar',x:P.x,y:P.y,col:TC[tier],life:.7});burst(P.x,P.y,TC[tier],40+tier*20,200);msg(TN[tier]+' answers your call!',2.5);float(P.x,P.y-50,tier===2?'ARISE, ASCENDED RIOT!':tier===1?'AWAKEN, RIOT!':'COME OUT, RIOT!',TC[tier]);}
+  if(P.egoT>0){if(tier>(P.rTier||0)){P.rTier=tier;shake=14;fxPush({k:'ring',x:P.egoX,y:P.egoY,r:180,col:TC[tier],life:.6});burst(P.egoX,P.egoY,TC[tier],40,200);float(P.egoX,P.egoY-70,TN[tier]+'!',TC[tier]);}
+   if(tier>0)P.egoT=Math.max(P.egoT,Math.min(P.awT+0.4,30));else if((P.rTier||0)>0&&P.egoT>2)P.egoT=2;const T=P.rTier||0;
+   P.egoT-=dt;P.egoCD-=dt;P.egoPunch=Math.max(0,(P.egoPunch||0)-dt);
+   let tg=null,bd=[170,210,250][T];for(const e of enemies){if(e.dead)continue;const d=dist(e.x,e.y,P.x,P.y);if(d<bd){bd=d;tg=e;}}
+   const off=34+T*20,hx=tg?P.x+(tg.x-P.x)*0.45:P.x-Math.cos(P.face)*off,hy=tg?P.y+(tg.y-P.y)*0.45:P.y-Math.sin(P.face)*off-8-T*10;P.egoX+=(hx-P.egoX)*Math.min(1,dt*10);P.egoY+=(hy-P.egoY)*Math.min(1,dt*10);P.egoA=tg?Math.atan2(tg.y-P.egoY,tg.x-P.egoX):P.face;
+   P.egoSp=(P.egoSp||1)-dt;if(tg&&P.egoSp<=0){P.egoSp=[2.2,1.2,0.8][T];hSpell(tg.x,tg.y,[0.9,1,1.2][T],undefined,true);float(P.egoX,P.egoY-60-T*12,'RIOT: '+hM().sp+'!',hM().c);}
+   if(T===2){P.egoRush=(P.egoRush||3)-dt;if(tg&&P.egoRush<=0){P.egoRush=4;const tx=tg.x,ty=tg.y;for(let k=0;k<4;k++){const a=k*1.571;later(k*0.1,()=>hSpell(tx+Math.cos(a)*55,ty+Math.sin(a)*55,0.8,k,true));}float(P.egoX,P.egoY-90,'RIOT RUSH!','#ffd84a');shake=Math.max(shake,8);}}
+   if(tg&&P.egoCD<=0){P.egoCD=[0.32,0.2,0.14][T];P.egoPunch=0.18;hitE(tg,{dmg:[16,20,24][T],ego:1,col:TC[T]},P.egoX,P.egoY);if(rnd()<0.35)hitE(tg,{push:20+T*10,stun:0.15+T*0.1,ego:1},P.egoX,P.egoY);fxPush({k:'flash',x:tg.x+(rnd()-.5)*16,y:tg.y+(rnd()-.5)*16,r:22+T*8,col:T?TC[T]:'#d08aff',rot:rnd()*3,life:.15});}
+   if(P.egoT<=0){if(T>0){const x=P.egoX,y=P.egoY;shake=16+T*4;hSpell(x,y,T===2?2.4:1.6);if(T===2)for(let k=0;k<4;k++)later(0.12+k*0.08,()=>hSpell(x+Math.cos(k*1.571)*120,y+Math.sin(k*1.571)*120,1.2,k,true));fxPush({k:'ring',x,y,r:260+T*80,col:TC[T],life:.7});float(x,y-80,T===2?'RIOT: GRAND FINALE!':'RIOT: FINALE!',TC[T]);}
+    else msg('Riot fades back inside you.',2);burst(P.egoX,P.egoY,TC[T],20,120);P.rTier=0;}}}
  if(sty('pitbull')){const dg=P.dog;dg.cool-=dt;dg.run+=dt;
   if(!dg.t||dg.t.dead){dg.t=null;let best=240;for(const e of enemies){if(e.dead)continue;const d=dist(P.x,P.y,e.x,e.y);if(d<best){best=d;dg.t=e;}}}
   let tx,ty,spd;if(dg.t&&dg.cool<=0){tx=dg.t.x;ty=dg.t.y;spd=300;}else{tx=P.x-Math.cos(P.face)*26;ty=P.y-Math.sin(P.face)*26;spd=dist(dg.x,dg.y,tx,ty)>30?Math.max(260,dist(dg.x,dg.y,tx,ty)*4):0;}
@@ -1463,7 +1467,7 @@ function hitE(e,o,sx,sy){if(e.dead)return;if(e.type==='rival'){rivalHit(e,o);if(
  if(o.poison)e.poison=Math.max(e.poison,o.poison);
  if(o.push||o.pull){const a=Math.atan2(e.y-sy,e.x-sx),m=o.push||-Math.max(0,Math.min(o.pull,dist(e.x,e.y,sx,sy)-e.r-14));e.x+=Math.cos(a)*m;e.y+=Math.sin(a)*m;resolve(e);}
  if(o.dmg){fxPush({k:'flash',x:e.x,y:e.y,r:26,col:o.col||'#fff',rot:rnd()*3,life:.18});const d=Math.round(o.dmg*lvlK()*(endless?endless.b.abil:1)*ekMul(e,sx,sy));e.hp-=d;if(!o.ego)egoGain(d);e.hitF=0.15;if(d>=5)float(e.x,e.y-20,String(d),o.col||'#fff');if(e.hp<=0){killEnemy(e,false);if(o.gild&&e.dead)e.gold=true;return;}}
- if(o.stun){e.stun=Math.max(e.stun,o.stun);e.wind=0;if(o.net)e.netted=true;if(o.stone)e.stoned=true;}
+ if(o.stun){e.stun=Math.max(e.stun,o.stun);e.wind=0;if(o.net)e.netted=true;}
  if(o.label&&!o.dmg)float(e.x,e.y-30,o.label,o.col||'#fff');
  if(o.gild&&!e.dead)gildE(e,o.gild,o.gtok);}
 function ring(x,y,r,col){fxPush({k:'ring',x,y,r,col:col||'#fff',life:.45});fxPush({k:'flash',x,y,r:Math.min(90,r*0.5),col:col||'#fff',rot:rnd()*3,life:.25});for(let i=0;i<12;i++){const a=i*0.2618;parts.push({x:x+Math.cos(a)*r*0.3,y:y+Math.sin(a)*r*0.3,vx:Math.cos(a)*r*1.6,vy:Math.sin(a)*r*1.6,l:.45,a:0,c:col||'#fff',sz:5,sh:1});}}
@@ -1475,7 +1479,7 @@ function tele(x,y,col){fxPush({k:'pillar',x:P.x,y:P.y,col,life:.4});fxPush({k:'t
 function toCursor(max){const a=aim(),d=Math.min(max,dist(P.x,P.y,mwx(),mwy()));return[P.x+Math.cos(a)*d,P.y+Math.sin(a)*d,a];}
 function zone(x,y,r,t,kind,o){zones2.push({x,y,r,t,kind,o,tick:0});}
 function ally(kind,n,t,o){for(let i=0;i<n;i++){const a=rnd()*6.283;allies.push({kind,x:P.x+Math.cos(a)*30,y:P.y+Math.sin(a)*30,t,o,tg:null,cool:0,ang:0,run:rnd()*6});}}
-function buff(k,t){P.buf[k]=Math.max(P.buf[k]||0,t);}
+function buff(k,t){if(k==='invis'&&sty('midnight'))return;P.buf[k]=Math.max(P.buf[k]||0,t);}
 const SQ=()=>'abcdefgh'[rnd()*8|0]+(1+(rnd()*8|0)),ANN=()=>['!!','!','','!?','!!'][rnd()*5|0];
 function crossBlast(x,y){shake=12;const L=280,W2=28;for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]])for(let i=1;i<=L/24;i++)parts.push({x:x+dx*i*24,y:y+dy*i*24,vx:(rnd()-.5)*40,vy:(rnd()-.5)*40,l:.55,a:0,c:i%2?'#f2f2f2':'#d9b34a',sz:9,sh:1});
  for(const e of enemies){if(e.dead)continue;const ax=Math.abs(e.x-x),ay=Math.abs(e.y-y);if((ax<W2+e.r&&ay<L)||(ay<W2+e.r&&ax<L))hitE(e,{dmg:90,col:'#f2f2f2'});}
@@ -1499,7 +1503,7 @@ const MOVES={
   {n:'Toxic Cloud',cd:12,f:()=>zone(P.x,P.y,110,6,'poison',{poison:4,col:'#7ad04a'})}],
  ember:[{n:'Fireball',cd:4,f:()=>shoot(aim(),{spd:440,r:11,boom:85,dmg:45,col:'#ff9a2a',fire:1,sp:'fire'})},
   {n:'Flame Ring',cd:10,f:()=>{aoe(P.x,P.y,120,{dmg:35,col:'#ff7a1a'});for(let i=0;i<16;i++){const a=i*0.3927;fires.push({x:P.x+Math.cos(a)*90,y:P.y+Math.sin(a)*90,t:4});}}}],
- gorgon:[{n:'Stone Gaze',cd:10,f:()=>line(aim(),240,100,{stun:2,stone:1,col:'#c9e0b0',label:'STONE!'})},
+ gorgon:[{n:'Venom Gaze',cd:10,f:()=>line(aim(),240,100,{stun:1.0,poison:4,dmg:30,col:'#9cff6a',label:'VENOM!'})},
   {n:'Serpent Lash',cd:5,f:()=>{const a=aim();for(const s of[-0.3,-0.1,0.1,0.3])shoot(a+s,{spd:460,r:8,dmg:28,poison:4,col:'#5f9a3a',sp:'snake'});}}],
  storm:[{n:'Thunder Spear',cd:4,f:()=>shoot(aim(),{spd:900,r:9,dmg:55,pierce:4,col:'#fff27a',sp:'spear'})},
   {n:'Storm Call',cd:14,f:()=>{enemies.filter(e=>!e.dead&&dist(e.x,e.y,P.x,P.y)<320).slice(0,4).forEach(e=>{bolts.push({x:e.x,y:e.y,t:.4});hitE(e,{dmg:50,stun:0.8,col:'#fff27a'});});shake=6;}}],
@@ -1532,9 +1536,9 @@ const AW={
  tide:{n:'Tide Sovereign',sig:'wave',f:()=>{puddles.push({x:P.x,y:P.y,t:4,r:120});aoe(P.x,P.y,140,{push:50,dmg:15,col:'#7fd0f0'});}},
  viper:{n:'Serpent Queen',sig:'fang',f:()=>aoe(P.x,P.y,240,{poison:6,col:'#9cff6a'})},
  ember:{n:'Living Inferno',sig:'flame',f:()=>{aoe(P.x,P.y,180,{dmg:30,col:'#ff7a1a'});for(let i=0;i<6;i++){const a=rnd()*6.283,r=rnd()*150;fires.push({x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,t:3});}}},
- gorgon:{n:'Queen of Stone',sig:'eye',f:()=>aoe(P.x,P.y,260,{stun:2,stone:1,col:'#c9e0b0'})},
+ gorgon:{n:'Queen of Serpents',sig:'eye',f:()=>aoe(P.x,P.y,260,{stun:1.0,poison:4,col:'#c9e0b0'})},
  storm:{n:'Thunder Incarnate',sig:'bolt',f:()=>enemies.filter(e=>!e.dead&&dist(e.x,e.y,P.x,P.y)<420).slice(0,3).forEach(e=>{bolts.push({x:e.x,y:e.y,t:.35});hitE(e,{dmg:60,stun:.6,col:'#fff27a'});})},
- midnight:{n:'Night Sovereign',sig:'moon',f:()=>buff('invis',1.2)},
+ midnight:{n:'Night Sovereign',sig:'moon',f:()=>aoe(P.x,P.y,180,{dmg:25,stun:0.6,col:'#8f7aff'})},
  titan:{n:'Titan Unbound',sig:'pillar',f:()=>{shake=8;aoe(P.x,P.y,160,{kill:1,label:'QUAKE!',col:'#ffd77a'});}},
  helios:{n:'Avatar of the Sun',sig:'sun',f:()=>aoe(P.x,P.y,280,{dmg:90,col:'#ffd24a'})},
  nyx:{n:'The Void Walker',sig:'star',f:()=>aoe(P.x,P.y,150,{kill:1,label:'CONSUMED',col:'#c9b8ff'})},
@@ -1552,7 +1556,7 @@ const MORE={
  tide:[{n:'Riptide Dash',cd:7,f:()=>{const a=aim();for(let i=0;i<3;i++)puddles.push({x:P.x+Math.cos(a)*i*80,y:P.y+Math.sin(a)*i*80,t:4,r:55});tele(P.x+Math.cos(a)*220,P.y+Math.sin(a)*220,'#7fd0f0');}}],
  viper:[{n:'Shed Skin',cd:10,f:()=>{aoe(P.x,P.y,90,{poison:6,col:'#9cff6a'});buff('invis',2.5);float(P.x,P.y-26,'Shed Skin','#9cff6a');}}],
  ember:[{n:'Meteor',cd:9,f:()=>{const[c,d]=toCursor(300);shake=10;aoe(c,d,110,{dmg:70,col:'#ff5a1a'});for(let i=0;i<10;i++){const a=i*0.628;fires.push({x:c+Math.cos(a)*70,y:d+Math.sin(a)*70,t:4});}}}],
- gorgon:[{n:'Petrify Wave',cd:15,f:()=>aoe(P.x,P.y,170,{stun:1.5,stone:1,col:'#c9e0b0',label:'STONE!'})}],
+ gorgon:[{n:'Venom Wave',cd:15,f:()=>aoe(P.x,P.y,170,{stun:0.75,poison:4,dmg:30,col:'#9cff6a',label:'VENOM!'})}],
  storm:[{n:'Static Dash',cd:6,f:()=>{const a=aim();line(a,230,46,{dmg:45,stun:1,col:'#fff27a'});tele(P.x+Math.cos(a)*210,P.y+Math.sin(a)*210,'#fff27a');}}],
  midnight:[{n:'Shadow Swap',cd:11,f:()=>{const e=nearest(320);if(!e)return;const ox=P.x,oy=P.y;tele(e.x,e.y,'#8f7aff');e.x=ox;e.y=oy;resolve(e);hitE(e,{stun:1.5,label:'SWAPPED',col:'#c9b8ff'});}}],
  titan:[{n:'Earthshatter',cd:8,f:()=>{shake=14;line(aim(),400,80,{dmg:110,col:'#c49a4a'});}},
@@ -1610,7 +1614,7 @@ function hShow(all,dmg){const L=byDist(foes(all?420:380)).filter(e=>all||e.stun>
  later(0.25+L.length*0.08,()=>{fxPush({k:'ring',x:P.x,y:P.y,r:300,col:'#ff3b5c',life:.5});float(P.x,P.y-50,'CURTAIN CALL','#ffe08a');});}
 MOVES.hooligan=[
  {n:'Mask Swap',cd:1.5,fix:1,f:()=>hSwap()},
- {n:'Cast',cd:3,f:()=>{const[x,y]=hTarget(340);hSpell(x,y,1);}},
+ {n:'Cast',cd:2.5,f:()=>{const[x,y]=hTarget(340);hSpell(x,y,1);}},
  {n:'Mega Cast',cd:9,f:()=>{const[c,d]=hTarget(320);fxPush({k:'ring',x:c,y:d,r:170,col:hM().c,life:.5});later(0.35,()=>hSpell(c,d,1.8));}},
  {n:'Revolver',cd:5,f:()=>{for(let i=0;i<3;i++)later(i*0.09,()=>{shoot(aim()+(rnd()-.5)*0.05,{spd:950,r:6,dmg:36,pierce:2,col:'#ffffff',life:0.6});shake=Math.max(shake,3);});float(P.x,P.y-30,'BANG BANG BANG','#ffffff');}},
  {n:'Grappling Hook',cd:7,f:()=>{const[c,d]=toCursor(360);fxPush({k:'trail',x:P.x,y:P.y,x2:c,y2:d,w:3,col:'#d8d8d8',life:.25});later(0.12,()=>{tele(c,d,'#ff3b5c');aoe(c,d,75,{dmg:45,push:60,stun:0.5,col:'#ff3b5c'});});}},
@@ -1684,9 +1688,9 @@ const ULT={
  tide:{d:'Tsunami: a colossal wave sweeps everything away',f:()=>{shake=16;line(aim(),620,300,{kill:1,label:'TSUNAMI',col:'#7fd0f0'});}},
  viper:{d:'Basilisk Fog: a huge poison cloud blankets the area',f:()=>zone(P.x,P.y,280,15,'poison',{poison:5,col:'#7ad04a'})},
  ember:{d:'Inferno Rain: meteors crash down all around you',f:()=>{for(let i=0;i<14;i++){const a=rnd()*6.283,r=60+rnd()*300,x=P.x+Math.cos(a)*r,y=P.y+Math.sin(a)*r;aoe(x,y,70,{dmg:60,col:'#ff5a1a'});for(let k=0;k<3;k++)fires.push({x:x+(rnd()-.5)*50,y:y+(rnd()-.5)*50,t:5});}shake=16;}},
- gorgon:{d:'Age of Stone: every guard on the island turns to stone',f:()=>{for(const e of enemies)if(!e.dead){e.stun=Math.max(e.stun,6);e.stoned=true;}msg('Every guard on the island turns to stone.',2);}},
+ gorgon:{d:'Age of Serpents: venom seeps into every guard nearby',f:()=>{for(const e of foes(600)){e.stun=Math.max(e.stun,1);e.poison=Math.max(e.poison,6);}msg('Venom seeps into every guard nearby.',2);}},
  storm:{d:'Skyfall: 12 lightning strikes rain on nearby guards',f:()=>{enemies.filter(e=>!e.dead&&dist(e.x,e.y,P.x,P.y)<650).slice(0,12).forEach(e=>{bolts.push({x:e.x,y:e.y,t:.5});hitE(e,{dmg:90,stun:1,col:'#fff27a'});});shake=12;}},
- midnight:{d:'Eternal Night: every guard loses you, and you stay invisible',f:()=>{for(const e of enemies)if(!e.dead){e.st='search';e.searchT=6;e.sus=0;e.lx=e.x+(rnd()-.5)*600;e.ly=e.y+(rnd()-.5)*600;}buff('invis',15);}},
+ midnight:{d:'Eternal Night: every guard loses track of you',f:()=>{for(const e of enemies)if(!e.dead){e.st='search';e.searchT=6;e.sus=0;e.lx=e.x+(rnd()-.5)*600;e.ly=e.y+(rnd()-.5)*600;}buff('invis',15);}},
  titan:{d:'Cataclysm: the earth splits and swallows everything near you',f:()=>{shake=22;aoe(P.x,P.y,400,{kill:1,label:'CATACLYSM',col:'#ffd77a'});}},
  helios:{d:'Solar Flare: sunbeams blaze out in 8 directions',f:()=>{for(let i=0;i<8;i++)line(i*0.785,620,46,{kill:1,label:'ASH',col:'#ffd24a'});shake=14;}},
  nyx:{d:'Total Eclipse: everything nearby is swallowed by the void',f:()=>{shake=14;aoe(P.x,P.y,480,{kill:1,label:'ECLIPSED',col:'#6a4ad8'});}},
@@ -1712,7 +1716,7 @@ const PASS={
  tide:[{n:'Tide Pools',d:'Dodge twice as often; rolls leave slowing pools'},{n:'Sea Legs',d:'+15% movement speed',f:{spd:0.15}}],
  viper:[{n:'Plague Bite',d:'Poison spreads when a poisoned enemy falls'},{n:'Venom Blood',d:'Regenerate 3 health a second',f:{regen:3}}],
  ember:[{n:'Firewalker',d:'Sprinting leaves flames; takedowns explode'},{n:'Heat Shimmer',d:'Arrows burn up before they hit you',f:{arrowproof:1}}],
- gorgon:[{n:'Stone Stare',d:'The first guard to spot you turns to stone for a moment (once every 6 seconds)'},{n:'Stone Skin',d:'Take 30% less damage',f:{dmgTaken:0.3}}],
+ gorgon:[{n:'Venom Glare',d:'The first guard to spot you is poisoned (once every 12 seconds)'},{n:'Stone Skin',d:'Take 30% less damage',f:{dmgTaken:0.3}}],
  storm:[{n:'Thunder Rhythm',d:'Every 5th strike calls lightning'},{n:'Charged',d:'Abilities recharge 10% faster',f:{cdr:0.1}}],
  midnight:[{n:'Shadow Step',d:'Dodge teleports, even through walls; guards see 40% less'},{n:'Night Eyes',d:'Awakening charges 25% faster',f:{awk:0.25}}],
  titan:[{n:'Titan’s Body',d:'Take 30% less damage',f:{dmgTaken:0.3}},{n:'Earthquake Strikes',d:'Every strike quakes the ground, dealing splash damage to everyone around you'},{n:'Giant’s Stride',d:'+20% movement speed'}],
@@ -1761,7 +1765,7 @@ const LC={
  tide:{n:'Splash Strike',on:e=>hitE(e,{push:45})},
  viper:{n:'Fang Strike',on:e=>{e.poison=Math.max(e.poison,4);}},
  ember:{n:'Searing Slash',on:e=>fires.push({x:e.x,y:e.y,t:2.5})},
- gorgon:{n:'Coil Combo',fin:[{every:4,n:'Coil Finisher',f:()=>line(aim(),160,60,{stun:1,stone:1,col:'#c9e0b0'})}]},
+ gorgon:{n:'Coil Combo',fin:[{every:4,n:'Coil Finisher',f:()=>line(aim(),160,60,{stun:0.5,poison:4,col:'#c9e0b0'})}]},
  storm:{n:'Thunderclap Combo',fin:[{every:3,n:'Thunderclap',f:()=>{const[c,d]=toCursor(80);bolts.push({x:c,y:d,t:.35});aoe(c,d,70,{dmg:45,stun:.25,col:'#fff27a'});}}]},
  midnight:{n:'Shade Combo',fin:[{every:3,n:'Shade Step',f:()=>{const a=aim();tele(P.x+Math.cos(a)*90,P.y+Math.sin(a)*90,'#8f7aff');buff('invis',0.35);}}]},
  titan:{n:'Quake Combo',fin:[{every:3,n:'Aftershock',f:()=>{shake=10;aoe(P.x,P.y,130,{dmg:70,stun:0.6,col:'#ffd77a'});}}]},
@@ -1780,7 +1784,7 @@ LC.drakon={n:'Claw Combo',on:e=>fires.push({x:e.x,y:e.y,t:2.5}),fin:[{every:3,n:
 PASS.midas=[{n:'The Golden Touch',d:'Every hit gilds an enemy; 3 gildings turn them to solid gold'},{n:'Royal Treasury',d:'Treasure jars give triple drachmae; gold statues drop 6 drachmae'},{n:'Gilded Skin',d:'Take 40% less damage',f:{dmgTaken:0.4}},{n:'King’s Ransom',d:'Regenerate 4 health a second',f:{regen:4}}];
 LC.midas={n:'Golden Touch',chain:['Midas Touch','Gilded Palm','Coin Flick','Sceptre Sweep','Gold Leaf Gale']};
 PASS.hooligan=[{n:'Wild Card',d:'Carry four masks, Curse, Inferno, Frost and Volt. Swapping masks changes the element of every spell you and Riot cast'},{n:'Alter Ego: Riot',d:'Fighting fills your Alter Ego bar. When it is full, Riot bursts out behind you for 10 seconds, pummelling enemies, casting your current mask’s spell and absorbing 30% of the damage you take'},{n:'Phantom Step',d:'+25% movement speed',f:{spd:0.25}},{n:'Thief’s Instinct',d:'Take 20% less damage',f:{dmgTaken:0.2}}];
-LC.hooligan={n:'Dagger Dance',cdMul:0.6,dmgMul:1.6,reach:70,arc:1.8,fin:[{every:3,n:'Quick Draw',f:()=>shoot(aim(),{spd:950,r:5,dmg:35,pierce:1,col:'#ffffff',life:0.6})},{every:4,n:'Mask Burst',f:()=>{const a=aim();hSpell(P.x+Math.cos(a)*60,P.y+Math.sin(a)*60,1);}}]};
+LC.hooligan={n:'Dagger Dance',cdMul:0.55,dmgMul:1.9,reach:70,arc:1.8,fin:[{every:3,n:'Quick Draw',f:()=>shoot(aim(),{spd:950,r:5,dmg:35,pierce:1,col:'#ffffff',life:0.6})},{every:4,n:'Mask Burst',f:()=>{const a=aim();hSpell(P.x+Math.cos(a)*60,P.y+Math.sin(a)*60,1);}}]};
 PASS.archmage=[{n:'A Thousand Years of Study',d:'Abilities recharge 20% faster',f:{cdr:0.2}},{n:'Patient Mind',d:'Ultimate charges 30% faster',f:{awk:0.3}},{n:'Mana Ward',d:'Take 25% less damage',f:{dmgTaken:0.25}},{n:'Calm',d:'Regenerate 3 health a second',f:{regen:3}}];
 LC.archmage={n:'Staff Arts',cdMul:0.6,dmgMul:1.3,reach:80,arc:1.7,fin:[{every:2,n:'Magic Bolt',f:()=>shoot(aim(),{spd:620,r:8,dmg:45,pierce:3,col:'#7fd8ff',life:0.9})},{every:4,n:'Mana Burst',f:()=>aoe(P.x,P.y,140,{dmg:60,push:60,col:'#7fd8ff'})}]};
 PASS.psycho=[{n:'Winged Sandals',d:'+35% movement speed',f:{spd:0.35}},{n:'Fleet Mind',d:'Abilities recharge 20% faster',f:{cdr:0.2}},{n:'Featherlight',d:'Take 30% less damage',f:{dmgTaken:0.3}},{n:'Outpace',d:'Arrows can\u2019t keep up: they fall away before reaching you',f:{arrowproof:1}}];
@@ -1881,13 +1885,13 @@ const AWK={
      {n:'Meteor Storm',f:()=>{const[c,d]=toCursor(320);for(let i=0;i<6;i++)later(i*0.15,()=>{const x=c+(rnd()-.5)*200,y=d+(rnd()-.5)*200;fxPush({k:'trail',x:x-120,y:y-260,x2:x,y2:y,w:14,col:'#ff9a2a',life:.35});aoe(x,y,80,{dmg:80,col:'#ff7a2a'});fires.push({x,y,t:3});});}},
      {n:'Comet Dash',f:()=>{const ox=P.x,oy=P.y,[c,d]=toCursor(330);for(let i=1;i<=8;i++)fires.push({x:ox+(c-ox)*i/8,y:oy+(d-oy)*i/8,t:3});tele(c,d,'#ff7a2a');aoe(ox,oy,100,{dmg:60,col:'#ff7a2a'});aoe(c,d,100,{dmg:60,col:'#ff7a2a'});}}],
   u:{d:'Star Core: you become a living star, heat pulses scorch everything near you, then you explode in a supernova',f:()=>{for(let k=0;k<5;k++)later(k*0.4,()=>aoe(P.x,P.y,200,{dmg:24,col:'#ffb040'}));later(2.2,()=>{shake=24;aoe(P.x,P.y,430,{dmg:120,col:'#fff2b0'});for(let i=0;i<16;i++){const a=i*0.3927;fires.push({x:P.x+Math.cos(a)*200,y:P.y+Math.sin(a)*200,t:4});}});}}},
- gorgon:{p:{n:'Medusa’s Gaze',d:'Any enemy you keep in front of you for a full second turns to stone briefly',t:dt=>{for(const e of foes(280)){if(e.type==='boss')continue;const ok=Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),P.face))<0.5;e.gz=ok?(e.gz||0)+dt:Math.min(0,e.gz||0)+dt*0;if(e.gz>1){e.gz=-4;hitE(e,{stun:1.5,stone:1,label:'Stone!',col:'#c9e0b0'});}}}},
-  m:[{n:'Basilisk Glare',f:()=>{const a=aim();fxPush({k:'beam',x:P.x,y:P.y,a,len:400,w:120,col:'#c9e0b0',life:.4});for(const e of foes(400))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<0.6)hitE(e,{stun:2.5,stone:1,dmg:40,col:'#c9e0b0'});}},
+ gorgon:{p:{n:'Serpent’s Gaze',d:'Any enemy you keep in front of you for a full second is poisoned and staggered',t:dt=>{for(const e of foes(280)){if(e.type==='boss')continue;const ok=Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),P.face))<0.5;e.gz=ok?(e.gz||0)+dt:Math.min(0,e.gz||0)+dt*0;if(e.gz>1){e.gz=-4;hitE(e,{stun:0.75,poison:4,label:'Venom!',col:'#9cff6a'});}}}},
+  m:[{n:'Basilisk Glare',f:()=>{const a=aim();fxPush({k:'beam',x:P.x,y:P.y,a,len:400,w:120,col:'#c9e0b0',life:.4});for(const e of foes(400))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<0.6)hitE(e,{stun:1.25,poison:4,dmg:40,col:'#c9e0b0'});}},
      {n:'Hair of Serpents',f:()=>{for(let i=0;i<8;i++)shoot(i*0.785,{spd:480,r:8,dmg:40,stun:1.5,pierce:1,col:'#9ac87a',sp:'snake'});}},
-     {n:'Shatter',f:()=>{for(const e of foes(380)){if(e.stoned&&e.stun>0)hitE(e,{dmg:160,label:'SHATTERED',col:'#c9e0b0'});else hitE(e,{stun:1,stone:1,col:'#c9e0b0'});}ring(P.x,P.y,420,'#c9e0b0');}},
+     {n:'Venom Burst',f:()=>{for(const e of foes(380)){if(e.poison>0)hitE(e,{dmg:120,label:'VENOM BURST',col:'#9cff6a'});else hitE(e,{stun:0.5,poison:4,col:'#9cff6a'});}ring(P.x,P.y,420,'#c9e0b0');}},
      {n:'Pit of Asps',f:()=>{const[c,d]=toCursor(300);zone(c,d,150,5,'poison',{poison:6});zone(c,d,150,5,'root',{stun:0.4});ring(c,d,150,'#7ad04a');}},
-     {n:'Aegis Mirror',f:()=>{buff('reflect',4);buff('immune',2);aoe(P.x,P.y,240,{stun:1.5,stone:1,col:'#c9e0b0'});}}],
-  u:{d:'Petrified Garden: every enemy nearby turns to stone, then cracks apart one by one for heavy damage',f:()=>{const L=foes(560).slice(0,9);aoe(P.x,P.y,560,{stun:1.5,stone:1,col:'#c9e0b0'});L.forEach((e,i)=>later(0.5+i*0.12,()=>hitE(e,{dmg:90,label:'CRACKED',col:'#c9e0b0'})));}}},
+     {n:'Aegis Mirror',f:()=>{buff('reflect',4);buff('immune',2);aoe(P.x,P.y,240,{stun:0.75,poison:4,col:'#c9e0b0'});}}],
+  u:{d:'Garden of Serpents: venom floods every enemy nearby, then serpents strike them one by one for heavy damage',f:()=>{const L=foes(560).slice(0,9);aoe(P.x,P.y,560,{stun:0.75,poison:4,col:'#c9e0b0'});L.forEach((e,i)=>later(0.5+i*0.12,()=>hitE(e,{dmg:90,label:'BITTED',col:'#c9e0b0'})));}}},
  storm:{p:{n:'Living Storm',d:'Lightning strikes a nearby enemy every second and arcs to a second target',t:dt=>{if(awE('z',1,dt)){const e=nearest(330);if(e){bolts.push({x:e.x,y:e.y,t:.35});hitE(e,{dmg:50,stun:0.5,col:'#fff27a'});const e2=enemies.find(o=>!o.dead&&o!==e&&dist(o.x,o.y,e.x,e.y)<220);if(e2){fxPush({k:'trail',x:e.x,y:e.y,x2:e2.x,y2:e2.y,w:6,col:'#fff27a',life:.3});bolts.push({x:e2.x,y:e2.y,t:.35});hitE(e2,{dmg:40,stun:0.5,col:'#fff27a'});}}}}},
   m:[{n:'Zeus’s Bolt',f:()=>{const a=aim();line(a,520,60,{dmg:110,stun:1.5,col:'#fff27a'});for(let i=1;i<=6;i++){const[x,y]=at(a,i*80);bolts.push({x,y,t:.35});}}},
      {n:'Thunderhead',f:()=>{const[c,d]=toCursor(320);for(let i=0;i<8;i++)later(i*0.2,()=>{const x=c+(rnd()-.5)*260,y=d+(rnd()-.5)*260;bolts.push({x,y,t:.35});aoe(x,y,70,{dmg:60,stun:0.8,col:'#fff27a'});});}},
@@ -1895,7 +1899,7 @@ const AWK={
      {n:'Plasma Orb',f:()=>shoot(aim(),{spd:170,r:20,dmg:40,stun:0.6,pierce:99,col:'#fff27a',life:3})},
      {n:'Thunderclap Step',f:()=>{const[c,d]=toCursor(330);tele(c,d,'#fff27a');bolts.push({x:c,y:d,t:.4});shake=10;aoe(c,d,200,{stun:2.2,dmg:50,col:'#fff27a'});}}],
   u:{d:'Wrath of Olympus: the sky splits and lightning hammers the ground in a widening spiral around you',f:()=>{const x=P.x,y=P.y;shake=18;for(let k=0;k<26;k++)later(k*0.06,()=>{const a=k*0.8,r=50+k*20,bx=x+Math.cos(a)*r,by=y+Math.sin(a)*r;bolts.push({x:bx,y:by,t:.35});aoe(bx,by,75,{dmg:54,stun:0.6,col:'#fff27a'});});}}},
- midnight:{p:{n:'Night Hunter',d:'You stay invisible, and every strike lands a bonus backstab',t:dt=>buff('invis',0.2),click:()=>{for(const e of front(70,1.2))hitE(e,{dmg:55,col:'#8f7aff'});}},
+ midnight:{p:{n:'Night Hunter',d:'Every strike lands a bonus backstab',click:()=>{for(const e of front(70,1.2))hitE(e,{dmg:55,col:'#8f7aff'});}},
   m:[{n:'Umbral Blink',f:()=>{const ox=P.x,oy=P.y,[c,d]=toCursor(340);aoe(ox,oy,90,{dmg:60,stun:1,col:'#8f7aff'});tele(c,d,'#8f7aff');aoe(c,d,90,{dmg:60,stun:1,col:'#8f7aff'});}},
      {n:'Moonless Night',f:()=>{for(const e of foes(520)){e.st='search';e.searchT=5;e.lx=P.x+(rnd()-.5)*400;e.ly=P.y+(rnd()-.5)*400;hitE(e,{stun:1.5,col:'#2a1a4a'});}buff('invis',6);}},
      {n:'Shadow Exchange',f:()=>{let b=null,bd=0;for(const e of foes(420)){const d=dist(e.x,e.y,P.x,P.y);if(d>bd){bd=d;b=e;}}if(b){const ox=P.x,oy=P.y,un=false;tele(b.x,b.y,'#8f7aff');if(b.type!=='rival'){b.x=ox;b.y=oy;resolve(b);}hitE(b,un?{kill:1,label:'SWAPPED',col:'#8f7aff'}:{stun:2.5,dmg:50,col:'#8f7aff'});}}},
@@ -1968,7 +1972,7 @@ const AWK={
      {n:'Molten Scales',f:()=>{buff('immune',5);buff('reflect',5);for(let k=0;k<5;k++)later(k,()=>{for(let i=0;i<8;i++){const a=i*0.785;fires.push({x:P.x+Math.cos(a)*70,y:P.y+Math.sin(a)*70,t:1.2});}});}},
      {n:'Brood Mother',f:()=>ally('wyrm',6,12,{kill:1,label:'SCORCHED',col:'#ffb347'})}],
   u:{d:'Age of Dragons: an elder dragon’s shadow sweeps across the sky burning a wide path, then turns and burns another',f:()=>{const a=aim(),x=P.x,y=P.y;shake=20;const pass=(ang,t0)=>{for(let k=0;k<12;k++)later(t0+k*0.05,()=>{const d=k*55-300,px=x+Math.cos(ang)*d,py=y+Math.sin(ang)*d;aoe(px,py,115,{dmg:66,col:'#ff7a1a'});fires.push({x:px,y:py,t:4});});};pass(a,0);pass(a+Math.PI/2,0.9);}}},
- hooligan:{p:{n:'Awakened Wild Card',d:'Every strike also casts your current mask’s spell where it lands, and Riot’s bar fills twice as fast',click:()=>{const[x,y]=at(P.face,70);later(0.15,()=>hSpell(x,y,0.45,undefined,true));}},
+ hooligan:{p:{n:'Awakened Wild Card',d:'Riot is summoned as Awakened Riot for your whole awakening: bigger, faster, casting spells every 1.2s and absorbing 45% of your damage, with a finisher blast when he fades (Ascended Riot when mastered). Every strike also casts your current mask’s spell',click:()=>{const[x,y]=at(P.face,70);later(0.15,()=>hSpell(x,y,0.45,undefined,true));}},
   m:[{n:'Mask Storm',f:()=>{for(let k=0;k<4;k++){const a=k*1.571+rnd()*0.5;later(k*0.12,()=>hSpell(P.x+Math.cos(a)*110,P.y+Math.sin(a)*110,1.1,k));}}},
      {n:'Mega Cast',f:()=>{const[x,y]=hTarget(360);hSpell(x,y,1.6);}},
      {n:'Supreme Cast',f:()=>{const[c,d]=toCursor(340);fxPush({k:'ring',x:c,y:d,r:230,col:hM().c,life:.5});later(0.4,()=>{hSpell(c,d,2.4);shake=12;});}},
@@ -2662,14 +2666,27 @@ function knightShape(c,s,fill,line){c.save();c.scale(s,s);c.fillStyle=fill;c.str
  c.fillStyle=line;c.beginPath();c.arc(1,-6,1.2,0,6.283);c.fill();c.fillRect(-10,10,20,3);c.restore();}
 function drawKnight(k){const z=k.f<1?Math.sin(Math.PI*k.f)*22:0;ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(k.x+2,k.y+12,11-z*0.2,5,0,0,6.283);ctx.fill();
  ctx.save();ctx.translate(k.x,k.y-z);knightShape(ctx,1.15,'#f2f2f2','#151515');ctx.restore();}
-function drawRiot(){const x=P.egoX,y=P.egoY,a=P.egoA||0,fade=Math.min(1,P.egoT/0.6,(10-P.egoT)/0.4+0.2),pu=P.egoPunch>0,bob=Math.sin(now*4)*3;
- ctx.save();ctx.translate(x,y-26+bob);ctx.globalAlpha=0.72*fade;
- const g=ctx.createRadialGradient(0,0,4,0,0,56);const mc=hM().c;g.addColorStop(0,mc+'77');g.addColorStop(1,mc+'00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,56,0,6.283);ctx.fill();
- ctx.fillStyle='#3a1460';ctx.beginPath();ctx.moveTo(-26,-6);ctx.quadraticCurveTo(0,-22,26,-6);ctx.lineTo(16,30);ctx.quadraticCurveTo(0,40,-16,30);ctx.closePath();ctx.fill();
- ctx.strokeStyle='#b04aff';ctx.lineWidth=2;ctx.stroke();
- ctx.fillStyle='#24083e';ctx.beginPath();ctx.arc(0,-20,13,0,6.283);ctx.fill();ctx.beginPath();ctx.moveTo(-13,-22);ctx.lineTo(-18,-38);ctx.lineTo(-6,-30);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(13,-22);ctx.lineTo(18,-38);ctx.lineTo(6,-30);ctx.closePath();ctx.fill();
- ctx.fillStyle=mc;ctx.shadowColor=mc;ctx.shadowBlur=10;ctx.fillRect(-8,-23,5,3);ctx.fillRect(3,-23,5,3);ctx.shadowBlur=0;
- for(const sd of[-1,1]){const ext=pu&&((sd>0)===((now*12|0)%2===0))?30:10,fx=Math.cos(a)*ext+Math.cos(a+sd*1.4)*16,fy=Math.sin(a)*ext+Math.sin(a+sd*1.4)*16+6;ctx.strokeStyle='#3a1460';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(sd*20,0);ctx.lineTo(fx,fy);ctx.stroke();ctx.fillStyle='#5a1e90';ctx.beginPath();ctx.arc(fx,fy,8,0,6.283);ctx.fill();ctx.strokeStyle='#d08aff';ctx.lineWidth=1.5;ctx.stroke();}
+function drawRiot(){const x=P.egoX,y=P.egoY,a=P.egoA||0,T=P.rTier||0,fade=Math.min(1,P.egoT/0.6,1),pu=P.egoPunch>0,bob=Math.sin(now*4)*3,mc=hM().c,SC=[1,1.35,1.6][T];
+ ctx.save();ctx.translate(x,y-26*SC+bob);ctx.scale(SC,SC);ctx.globalAlpha=(T?0.85:0.72)*fade;
+ const g=ctx.createRadialGradient(0,0,4,0,0,56+T*14);g.addColorStop(0,mc+'77');g.addColorStop(1,mc+'00');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,56+T*14,0,6.283);ctx.fill();
+ // ascended: four elemental wings behind him
+ if(T===2)for(const sd of[-1,1])for(let j=0;j<2;j++){const col=HCOL[sd<0?j:2+j],fl=Math.sin(now*7+j+sd)*0.15;ctx.save();ctx.rotate(sd*(0.25+j*0.5)+fl*sd-Math.PI/2*0+0);ctx.scale(sd,1);const wg=ctx.createLinearGradient(0,0,80,0);wg.addColorStop(0,col+'ee');wg.addColorStop(1,col+'00');ctx.fillStyle=wg;ctx.beginPath();ctx.moveTo(14,-8);ctx.quadraticCurveTo(50,-46,84,-30);ctx.quadraticCurveTo(62,-16,76,-4);ctx.quadraticCurveTo(50,-4,14,4);ctx.closePath();ctx.fill();ctx.restore();}
+ // awakened+: trailing scarf
+ if(T>=1){ctx.strokeStyle=T===2?'#ffd84a':'#ff3b5c';ctx.lineWidth=5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-6,-10);for(let i=1;i<=6;i++)ctx.lineTo(-6-Math.cos(a)*i*7+Math.sin(now*8+i)*3,-10-Math.sin(a)*i*7+i*2);ctx.stroke();}
+ // body
+ ctx.fillStyle=T===2?'#1a0a2e':'#3a1460';ctx.beginPath();ctx.moveTo(-26,-6);ctx.quadraticCurveTo(0,-22,26,-6);ctx.lineTo(16,30);ctx.quadraticCurveTo(0,40,-16,30);ctx.closePath();ctx.fill();
+ ctx.strokeStyle=T===2?'#ffd84a':T===1?'#ff3b5c':'#b04aff';ctx.lineWidth=2;ctx.stroke();
+ if(T>=1){for(const sd of[-1,1]){ctx.fillStyle=T===2?'#ffd84a':'#5a1e90';ctx.beginPath();ctx.moveTo(sd*20,-10);ctx.lineTo(sd*34,-20);ctx.lineTo(sd*26,-4);ctx.closePath();ctx.fill();ctx.beginPath();ctx.moveTo(sd*24,-6);ctx.lineTo(sd*36,-10);ctx.lineTo(sd*26,0);ctx.closePath();ctx.fill();}
+  ctx.fillStyle=mc;ctx.shadowColor=mc;ctx.shadowBlur=16;ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(6,6);ctx.lineTo(0,14);ctx.lineTo(-6,6);ctx.closePath();ctx.fill();ctx.shadowBlur=0;}
+ // head + horns (longer and glowing-tipped when awakened)
+ ctx.fillStyle='#24083e';ctx.beginPath();ctx.arc(0,-20,13,0,6.283);ctx.fill();
+ const hl=T>=1?50:38;for(const sd of[-1,1]){ctx.fillStyle='#24083e';ctx.beginPath();ctx.moveTo(sd*13,-22);ctx.quadraticCurveTo(sd*24,-32,sd*(T?22:18),-hl);ctx.lineTo(sd*6,-30);ctx.closePath();ctx.fill();if(T>=1){ctx.fillStyle=mc;ctx.shadowColor=mc;ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sd*(T?22:18),-hl,2.5,0,6.283);ctx.fill();ctx.shadowBlur=0;}}
+ ctx.fillStyle=mc;ctx.shadowColor=mc;ctx.shadowBlur=10+T*6;ctx.fillRect(-8,-23,5,3);ctx.fillRect(3,-23,5,3);ctx.shadowBlur=0;
+ // ascended: crown + orbiting sigils
+ if(T===2){ctx.save();ctx.translate(0,-36);ctx.fillStyle='#ffd84a';ctx.strokeStyle='#8a5a08';ctx.lineWidth=0.8;ctx.shadowColor='#ffd84a';ctx.shadowBlur=12;ctx.beginPath();ctx.moveTo(-10,4);ctx.lineTo(-10,-4);ctx.lineTo(-5,1);ctx.lineTo(0,-7);ctx.lineTo(5,1);ctx.lineTo(10,-4);ctx.lineTo(10,4);ctx.closePath();ctx.fill();ctx.stroke();ctx.shadowBlur=0;HCOL.forEach((h2,i)=>{ctx.fillStyle=h2;ctx.beginPath();ctx.arc(-7.5+i*5,1.5,1.3,0,6.283);ctx.fill();});ctx.restore();
+  for(let k=0;k<4;k++){const oa=now*2+k*1.571;hSig(ctx,Math.cos(oa)*44,-6+Math.sin(oa)*16,5,HSIG[k],HCOL[k]);}}
+ // fists
+ for(const sd of[-1,1]){const ext=pu&&((sd>0)===((now*12|0)%2===0))?30:10,fx=Math.cos(a)*ext+Math.cos(a+sd*1.4)*16,fy=Math.sin(a)*ext+Math.sin(a+sd*1.4)*16+6;ctx.strokeStyle=T===2?'#1a0a2e':'#3a1460';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(sd*20,0);ctx.lineTo(fx,fy);ctx.stroke();ctx.fillStyle=T===2?'#2a1050':'#5a1e90';ctx.beginPath();ctx.arc(fx,fy,8+T,0,6.283);ctx.fill();ctx.strokeStyle=T===2?'#ffd84a':T===1?mc:'#d08aff';ctx.lineWidth=1.5;ctx.stroke();}
  ctx.restore();ctx.globalAlpha=1;}
 function drawDog(dg,sc){ctx.save();ctx.translate(dg.x,dg.y);if(sc)ctx.scale(sc,sc);ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(3,4,15,9,0,0,6.283);ctx.fill();ctx.rotate(dg.ang);
  const lg=Math.sin(dg.run*22)*4;ctx.fillStyle='#6a5a4e';[[-8,-7],[-8,7],[8,-7],[8,7]].forEach((q,i)=>{ctx.beginPath();ctx.ellipse(q[0]+(i%2?lg:-lg),q[1],3.5,2.6,0,0,6.283);ctx.fill();});
