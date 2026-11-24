@@ -234,6 +234,7 @@ const xpNeed=()=>prog.lvl*120;
 const sty=id=>prog.style===id;
 const curStyle=()=>STYLES.find(s=>s.id===prog.style);
 const maxHP=()=>duel&&duel.phase!=='lobby'?DUEL_HP:100+15*(prog.lvl-1)+(has('v1')?30:0)+(sty('shepherd')?20:0)+(sty('lion')?30:0)+(endless?endless.b.hp:0);
+const EDM=()=>D*(100+15*(prog.lvl-1))/100;
 const dmgVal=()=>Math.round((26+6*(prog.lvl-1))*(has('b1')?1.25:1)*(sty('kronos')?2:1)*(endless?endless.b.dmg:1));
 
 /* ---------- world ---------- */
@@ -327,9 +328,9 @@ let bossFx=[],bossSeen=false;
 const bossAlive=()=>enemies&&enemies.find(e=>e.type==='boss'&&!e.dead);
 function spawnBoss(){const hp=Math.round(5200*D*(1+0.06*(prog.lvl-1)));enemies.push({type:'boss',name:'The Hydra King',x:1300,y:1000,r:30,ang:Math.PI/2,baseAng:0,hp,max:hp,pts:[[1300,1000]],pi:0,wait:0,st:'alert',sus:1,seenT:0,lx:0,ly:0,wind:0,cool:2,hitF:0,searchT:0,home:[1300,1000],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0,phase:1,regrew:false,atkT:2.5,sumT:6,heads:5});bossSeen=false;bossFx=[];}
 function bossAttack(e){const ph=e.phase,pick=rnd();
- if(pick<0.34){bossFx.push({k:'circle',x:e.x,y:e.y,r:150+ph*20,t:0,delay:1.0-ph*0.12,dmg:26*D,col:'255,80,60',lab:'TAIL SWEEP'});}
- else if(pick<0.67){const a=Math.atan2(P.y-e.y,P.x-e.x);bossFx.push({k:'cone',x:e.x,y:e.y,a,t:0,delay:0.8-ph*0.1,col:'120,230,90',fire:()=>{for(let i=-3-ph;i<=3+ph;i++){const aa=a+i*0.11;arrows.push({x:e.x+Math.cos(aa)*34,y:e.y+Math.sin(aa)*34,vx:Math.cos(aa)*360,vy:Math.sin(aa)*360,l:1.6,glob:1,dmg:12*D});}}});}
- else{const n=3+ph*2;for(let i=0;i<n;i++){const a=rnd()*6.283,r=rnd()*140;bossFx.push({k:'circle',x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,r:55,t:0,delay:1.1+i*0.12,dmg:18*D,col:'140,255,100',lab:i===0?'ACID RAIN':'',poison:1});}}}
+ if(pick<0.34){bossFx.push({k:'circle',x:e.x,y:e.y,r:150+ph*20,t:0,delay:1.0-ph*0.12,dmg:30*EDM(),col:'255,80,60',lab:'TAIL SWEEP'});}
+ else if(pick<0.67){const a=Math.atan2(P.y-e.y,P.x-e.x);bossFx.push({k:'cone',x:e.x,y:e.y,a,t:0,delay:0.8-ph*0.1,col:'120,230,90',fire:()=>{for(let i=-3-ph;i<=3+ph;i++){const aa=a+i*0.11;arrows.push({x:e.x+Math.cos(aa)*34,y:e.y+Math.sin(aa)*34,vx:Math.cos(aa)*360,vy:Math.sin(aa)*360,l:1.6,glob:1,dmg:14*EDM()});}}});}
+ else{const n=3+ph*2;for(let i=0;i<n;i++){const a=rnd()*6.283,r=rnd()*140;bossFx.push({k:'circle',x:P.x+Math.cos(a)*r,y:P.y+Math.sin(a)*r,r:55,t:0,delay:1.1+i*0.12,dmg:20*EDM(),col:'140,255,100',lab:i===0?'ACID RAIN':'',poison:1});}}}
 function updBoss(e,dt){e.cool-=dt;e.hitF-=dt;e.stun=Math.min(e.stun,0.4);e.stoned=false;
  const d=dist(e.x,e.y,P.x,P.y),f=e.hp/e.max;
  if(!bossSeen&&d<560){bossSeen=true;if(typeof playReveal==='function'){state='boss';playReveal({id:'hydra',r:4,name:'The Hydra King',tr:'#9effc8',cl:'#1f4a3a',hd:'#2f6a4a',boss:1},()=>{state='play';msg('The Hydra King awakens! Defeat him.',3);});}return;}
@@ -340,7 +341,7 @@ function updBoss(e,dt){e.cool-=dt;e.hitF-=dt;e.stun=Math.min(e.stun,0.4);e.stone
  const sp=60+e.phase*18;if(d>90)moveTo(e,P.x,P.y,sp,dt);e.ang+=angDiff(Math.atan2(P.y-e.y,P.x-e.x),e.ang)*Math.min(1,dt*3);
  e.atkT-=dt;if(e.atkT<=0){e.atkT=Math.max(1.1,2.6-e.phase*0.5);bossAttack(e);}
  e.sumT-=dt;if(e.sumT<=0){e.sumT=9-e.phase*1.5;const alive=enemies.filter(o=>o.type==='head'&&!o.dead).length,n=Math.min(e.phase+1,6-alive);if(n<=0)return;for(let i=0;i<n;i++){const a=rnd()*6.283;const hx=e.x+Math.cos(a)*70,hy=e.y+Math.sin(a)*70;G('head',[[hx,hy]]);const h=enemies[enemies.length-1];h.st='alert';h.sus=1;h.seenT=now;h.lx=P.x;h.ly=P.y;resolve(h);}float(e.x,e.y-50,'HEADS RISE!','#9effc8');}
- if(d<e.r+P.r+6&&e.cool<=0){e.cool=1.2;hurtPlayer(16*D,e.x,e.y);}}
+ if(d<e.r+P.r+6&&e.cool<=0){e.cool=1.2;hurtPlayer(18*EDM(),e.x,e.y);}}
 function updBossFx(dt){for(const b of bossFx){b.t+=dt;if(!b.done&&b.t>=b.delay){b.done=true;if(b.k==='circle'){fxPush({k:'ring',x:b.x,y:b.y,r:b.r,col:'rgb('+b.col+')',life:.4});if(dist(b.x,b.y,P.x,P.y)<b.r+P.r)hurtPlayer(b.dmg,b.x,b.y);if(b.poison)for(let i=0;i<6;i++)parts.push({x:b.x,y:b.y,vx:(rnd()-.5)*90,vy:(rnd()-.5)*90,l:.6,a:0,c:'#9cff6a',sz:5,sh:1});shake=Math.max(shake,4);}else if(b.fire)b.fire();}}bossFx=bossFx.filter(b=>b.t<b.delay+0.15);}
 function drawBossFx(){for(const b of bossFx){if(b.done)continue;const q=b.t/b.delay;ctx.save();
  if(b.k==='circle'){ctx.fillStyle='rgba('+b.col+','+(0.12+0.18*q)+')';ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,6.283);ctx.fill();ctx.strokeStyle='rgba('+b.col+',.9)';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='rgba('+b.col+',.35)';ctx.beginPath();ctx.arc(b.x,b.y,b.r*q,0,6.283);ctx.fill();if(b.lab){ctx.fillStyle='#fff';ctx.font='800 13px Alegreya Sans';ctx.textAlign='center';ctx.fillText(b.lab,b.x,b.y-b.r-6);}}
@@ -388,7 +389,7 @@ const AFFIX={swift:'Swift',armored:'Armored',vampiric:'Vampiric',explosive:'Expl
 const CHAMP_N=['Ares','Sparta','the Pit','Bronze','Thebes','the Arena','Ruin','the Storm'];
 const EW=()=>endless?endless.w:1;
 const ekBaseHP=()=>maxHP()-(endless?endless.b.hp:0);
-const ekD=pct=>{const w=EW();return Math.round(ekBaseHP()*pct*(1+0.1*w+0.0035*w*w));};
+const ekD=pct=>{const w=EW();return Math.round(ekBaseHP()*pct*1.35*(1+0.1*w+0.0035*w*w));};
 const ekHp=k=>Math.round(70*EKS[k].hp*(dmgVal()/(endless?endless.b.dmg:1))/26*(0.75+0.13*EW()));
 const ekSp=e=>EKS[e.ek].sp*(1+Math.min(0.45,0.02*EW()))*(e.aff.includes('swift')?1.4:1)*(now<(e.haste||0)?1.3:1);
 const ekCD=e=>(1/(1+0.03*EW()))*(now<(e.haste||0)?0.7:1);
@@ -477,7 +478,7 @@ function updEK(e,dt){if(!endless||!P)return;const d=dist(e.x,e.y,P.x,P.y),toP=Ma
  if(e.aff.includes('regen')&&e.hp<e.max)e.hp=Math.min(e.max,e.hp+e.max*0.02*dt);
  if((P.buf.invis>0||inSmoke()||P.vanish>0||P.bush)&&d>60){if(e.st==='alert'){e.st='search';e.searchT=3;}e.wind=0;e.charge=0;e.lunge=0;if(dist(e.x,e.y,e.lx,e.ly)>20)moveTo(e,e.lx,e.ly,ekSp(e)*0.6,dt);else e.ang+=dt*2;return;}
  if(e.st!=='alert'){e.st='alert';float(e.x,e.y-30,'!','#ff4a3a');}
- e.seenT=now;e.lx=P.x;e.ly=P.y;
+ e.seenT=now;e.lx=P.x;e.ly=P.y;lastAlert=now;
  if(endless.reck&&(e.ek==='archer'||e.ek==='skirm'||e.ek==='priest'||e.ek==='bomber')){EKAI.guard(e,dt,d,toP);return;}
  EKAI[e.ek](e,dt,d,toP);}
 
@@ -1120,7 +1121,7 @@ function updEnemy(e,dt){if(e.type==='rival')return;if(e.type==='boss'&&!e.dead){
   }else{
    const reach=e.r+P.r+16;
    if(e.wind>0){e.wind-=dt;e.ang+=angDiff(toP,e.ang)*Math.min(1,dt*3);if(e.wind<=0){e.cool=(e.type==='target'?0.9:1.15)/Math.sqrt(D);e.swing=0.15;
-     if(d<reach+10&&Math.abs(angDiff(toP,e.ang))<1.1)hurtPlayer((e.type==='target'?20:13)*D,e.x,e.y);}}
+     if(d<reach+10&&Math.abs(angDiff(toP,e.ang))<1.1)hurtPlayer((e.type==='target'?24:16)*EDM(),e.x,e.y);}}
    else{if(d>reach-4)moveTo(e,see?P.x:e.lx,see?P.y:e.ly,e.type==='target'?105:120,dt);else e.ang+=angDiff(toP,e.ang)*Math.min(1,dt*8);
     if(d<reach&&e.cool<=0)e.wind=e.type==='target'?0.4:0.5;}
   }
@@ -1142,7 +1143,7 @@ function update(dt){
  if(click&&P.atkCD<=0)playerAttack();click=false;
  P.hidden=grass.some(g=>dist(P.x,P.y,g.x,g.y)<g.r-4)||inSmoke();
  const mh=maxHP();if(P.hp>mh)P.hp=mh;
- if(!duel&&now-lastAlert>(has('v3')?2:5)&&P.hp<mh)P.hp=Math.min(mh,P.hp+(has('v3')?12:5)*dt);
+ if(!duel&&now-lastAlert>(has('v3')?5:8)&&P.hp<mh)P.hp=Math.min(mh,P.hp+mh*(has('v3')?0.02:0.01)*dt);
  const edt=dt*(sty('kronos')?0.5:1)*(P.buf.god>0?0.08:1)*(P.buf.slowmo>0?0.5:1);
  if(sty('psycho')&&(P.buf.god>0||P.buf.speed>0||P.dashT>0||P.awT>0)){P.ghT-=dt;const mvg=Math.hypot(P.x-(P.gx??P.x),P.y-(P.gy??P.y));if(P.ghT<=0&&(mvg>0.3||P.awT>0||P.buf.god>0)){P.ghT=P.awT>0||P.buf.god>0?0.025:0.035;P.ghosts.push({x:P.x,y:P.y,f:P.face,t:0.45});}}
  if(P){P.gx=P.x;P.gy=P.y;}
@@ -1194,7 +1195,7 @@ function update(dt){
  for(let i=0;i<enemies.length;i++){const a=enemies[i];if(a.dead)continue;for(let j=i+1;j<enemies.length;j++){const b=enemies[j];if(b.dead)continue;const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),m=a.r+b.r;if(d<m&&d>0.01){const p=(m-d)/2;a.x-=dx/d*p;a.y-=dy/d*p;b.x+=dx/d*p;b.y+=dy/d*p;}}
   const dx=P.x-a.x,dy=P.y-a.y,d=Math.hypot(dx,dy),m=a.r+P.r;if(d<m&&d>0.01){a.x-=dx/d*(m-d);a.y-=dy/d*(m-d);resolve(a);}}
  for(const a of arrows){a.x+=a.vx*edt;a.y+=a.vy*edt;a.l-=edt;
-  if(dist(a.x,a.y,P.x,P.y)<P.r+3&&P.inv<=0){hurtPlayer(a.dmg||10*D,a.x-a.vx,a.y-a.vy);a.l=0;}
+  if(dist(a.x,a.y,P.x,P.y)<P.r+3&&P.inv<=0){hurtPlayer(a.dmg||12*EDM(),a.x-a.vx,a.y-a.vy);a.l=0;}
   for(const r of rects)if(!r.low&&a.x>r.x&&a.x<r.x+r.w&&a.y>r.y&&a.y<r.y+r.h)a.l=0;}
  arrows=arrows.filter(a=>a.l>0);
  for(const b of bolts)b.t-=dt;bolts=bolts.filter(b=>b.t>0);for(const s of smokes)s.t-=dt;smokes=smokes.filter(s=>s.t>0);
