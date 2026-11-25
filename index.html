@@ -268,7 +268,7 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'9f6cb22c9309c8b41a2af0b9':{lucky:15,spins:20,rel:1795561200000,t:'+15 Lucky spins and +20 free spins'},'77e12e98e9a218a173c897d5':{lucky:20,rel:1795561200000,t:'+20 Lucky spins'},'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'}};
+const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'}};
 const SPIN_COST=150;
 const LUCK=[0,45,35,17,2.5,0.5];
 const SAVEKEY='kerkos-save-v3';
@@ -885,8 +885,8 @@ function showCodes(back,note,good){if(state==='play')state='pause';
   {spin:()=>showSpin(back),back});
  const f=document.getElementById('codef'),inp=document.getElementById('codein');if(inp&&inp.focus)inp.focus();
  if(f)f.onsubmit=ev=>{ev.preventDefault();const c=(inp.value||'').trim().toUpperCase().replace(/\s+/g,''),C=c?CODES_H[codeKey(c)]:null;
-  if(!c)return showCodes(back,'Type a code first.');const C0=CODES_H[codeKey(c)];if((prog.codeLock||0)>Date.now()&&!(C0&&C0.rel>(prog.lockFrom||0))){const h=Math.ceil((prog.codeLock-Date.now())/3600000);return showCodes(back,'You loaded a save code in this browser for the first time, so older promo codes are locked here for '+h+' more hour'+(h===1?'':'s')+'. New codes still work. If you loaded it by mistake, use Undo last load in Save code.');}
-  const hsh=x=>{let v=7;for(const ch of x)v=(v*31+ch.charCodeAt(0))%2147483647;return v;};if(!C&&codeKey(c)==='8318bcabd1f706668f12a367'){if(prog.lvl<7)return showCodes(back,'Codes unlock at level 7. You are level '+prog.lvl+'.');const key='dev:275235889';if(prog.redeemed.includes(key))return showCodes(back,'You have already used that code.');prog.redeemed.push(key);prog.lucky+=1000;save();return showCodes(back,'Developer code accepted! +1000 Lucky spins',true);}if(C&&prog.lvl<7)return showCodes(back,'Codes unlock at level 7. You are level '+prog.lvl+'.');if(!C)return showCodes(back,'That code is not valid.');
+  if(!c)return showCodes(back,'Type a code first.');const C0=CODES_H[codeKey(c)];if((prog.codeLock||0)>Date.now()&&!(C0&&C0.rel>(prog.lockFrom||0))&&codeKey(c)!=='8318bcabd1f706668f12a367'){const h=Math.ceil((prog.codeLock-Date.now())/3600000);return showCodes(back,'You loaded a save code in this browser for the first time, so older promo codes are locked here for '+h+' more hour'+(h===1?'':'s')+'. New codes still work. If you loaded it by mistake, use Undo last load in Save code.');}
+  const hsh=x=>{let v=7;for(const ch of x)v=(v*31+ch.charCodeAt(0))%2147483647;return v;};if(!C&&codeKey(c)==='8318bcabd1f706668f12a367'){if(prog.lvl<7)return showCodes(back,'Codes unlock at level 7. You are level '+prog.lvl+'.');prog.lucky+=1000;save();return showCodes(back,'Developer code accepted! +1000 Lucky spins',true);}if(C&&prog.lvl<7)return showCodes(back,'Codes unlock at level 7. You are level '+prog.lvl+'.');if(!C)return showCodes(back,'That code is not valid.');
   if(prog.redeemed.includes(c))return showCodes(back,'You have already used that code.');
   prog.redeemed.push(c);let t=C.t;
   if(C.spins)prog.spins+=C.spins;
