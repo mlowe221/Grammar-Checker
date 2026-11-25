@@ -329,7 +329,7 @@ function sigArt(){const st=curStyle();if(!st)return;const c=st.tr||'#ffffff',p=t
 const xpNeed=()=>prog.lvl*120;
 const sty=id=>prog.style===id;
 const curStyle=()=>STYLES.find(s=>s.id===prog.style);
-const maxHP=()=>duel&&duel.phase!=='lobby'?DUEL_HP:100+15*(prog.lvl-1)+(has('b_resolve')?Math.round(25*tPow()):0)+(typeof bStat==='function'?Math.round(bStat('hp')):0)+(has('b_vital')?Math.round(40*tPow()):0)+(sty('shepherd')?20:0)+(sty('lion')?30:0)+(endless?endless.b.hp:0);
+const maxHP=()=>duel&&duel.phase!=='lobby'?DUEL_HP:Math.round((1+trF('hp')/100)*(100+15*(prog.lvl-1)+(has('b_resolve')?Math.round(25*tPow()):0)+(typeof bStat==='function'?Math.round(bStat('hp')):0)+(has('b_vital')?Math.round(40*tPow()):0)+(sty('shepherd')?20:0)+(sty('lion')?30:0)+(endless?endless.b.hp:0)));
 const EHP=()=>1.5+0.3*(prog.lvl-1);
 const BDM=()=>EDM()*1.9;
 const EDM=()=>D*(130+20*(prog.lvl-1))/100;
@@ -1367,7 +1367,7 @@ function playerAttack(){if(duelLocked())return;if(duel)duel.a++;{const A=awA();i
  while(fq.length)fq.shift()();}
 
 function hurtPlayer(d,fromX,fromY){if(P.inv>0||state!=='play')return;const hard=!!endless||(bossSeen&&!!bossAlive());const guard=P.buf.immune>0;if(guard){burst(P.x,P.y,'#ffd77a',6,80);}d=Math.round(d*(guard?0.35:1)*(1-pf('dmgTaken'))*(sty('grandmaster')?0.75:1)*(P.egoT>0?[0.7,0.55,0.4][P.rTier||0]-(HK()===2&&sty('hooligan')?0.1:0):1)*(P.awT>0?0.4:1));if(guard)float(P.x,P.y-34,'Guarded','#ffd77a');P.hp-=d;P.hurt=0.25;P.inv=0.35;const a=Math.atan2(P.y-fromY,P.x-fromX);P.x+=Math.cos(a)*14;P.y+=Math.sin(a)*14;resolve(P);float(P.x,P.y-20,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);
- if(P.hp<=0){if(sty('hydra')&&!P.hydraRev){P.hydraRev=true;P.hp=maxHP();P.inv=1.8;msg('The Hydra King regrows!',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#9effc8',life:.7});burst(P.x,P.y,'#9effc8',40,180);return;}if(endless&&endless.b.rev>0){endless.b.rev--;P.hp=Math.round(maxHP()*0.5);P.inv=1.5;msg('Phoenix Feather! You rise again.',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#ff9a3a',life:.7});return;}if(P.phoenix){P.phoenix=false;P.hp=maxHP()*Math.min(1,0.5*tPow());P.inv=1.5;msg('Phoenix! You rise again.',3);burst(P.x,P.y,'#ffb040',40,180);return;}P.hp=0;endScreen(false);}}
+ if(P.hp<=0)trPhoenix();if(P.hp<=0){if(sty('hydra')&&!P.hydraRev){P.hydraRev=true;P.hp=maxHP();P.inv=1.8;msg('The Hydra King regrows!',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#9effc8',life:.7});burst(P.x,P.y,'#9effc8',40,180);return;}if(endless&&endless.b.rev>0){endless.b.rev--;P.hp=Math.round(maxHP()*0.5);P.inv=1.5;msg('Phoenix Feather! You rise again.',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#ff9a3a',life:.7});return;}if(P.phoenix){P.phoenix=false;P.hp=maxHP()*Math.min(1,0.5*tPow());P.inv=1.5;msg('Phoenix! You rise again.',3);burst(P.x,P.y,'#ffb040',40,180);return;}P.hp=0;endScreen(false);}}
 
 function stone(e){if(sty('gorgon')&&!(P.stoneT>now)&&e.type!=='boss'){P.stoneT=now+12;e.poison=Math.max(e.poison,4);float(e.x,e.y-30,'Venom!','#9cff6a');}}
 function alertE(e,spread){if(e.st!=='alert'){stone(e);if(e.st!=='search'&&!spread)stats.spotted++;e.st='alert';e.sus=1;e.cool=0.6;float(e.x,e.y-30,'!','#ff4a3a');}
@@ -1854,7 +1854,7 @@ const PASS={
 };
 const RWK={titan:1.5,helios:1.85,nyx:1.6,tempest:1.45,kronos:1.4,lion:1.45,hydra:1.5,psycho:0.7,drakon:1.85,midas:2.5,pitbull:1.5,grandmaster:1.4,archmage:1.35};
 const rwk=()=>{const S=P&&curStyle();return S&&RWK[S.id]&&!duel?RWK[S.id]:1;};
-const pf=k=>{const S=curStyle();if(!S)return 0;if(!PASS[S.id])return treeF(k)+(endless&&endless.b[k]||0);let v=treeF(k)+(RWK[S.id]&&!duel)?(k==='cdr'?0.15:k==='dmgTaken'?0.2:0):0;for(const p of PASS[S.id])if(p.f&&p.f[k])v+=p.f[k];const M=MASTERY[S.id],l=mlv(S.id);if(M){if(l>=1&&M.pa.f[k])v+=M.pa.f[k];if(l>=3&&M.pb.f[k])v+=M.pb.f[k];}return v+(endless&&endless.b[k]||0);};
+const pf=k=>{const S=curStyle();if(!S)return 0;if(!PASS[S.id])return treeF(k)+(endless&&endless.b[k]||0);let v=treeF(k)+((RWK[S.id]&&!duel)?(k==='cdr'?0.15:k==='dmgTaken'?0.2:0):0);for(const p of PASS[S.id])if(p.f&&p.f[k])v+=p.f[k];const M=MASTERY[S.id],l=mlv(S.id);if(M){if(l>=1&&M.pa.f[k])v+=M.pa.f[k];if(l>=3&&M.pb.f[k])v+=M.pb.f[k];}return v+(endless&&endless.b[k]||0);};
 /* ---------- mastery (Mythic and above) ---------- */
 const MCOST=[1,2,2,3];
 const MASTERY={
@@ -6234,7 +6234,7 @@ function showMissions(i){state='menu';MIS=null;const ma=misArr(),I=ISLANDS[i];
 /* ---- mission end screen ---- */
 {const es0=endScreen;endScreen=function(won){if(!MIS||endless||duel)return es0.apply(this,arguments);const m=Math.floor(stats.t/60),s=Math.floor(stats.t%60),I=ISLANDS[isl],M=MIS,ma=misArr();
  if(won){state='win';const first=ma[isl]===M.m,R=misReward(isl,M.m);let lines=[];
-  if(first){ma[isl]=M.m+1;prog.spins+=R.spins;prog.lucky+=R.lucky;prog.sp+=R.sp;prog.dr+=R.dr;lines.push('+'+R.spins+' free spin'+(R.spins>1?'s':''));if(R.lucky)lines.push('+'+R.lucky+' 🍀 Lucky spin'+(R.lucky>1?'s':''));lines.push('+'+R.sp+' skill point'+(R.sp>1?'s':''));lines.push('+'+R.dr+' drachmae');if(M.m===7&&isl+1<ISLANDS.length){prog.unlocked=Math.max(prog.unlocked,isl+2);lines.push('🗺 '+ISLANDS[isl+1].name+' unlocked!');}if(M.m===7&&!prog.cleared.includes(isl))prog.cleared.push(isl);}
+  if(first){ma[isl]=M.m+1;prog.spins+=R.spins;prog.lucky+=R.lucky;prog.sp+=R.sp;prog.dr+=R.dr;lines.push('+'+R.spins+' free spin'+(R.spins>1?'s':''));if(R.lucky)lines.push('+'+R.lucky+' 🍀 Lucky spin'+(R.lucky>1?'s':''));lines.push('+'+R.sp+' skill point'+(R.sp>1?'s':''));lines.push('+'+R.dr+' drachmae');if(R.tc){prog.tc=(prog.tc||0)+R.tc;lines.push('+'+R.tc+' 💎 Trait crystal'+(R.tc>1?'s':''));}if(M.m===7&&isl+1<ISLANDS.length){prog.unlocked=Math.max(prog.unlocked,isl+2);lines.push('🗺 '+ISLANDS[isl+1].name+' unlocked!');}if(M.m===7&&!prog.cleared.includes(isl))prog.cleared.push(isl);}
   else{lines.push('Replay: no rewards (rewards are only given the first time)');}
   const pot=first?M.pot:0;if(pot){prog.dr+=pot;lines.push('+'+pot+' drachmae from treasure jars');}
   if(first)gainXP(R.xp);save();
@@ -6879,13 +6879,179 @@ AWFX2.archmage=function(c,t,x,y,k,W,H){const E=aE,out=t>1.2?Math.max(0,1-(t-1.2)
  if(t>1.1&&t<1.45){c.save();c.globalAlpha=Math.max(0,1-Math.abs(t-1.25)/0.18);c.fillStyle='#fff';c.fillRect(0,0,W,H);c.restore();}
 };
 
+/* Archmage balance: ~10% above OG Hooligan in every state */
+const ARCHN={n:0.42,a:0.45,m:0.69};
+{const hA=hitE;hitE=function(e,o){if(o&&o.dmg&&P&&prog.style==='archmage'&&!duel&&e&&e.type!=='rival'){const m=P.ascAw&&P.awT>0?ARCHN.m:P.awT>0?ARCHN.a:ARCHN.n;o=Object.assign({},o,{dmg:o.dmg*m});}return hA.call(this,e,o,...[].slice.call(arguments,2));};}
+/*TRAITS*/
+/* ================= Traits, Trait crystals and Daily quests ================= */
+var TR_OK=false;
+const TRR=[{n:'Common',c:'#b9b2a4',p:45},{n:'Uncommon',c:'#6fd36a',p:30},{n:'Rare',c:'#4aa8ff',p:15},{n:'Epic',c:'#b36ef0',p:7.5},{n:'Legendary',c:'#ffb52e',p:2},{n:'Unique',c:'#ff3a6e',p:0.5}];
+const TRAITS=[
+ {id:'sturdy',r:0,n:'Sturdy',f:{hp:4}},{id:'sharp',r:0,n:'Sharp',f:{dmg:3}},{id:'brisk',r:0,n:'Brisk',f:{spd:3}},{id:'focused',r:0,n:'Focused',f:{cdr:3}},
+ {id:'tough',r:1,n:'Tough',f:{hp:8,dr:2}},{id:'keen',r:1,n:'Keen',f:{dmg:6}},{id:'swift',r:1,n:'Swift',f:{spd:6,dmg:2}},{id:'patient',r:1,n:'Patient',f:{cdr:6,ult:5}},
+ {id:'brave',r:2,n:'Brave',f:{dmg:10,hp:6}},{id:'nimble',r:2,n:'Nimble',f:{spd:10,cdr:6}},{id:'vampiric',r:2,n:'Vampiric',f:{ls:2,dmg:5}},{id:'charged',r:2,n:'Charged',f:{ult:18,dmg:5}},
+ {id:'ferocious',r:3,n:'Ferocious',f:{dmg:17,spd:5}},{id:'bulwark',r:3,n:'Bulwark',f:{hp:25,dr:8}},{id:'tempest',r:3,n:'Tempest',f:{cdr:14,spd:8,dmg:6}},{id:'bloodthirsty',r:3,n:'Bloodthirsty',f:{ls:4,dmg:10}},
+ {id:'titanic',r:4,n:'Titanic',f:{dmg:25,hp:20}},{id:'phantom',r:4,n:'Phantom',f:{spd:18,cdr:18,dmg:10}},{id:'stormcaller',r:4,n:'Stormcaller',f:{ult:35,cdr:12,dmg:12}},{id:'undying',r:4,n:'Undying',f:{hp:30,dr:12,ls:3}},
+ {id:'olympian',r:5,n:'Blood of Olympus',f:{dmg:35,hp:30,spd:15,cdr:15}},
+ {id:'phoenix',r:5,n:'Phoenix Heart',f:{dmg:30,hp:25,regen:3},sp:'Once per mission or run, rise from death with half health'},
+ {id:'godslayer',r:5,n:'Godslayer',f:{dmg:40,hp:20,dr:10,boss:50}},
+ {id:'chronos',r:5,n:'Hand of Chronos',f:{dmg:28,cdr:30,ult:60,spd:12}}];
+const TRBY={};for(const t of TRAITS)TRBY[t.id]=t;
+const TRFX={dmg:v=>`+${v}% damage`,hp:v=>`+${v}% max health`,spd:v=>`+${v}% move speed`,cdr:v=>`${v}% shorter cooldowns`,dr:v=>`−${v}% damage taken`,ult:v=>`+${v}% ultimate charge`,ls:v=>`Heal ${v}% of damage dealt`,regen:v=>`+${v} health per second`,boss:v=>`+${v}% damage to bosses`};
+const trDesc=t=>Object.entries(t.f).map(([k,v])=>TRFX[k](v)).concat(t.sp?[t.sp]:[]).join(' · ');
+function trCur(id){if(!TR_OK||!prog)return null;id=id||prog.style;return id&&prog.traits?TRBY[prog.traits[id]]||null:null;}
+function trOn(){return TR_OK&&P&&prog&&prog.style&&!duel;}
+function trF(k){if(!trOn())return 0;const t=trCur();return t&&t.f[k]||0;}
+/* stat hooks */
+{const tfT=treeF;treeF=k=>{let v=tfT(k);if(trOn()){if(k==='cdr')v+=trF('cdr')/100;else if(k==='spd')v+=trF('spd')/100;else if(k==='dmgTaken')v+=trF('dr')/100;else if(k==='awk')v+=trF('ult')/100;else if(k==='regen')v+=trF('regen');}return v;};}
+const trMul=e=>{if(!trOn())return 1;let m=1+trF('dmg')/100;if(e&&e.type==='boss')m*=1+trF('boss')/100;return m;};
+let trLsT=0,trLsAmt=0;
+function trAfter(e,hp0){if(!e||!P||duel)return;const d=Math.max(0,hp0-(e.dead?0:Math.max(0,e.hp)));if(!d)return;dqAdd('dmg',d);const ls=trF('ls');if(ls){if(now-trLsT>1){trLsT=now;trLsAmt=0;}const cap=maxHP()*0.25,h=Math.min(d*ls/100,cap-trLsAmt);if(h>0){trLsAmt+=h;heal(h);}}}
+{const hT=hitE;hitE=function(e,o){const m=trMul(e);if(m!==1&&o&&o.dmg&&e&&e.type!=='rival')o=Object.assign({},o,{dmg:o.dmg*m});const hp0=e&&!e.dead?e.hp:0;const r=hT.call(this,e,o,...[].slice.call(arguments,2));trAfter(e,hp0);return r;};}
+{const hT2=hitEnemy;hitEnemy=function(e,d){const m=trMul(e);if(m!==1&&typeof d==='number'&&e&&e.type!=='rival')d=d*m;const hp0=e&&!e.dead?e.hp:0;const r=hT2.call(this,e,d,...[].slice.call(arguments,2));trAfter(e,hp0);return r;};}
+function trPhoenix(){const t=trCur();if(!trOn()||!t||t.id!=='phoenix'||P.trRev)return;P.trRev=true;P.hp=Math.round(maxHP()*0.5);P.inv=2.2;msg('🔥 Phoenix Heart — you rise again!',3);try{for(let i=0;i<3;i++)fxPush({k:'ring',x:P.x,y:P.y,r:20+i*30,t:0,T:0.7+i*0.15,col:i?'#ffb52e':'#ff5a2a'});burst(P.x,P.y,'#ffb52e',30,260);}catch(_){}}
+/* aura for Epic and better */
+{const dwT=drawPrim;drawPrim=function(){const r=dwT.apply(this,arguments);try{const t=trCur();if(t&&t.r>=3&&P&&state==='play'&&!duel){const c=TRR[t.r].c,k=now*(t.r>=5?3:2);ctx.save();ctx.translate(P.x,P.y);ctx.globalAlpha=t.r>=5?0.55:0.35;ctx.strokeStyle=c;ctx.lineWidth=t.r>=5?2.5:1.6;ctx.setLineDash([6,8]);ctx.lineDashOffset=-k*12;ctx.beginPath();ctx.ellipse(0,9,20+Math.sin(k)*2,8,0,0,6.283);ctx.stroke();ctx.setLineDash([]);if(t.r>=4){const n=t.r>=5?6:3;for(let i=0;i<n;i++){const a=k+i*6.283/n,y=-6-((now*30+i*13)%28);ctx.globalAlpha=(t.r>=5?0.8:0.55)*(1-((now*30+i*13)%28)/28);ctx.fillStyle=c;ctx.beginPath();ctx.arc(Math.cos(a)*16,y+Math.sin(a)*4,t.r>=5?2.4:1.8,0,6.283);ctx.fill();}}ctx.restore();}}catch(_){}return r;};}
+/* ---- trait spins ---- */
+function trRoll(){const tot=TRR.reduce((a,b)=>a+b.p,0);let x=Math.random()*tot,ri=0;for(let i=0;i<TRR.length;i++){x-=TRR[i].p;if(x<0){ri=i;break;}}const pool=TRAITS.filter(t=>t.r===ri);return pool[Math.random()*pool.length|0];}
+function trSpin(sid,n){prog.traits=prog.traits||{};const out=[];for(let i=0;i<n&&(prog.tc||0)>0;i++){prog.tc--;prog.tcU=(prog.tcU||0)+1;const t=trRoll(),cur=TRBY[prog.traits[sid]];const keep=prog.trKeep!==false&&cur&&t.r<cur.r;if(!keep)prog.traits[sid]=t.id;out.push({t,kept:keep});dqAdd('trait',1);}save();return out;}
+let trBusy=false;
+function showTraits(back,sid,res){if(state==='play')state='pause';back=back||showIslands;prog.traits=prog.traits||{};const owned=STYLES.filter(s=>prog.owned.includes(s.id));
+ if(!owned.length)return show(`<h2>💎 Traits</h2><p class="sub">Spin a style first, then come back to give it a trait.</p><button data-a="back">Back</button>`,0,{back});
+ sid=owned.some(s=>s.id===sid)?sid:(owned.some(s=>s.id===prog.style)?prog.style:owned[0].id);const S=STYLES.find(s=>s.id===sid),t=TRBY[prog.traits[sid]],tc=prog.tc||0;
+ const card=t?`<div class="trc r${t.r}" style="--tc:${TRR[t.r].c}"><small>${TRR[t.r].n} trait</small><b>${esc(t.n)}</b><span>${esc(trDesc(t))}</span>${t.pa?`<em class="trpa">★ ${esc(t.pa.n)} — ${esc(t.pa.d)}</em>`:''}</div>`:`<div class="trc" style="--tc:#7a6a55"><small>No trait yet</small><b>—</b><span>Spin to give ${esc(S.name)} a trait.</span></div>`;
+ const resH=res&&res.length?`<div class="trres">${res.map(x=>`<span class="trch" style="color:${TRR[x.t.r].c}${x.t.r>=4?';font-weight:800':''}">${esc(x.t.n)}${x.kept?' <i>(kept your better trait)</i>':''}</span>`).join('')}</div>`:'';
+ const odds=TRR.map((r,i)=>`<span class="trch" style="color:${r.c}">${r.n} ${r.p}%</span>`).join(' ');
+ const list=TRR.map((r,i)=>`<div style="margin:6px 0"><b class="trch" style="color:${r.c}">${r.n}</b><br>${TRAITS.filter(x=>x.r===i).map(x=>`<span style="display:inline-block;margin:2px 8px 2px 0"><b>${esc(x.n)}:</b> ${esc(trDesc(x))}${x.pa?`<br><span class="trpa2">★ ${esc(x.pa.n)} — ${esc(x.pa.d)}</span>`:''}</span>`).join('<br>')}</div>`).join('');
+ const opts=owned.map(s=>{const q=TRBY[prog.traits[s.id]];return `<option value="${s.id}" ${s.id===sid?'selected':''}>${esc(s.name)}${q?' — '+q.n+' ('+TRR[q.r].n+')':''}</option>`;}).join('');
+ show(`<style>.trc{border:2px solid var(--tc);border-radius:12px;padding:10px 14px;margin:8px auto;max-width:440px;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.05));box-shadow:0 0 14px color-mix(in srgb,var(--tc) 45%,transparent)}.trc small{display:block;color:var(--tc);font-weight:800;letter-spacing:.06em;text-transform:uppercase}.trc b{display:block;font-size:24px;color:var(--tc);text-shadow:0 1px 0 #000}.trc span{display:block;font-size:14px;margin-top:4px}.trc.r5{animation:trglow 1.6s ease-in-out infinite}.trc.r4{animation:trglow 2.6s ease-in-out infinite}@keyframes trglow{50%{box-shadow:0 0 30px var(--tc),inset 0 0 18px color-mix(in srgb,var(--tc) 35%,transparent)}}.trres{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:center;max-width:560px;margin:6px auto;font-size:14px}.trres i{opacity:.75;font-weight:400}.trpa{display:block;margin-top:7px;padding:5px 8px;border-radius:8px;background:rgba(20,12,6,.6);color:#ffe6a0;font-style:normal;font-weight:700;font-size:13.5px}.trpa2{display:inline-block;margin-left:10px;padding:1px 7px;border-radius:7px;background:rgba(20,12,6,.6);color:#ffe6a0;font-weight:700}.trch{background:rgba(20,12,6,.72);padding:1px 7px;border-radius:7px;line-height:1.9;white-space:nowrap}#trReel{font-size:26px;font-weight:800;min-height:34px;margin:6px 0}</style>
+ <h2>💎 Traits</h2><p class="sub">Traits give a style a permanent buff. Rarer traits are much stronger. Each style keeps its own trait.</p>
+ <div class="stats">💎 Trait crystals: <b>${tc}</b></div>
+ <label style="display:block;margin:6px 0">Style: <select id="trSel" style="padding:5px;max-width:320px">${opts}</select></label>
+ ${card}<div id="trReel"></div>${resH}
+ <div><button data-a="s1" ${tc<1?'disabled':''}>Spin trait (1 💎)</button><button data-a="s10" ${tc<10?'disabled':''}>Spin ×10 (10 💎)</button></div>
+ <div><button data-a="keep" class="ghost">${prog.trKeep!==false?'☑':'☐'} Keep my trait if the new one is a lower rarity</button></div>
+ <p class="note">Odds: ${odds}</p>
+ <p class="note">Get 💎 Trait crystals from first-time mission clears, Endless Mode runs and milestones, the Trophy Road and Daily quests. Traits don't apply in 1v1 duels.</p>
+ <details style="max-width:640px;margin:6px auto;text-align:left"><summary style="cursor:pointer;text-align:center">All traits</summary>${list}</details>
+ <button data-a="back" class="ghost">Back</button>`,1,
+ {back,keep:()=>{prog.trKeep=prog.trKeep===false;save();showTraits(back,sid);},
+  s1:()=>trAnim(back,sid,1),s10:()=>trAnim(back,sid,10)});
+ const sel=document.getElementById('trSel');if(sel)sel.onchange=()=>showTraits(back,sel.value);}
+function trAnim(back,sid,n){if(trBusy||(prog.tc||0)<1)return;trBusy=true;const res=trSpin(sid,n),best=res.reduce((a,b)=>b.t.r>a.t.r?b:a,res[0]);const el=document.getElementById('trReel');document.querySelectorAll('#ov button,.ov button').forEach(b=>b.disabled=true);
+ let i=0;const T=n>1?650:950,st=performance.now();const iv=setInterval(()=>{const r=TRAITS[Math.random()*TRAITS.length|0];if(el){el.textContent=r.n;el.style.color=TRR[r.r].c;}if(performance.now()-st>T){clearInterval(iv);trBusy=false;if(best.t.r>=5){try{beep&&beep(880,0.3);}catch(_){}toast('✨ UNIQUE TRAIT: '+best.t.n+'!');}else if(best.t.r>=4)toast('Legendary trait: '+best.t.n+'!');showTraits(back,sid,res);}},55);}
+/* ---- crystal sources ---- */
+const TR_ROAD={60:2,120:3,200:4,300:5,400:6,500:8,650:8,800:10,1000:12,1250:15,1500:18,2000:25};
+for(const m of TROPHY_ROAD)if(TR_ROAD[m.at]){m.tc=TR_ROAD[m.at];m.t+=' + '+m.tc+' 💎 Trait crystals';}
+{const ctT=claimTrophyRoad;claimTrophyRoad=function(){const before=new Set(prog.trophyClaimed||[]);const r=ctT.apply(this,arguments);for(const m of TROPHY_ROAD)if(m.tc&&!before.has(m.at)&&(prog.trophyClaimed||[]).includes(m.at))prog.tc=(prog.tc||0)+m.tc;save();return r;};}
+const misTC=(i,m)=>1+(i>=3?1:0)+(m===7?2:0);
+{const mrT=misReward;misReward=function(i,m){const R=mrT.apply(this,arguments);R.tc=misTC(i,m);return R;};}
+{const rtT=rewTxt;rewTxt=function(R){return rtT.apply(this,arguments)+(R&&R.tc?' · +'+R.tc+' 💎':'');};}
+const EK_TC={5:1,10:2,15:2,20:3,25:3,30:4,40:5,50:6,75:8,100:12};
+{const eoT=endlessOver;endlessOver=function(cashed){const E=endless;if(!E||E.over)return eoT.apply(this,arguments);const w=E.cleared||0,ms0=new Set(prog.endlessMs||[]);const r=eoT.apply(this,arguments);
+ let g=Math.min(12,Math.floor(w/4)),lines=[];if(g)lines.push('+'+g+' 💎 Trait crystals for this run');for(const k in EK_TC)if(w>=+k&&!ms0.has(+k)){g+=EK_TC[k];lines.push('Wave '+k+' milestone: +'+EK_TC[k]+' 💎');}
+ if(w)dqAdd('wave',w);if(g){prog.tc=(prog.tc||0)+g;save();try{const s=document.querySelector('.stats');if(s)s.insertAdjacentHTML('beforeend','<br><br><b style="color:#9fe8ff">'+lines.join('<br>')+'</b>');}catch(_){}}return r;};}
+/* ---- Daily quests ---- */
+const DQP=[
+ {id:'kill',t:n=>`Defeat ${n} enemies`,n:[40,60,80],rw:{spins:4,tc:2}},
+ {id:'sil',t:n=>`Take down ${n} enemies silently`,n:[6,10,14],rw:{spins:3,tc:3}},
+ {id:'mis',t:n=>`Win ${n} missions (replays count)`,n:[2,3,4],rw:{spins:5,tc:3}},
+ {id:'wave',t:n=>`Clear ${n} waves in Endless Mode`,n:[8,12,16],rw:{lucky:1,tc:3}},
+ {id:'ult',t:n=>`Awaken ${n} times`,n:[3,4,6],rw:{spins:4,tc:2}},
+ {id:'dmg',t:n=>`Deal ${n.toLocaleString()} damage`,n:[15000,30000,50000],rw:{spins:4,tc:2}},
+ {id:'boss',t:n=>`Defeat ${n===1?'a boss':n+' bosses'}`,n:[1,2],rw:{lucky:1,spins:3,tc:3}},
+ {id:'spin',t:n=>`Spin the Style Spinner ${n} times`,n:[5,10],rw:{spins:3,tc:2}},
+ {id:'trait',t:n=>`Spin for traits ${n} times`,n:[3,5],rw:{spins:5,tc:1}}];
+const DQ_BONUS={lucky:2,spins:5,tc:4};
+const dqDay=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+const rwT=R=>[R.spins?'+'+R.spins+' spins':'',R.lucky?'+'+R.lucky+' 🍀':'',R.tc?'+'+R.tc+' 💎':''].filter(Boolean).join(' · ');
+function dqMake(ex){const pool=DQP.filter(q=>!(ex||[]).includes(q.id));const pick=[];while(pick.length<3&&pool.length){const q=pool.splice(Math.random()*pool.length|0,1)[0];pick.push({id:q.id,goal:q.n[Math.random()*q.n.length|0],n:0,c:0});}return pick;}
+function dqGet(){if(!prog)return null;const k=dqDay();if(!prog.dq||!Array.isArray(prog.dq.q)||(prog.dq.day||'')<k){prog.dq={day:k,q:dqMake(),b:0,rr:0};try{save();}catch(_){}}return prog.dq;}
+function dqAdd(id,v){if(!TR_OK||!prog)return;const D=dqGet();if(!D)return;for(const q of D.q)if(q.id===id&&!q.c&&q.n<q.goal){q.n=Math.min(q.goal,q.n+v);if(q.n>=q.goal){const T=DQP.find(x=>x.id===id);try{toast('📜 Daily quest complete: '+T.t(q.goal)+' — claim it in Daily quests');}catch(_){}save();}}}
+function dqGive(R){prog.spins+=R.spins||0;prog.lucky+=R.lucky||0;prog.tc=(prog.tc||0)+(R.tc||0);}
+const dqReady=()=>{const D=dqGet();if(!D)return 0;return D.q.filter(q=>!q.c&&q.n>=q.goal).length+(D.q.every(q=>q.c)&&!D.b?1:0);};
+function showDaily(back,note){if(state==='play')state='pause';back=back||showIslands;const D=dqGet();
+ const rows=D.q.map((q,i)=>{const T=DQP.find(x=>x.id===q.id),done=q.n>=q.goal,pct=Math.round(100*q.n/q.goal);return `<div style="border:2px solid ${q.c?'#6fd36a':done?'#ffd25a':'rgba(0,0,0,.25)'};border-radius:10px;padding:8px 12px;margin:6px auto;max-width:480px;text-align:left"><b>${esc(T.t(q.goal))}</b><div style="height:8px;background:rgba(0,0,0,.3);border-radius:4px;margin:6px 0;overflow:hidden"><div style="height:100%;width:${pct}%;background:${done?'#ffd25a':'#9fe8ff'}"></div></div><div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap"><span>${Math.floor(q.n).toLocaleString()} / ${q.goal.toLocaleString()} · ${rwT(T.rw)}</span>${q.c?'<b style="color:#6fd36a">✓ Claimed</b>':done?`<button data-a="cl" data-i="${i}" style="margin:0;padding:4px 12px">Claim</button>`:(!D.rr?`<button data-a="rr" data-i="${i}" class="ghost" style="margin:0;padding:3px 10px">↻ Swap (1 a day)</button>`:'')}</div></div>`;}).join('');
+ const all=D.q.every(q=>q.c);
+ const nx=new Date();nx.setHours(24,0,0,0);const hl=Math.max(0,Math.ceil((nx-new Date())/3600000));
+ show(`<h2>📜 Daily quests</h2><p class="sub">New quests every day at midnight (in about ${hl} hour${hl===1?'':'s'}).</p>${note?`<p class="res" style="font-weight:700">${esc(note)}</p>`:''}${rows}
+ <div style="border:2px dashed ${D.b?'#6fd36a':'#ffb52e'};border-radius:10px;padding:8px;margin:8px auto;max-width:480px"><b>Complete all 3:</b> ${rwT(DQ_BONUS)} ${D.b?'<b style="color:#6fd36a">✓ Claimed</b>':all?'<button data-a="bonus" style="margin:0 0 0 8px;padding:4px 12px">Claim bonus</button>':''}</div>
+ <button data-a="back" class="ghost">Back</button>`,1,
+ {back,cl:b=>{const q=D.q[+b.dataset.i];if(!q||q.c||q.n<q.goal)return;q.c=1;const T=DQP.find(x=>x.id===q.id);dqGive(T.rw);save();showDaily(back,'Claimed: '+rwT(T.rw));},
+  rr:b=>{const i=+b.dataset.i;if(D.rr||!D.q[i]||D.q[i].c)return;const nq=dqMake(D.q.map(q=>q.id))[0];if(!nq)return;D.q[i]=nq;D.rr=1;save();showDaily(back,'Quest swapped.');},
+  bonus:()=>{if(D.b||!D.q.every(q=>q.c))return;D.b=1;dqGive(DQ_BONUS);save();showDaily(back,'Bonus claimed: '+rwT(DQ_BONUS));}});}
+/* progress events */
+{const kT=killEnemy;killEnemy=function(e,silent){const was=e&&!e.dead;const r=kT.apply(this,arguments);if(was&&e.dead&&!duel&&e.type!=='rival'){dqAdd('kill',1);if(silent)dqAdd('sil',1);if(e.type==='boss')dqAdd('boss',1);}return r;};}
+{const esT=endScreen;endScreen=function(won){const M=MIS;const r=esT.apply(this,arguments);if(won&&M&&!endless&&!duel&&!M.__dq){M.__dq=1;dqAdd('mis',1);}return r;};}
+{const awT=awaken;awaken=function(){const b=P&&P.awT>0;const r=awT.apply(this,arguments);if(P&&!b&&P.awT>0&&!duel)dqAdd('ult',1);return r;};}
+{const prT=pityRoll;pityRoll=function(){dqAdd('spin',1);return prT.apply(this,arguments);};}
+/* menu buttons */
+{const siT=showIslands;showIslands=function(){const r=siT.apply(this,arguments);try{const sp=[...document.querySelectorAll('button')].find(x=>x.dataset.a==='spin');if(sp){const n=dqReady();const b1=document.createElement('button');b1.textContent='💎 Traits'+((prog.tc||0)?' ('+prog.tc+')':'');b1.onclick=()=>showTraits(showIslands);const b2=document.createElement('button');b2.textContent='📜 Daily quests'+(n?' ('+n+' ready!)':'');b2.onclick=()=>showDaily(showIslands);sp.after(b1);b1.after(b2);}}catch(e){}return r;};}
+/* save codes keep traits + crystals */
+{const scT=scClean;scClean=function(o){const out=scT.apply(this,arguments);out.tc=Math.max(0,Math.min(1e6,Math.floor(+(o&&o.tc)||0)));out.tcV=o&&o.tcV?1:0;out.traits={};if(o&&o.traits&&typeof o.traits==='object')for(const k in o.traits)if(STYLES.some(s=>s.id===k)&&TRBY[o.traits[k]])out.traits[k]=o.traits[k];out.trKeep=!(o&&o.trKeep===false);return out;};}
+/* one-time grant: crystals for everything already earned + welcome gift */
+function trMigrate(){if(!prog||prog.tcV)return;let g=5;const ma=misArr();for(let i=0;i<ISLANDS.length;i++)for(let m=0;m<Math.min(8,ma[i]||0);m++)g+=misTC(i,m);for(const m of TROPHY_ROAD)if(m.tc&&(prog.trophyClaimed||[]).includes(m.at))g+=m.tc;
+ for(const k of Object.keys(EK_TC))if((prog.endlessMs||[]).includes(+k))g+=EK_TC[k];prog.tc=(prog.tc||0)+g;prog.tcV=1;prog.traits=prog.traits||{};save();setTimeout(()=>{try{toast('💎 Traits are here! You got '+g+' Trait crystals for your progress so far.');}catch(_){}},1500);}
+TR_OK=true;try{trMigrate();dqGet();}catch(e){}
+
+/*TRAITS2*/
+/* ================= Unique trait passive abilities ================= */
+const TRPA={
+ olympian:{n:'Wrath of Olympus',d:'Every 6s, your next hit calls down a lightning strike that blasts and stuns every enemy near the target'},
+ phoenix:{n:'Rebirth',d:'Once per mission or run, rise from death with half health in a firestorm that scorches and stuns nearby enemies. Every kill heals 4% health'},
+ godslayer:{n:'Execution',d:'Hits instantly finish off normal enemies below 18% health. Every 7th hit on a boss splits it for +150% damage'},
+ chronos:{n:'Time Stop',d:'Every 16s, using an ability freezes every nearby enemy in time for 2.5s (1s for bosses)'}};
+for(const k in TRPA){TRBY[k].pa=TRPA[k];delete TRBY[k].sp;}
+let trInPa=false;
+const trNear=(x,y,R)=>enemies.filter(e=>e&&!e.dead&&e.hp>0&&e.type!=='rival'&&Math.hypot(e.x-x,e.y-y)<=R);
+const trHit=(e,d,col)=>{trInPa=true;try{hitE(e,{dmg:d,col:col||'#fff'});}catch(_){}trInPa=false;};
+/* --- effects --- */
+function trBoltFx(x,y,R){const pts=[];let px=x+(rnd()-.5)*60,py=y-460;for(let i=0;i<=10;i++){const k=i/10;pts.push([x+(px-x)*(1-k)+(i&&i<10?(rnd()-.5)*36:0),py+(y-py)*k]);}
+ rAdd(0.45,(c,f)=>{const a=1-f;c.lineCap='round';c.lineJoin='round';for(const [w,col,al] of [[14,'#4aa8ff',0.35],[7,'#bfe8ff',0.8],[2.5,'#ffffff',1]]){c.globalAlpha=a*al;c.strokeStyle=col;c.lineWidth=w*(1-f*0.6);c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.stroke();}
+  c.globalAlpha=a*0.7;const g=c.createRadialGradient(x,y,0,x,y,R);g.addColorStop(0,'rgba(255,255,255,.9)');g.addColorStop(.4,'rgba(150,210,255,.45)');g.addColorStop(1,'rgba(80,150,255,0)');c.fillStyle=g;c.beginPath();c.arc(x,y,R*(0.6+f*0.5),0,6.283);c.fill();});
+ rAdd(0.7,(c,f)=>{c.globalAlpha=(1-f)*0.6;c.strokeStyle='#bfe8ff';c.lineWidth=2;for(let i=0;i<6;i++){const a=i*1.047+f;c.beginPath();c.moveTo(x+Math.cos(a)*R*0.3,y+Math.sin(a)*R*0.15);c.lineTo(x+Math.cos(a)*R*(0.4+f*0.7),y+Math.sin(a)*R*(0.2+f*0.35));c.stroke();}},true);
+ try{VX.shock(x,y,R,'#9fd8ff','#ffffff',0.4);}catch(_){}rSparks(x,y,18,'#dff4ff',320);shake=Math.max(shake||0,5);}
+function trFireFx(x,y,R){try{VX.shock(x,y,R,'#ff7a2a','#ffd25a',0.6);VX.shock(x,y,R*0.6,'#ffd25a','#fff',0.45);}catch(_){}
+ const fl=[];for(let i=0;i<26;i++)fl.push([rnd()*6.283,0.3+rnd()*0.7,rnd()]);
+ rAdd(1.1,(c,f)=>{for(const [a,d,s] of fl){const r=R*d*(0.3+f*0.9),fx=x+Math.cos(a)*r,fy=y+Math.sin(a)*r*0.6-f*40*s;const sz=(10+12*s)*(1-f);c.globalAlpha=(1-f)*0.85;const g=c.createRadialGradient(fx,fy,0,fx,fy,sz);g.addColorStop(0,'#fff3b0');g.addColorStop(.4,'#ff9a2a');g.addColorStop(1,'rgba(200,40,10,0)');c.fillStyle=g;c.beginPath();c.arc(fx,fy,sz,0,6.283);c.fill();}});
+ rAdd(1.4,(c,f)=>{c.globalAlpha=(1-f)*0.5;c.fillStyle='#3a1206';c.beginPath();c.ellipse(x,y,R*0.8,R*0.45,0,0,6.283);c.fill();},true);rSparks(x,y,30,'#ffb52e',360);shake=Math.max(shake||0,7);}
+function trSlashFx(x,y,col,big){const L=big?70:44,a0=rnd()*3;rAdd(big?0.45:0.32,(c,f)=>{const g=Math.min(1,f*4),a=1-f;c.lineCap='round';for(const s of [0,1]){const an=a0+s*1.4;c.globalAlpha=a*0.45;c.strokeStyle=col;c.lineWidth=(big?14:9)*(1-f*0.5);c.beginPath();c.moveTo(x-Math.cos(an)*L*g,y-Math.sin(an)*L*g);c.lineTo(x+Math.cos(an)*L*g,y+Math.sin(an)*L*g);c.stroke();c.globalAlpha=a;c.strokeStyle='#fff';c.lineWidth=big?3.5:2.5;c.stroke();}});rSparks(x,y,big?18:10,col,big?320:240);}
+function trClockFx(x,y,R){rAdd(1.0,(c,f)=>{const r=R*(0.15+0.85*Math.min(1,f*1.6)),a=1-f;c.globalAlpha=a*0.18;c.fillStyle='#9fd8ff';c.beginPath();c.arc(x,y,r,0,6.283);c.fill();c.globalAlpha=a*0.9;c.strokeStyle='#cfeeff';c.lineWidth=3;c.beginPath();c.arc(x,y,r,0,6.283);c.stroke();
+  c.lineWidth=2;for(let i=0;i<12;i++){const an=i*0.5236;c.beginPath();c.moveTo(x+Math.cos(an)*r*0.88,y+Math.sin(an)*r*0.88);c.lineTo(x+Math.cos(an)*r,y+Math.sin(an)*r);c.stroke();}
+  c.strokeStyle='#fff';c.lineWidth=4;const h=-1.57+f*9;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(h)*r*0.45,y+Math.sin(h)*r*0.45);c.stroke();c.lineWidth=2.5;const m=-1.57+f*25;c.beginPath();c.moveTo(x,y);c.lineTo(x+Math.cos(m)*r*0.75,y+Math.sin(m)*r*0.75);c.stroke();},true);
+ try{VX.shock(x,y,R*0.5,'#cfeeff','#ffffff',0.5);}catch(_){}}
+function trFrozenFx(e,T){const seed=rnd()*6;rAdd(T,(c,f)=>{if(!e||e.dead)return;const a=f>0.85?(1-f)/0.15:1,r=(e.r||12)+7;c.globalAlpha=0.5*a;c.fillStyle='#bfe8ff';c.beginPath();c.arc(e.x,e.y,r,0,6.283);c.fill();c.globalAlpha=0.95*a;c.strokeStyle='#ffffff';c.lineWidth=2;c.beginPath();c.arc(e.x,e.y,r,0,6.283);c.stroke();
+  const h=seed+f*0.4;c.beginPath();c.moveTo(e.x,e.y);c.lineTo(e.x+Math.cos(h)*r*0.6,e.y+Math.sin(h)*r*0.6);c.moveTo(e.x,e.y);c.lineTo(e.x+Math.cos(seed*2)*r*0.85,e.y+Math.sin(seed*2)*r*0.85);c.stroke();});}
+/* --- on-hit passives --- */
+function trOnHit(e,raw){if(trInPa||!trOn()||!e||e.type==='rival')return;const t=trCur();if(!t||!t.pa)return;
+ if(t.id==='olympian'&&now>=(P.trOlyT||0)&&raw>0){P.trOlyT=now+6;const d=Math.max(raw*2.5,40+8*prog.lvl),x=e.x,y=e.y;trBoltFx(x,y,120);for(const n of trNear(x,y,120)){trHit(n,d,'#bfe8ff');if(n.type!=='boss')n.stun=Math.max(n.stun||0,0.6);}float(x,y-50,'⚡ WRATH OF OLYMPUS','#bfe8ff');}
+ if(t.id==='godslayer'&&!e.dead&&e.hp>0){if(e.type==='boss'){P.trGsN=(P.trGsN||0)+1;if(P.trGsN>=7&&raw>0){P.trGsN=0;trHit(e,raw*1.5,'#ff3a4a');trSlashFx(e.x,e.y,'#ff2a3a',true);float(e.x,e.y-56,'GODSPLITTER','#ff5a6a');shake=Math.max(shake||0,5);}}
+  else if(e.hp<e.max*0.18){const x=e.x,y=e.y;trHit(e,e.hp+5,'#ff3a4a');if(!e.dead&&e.hp>0){try{killEnemy(e);}catch(_){}}trSlashFx(x,y,'#ff2a3a',false);float(x,y-40,'EXECUTED','#ff5a6a');}}}
+{const hO=hitE;hitE=function(e,o){const raw=o&&o.dmg||0,was=e&&!e.dead;const r=hO.apply(this,arguments);if(was)trOnHit(e,raw);return r;};}
+{const hO2=hitEnemy;hitEnemy=function(e,d){const was=e&&!e.dead;const r=hO2.apply(this,arguments);if(was&&typeof d==='number')trOnHit(e,d);return r;};}
+/* --- Phoenix: firestorm on rebirth + heal on kill --- */
+{const tpO=trPhoenix;trPhoenix=function(){const b=P&&P.trRev;tpO.apply(this,arguments);if(P&&!b&&P.trRev){trFireFx(P.x,P.y,220);const d=120+20*prog.lvl;for(const n of trNear(P.x,P.y,220)){trHit(n,d,'#ff9a2a');n.stun=Math.max(n.stun||0,1);}}};}
+{const kO=killEnemy;killEnemy=function(e){const was=e&&!e.dead;const r=kO.apply(this,arguments);if(was&&e.dead&&trOn()){const t=trCur();if(t&&t.id==='phoenix'&&P.hp>0){const h=Math.round(maxHP()*0.04);heal(h);if(rnd()<0.5)float(P.x,P.y-30,'+'+h,'#ffb52e');}}return r;};}
+/* --- Chronos: Time Stop on ability use --- */
+let trCd0=null,trMm0=0;
+{const uO=update;update=function(dt){const r=uO.apply(this,arguments);try{if(trOn()&&state==='play'){const t=trCur();if(t&&t.id==='chronos'){let cast=false;const m=P.mcd||[];if(trCd0)for(let i=0;i<m.length;i++)if((trCd0[i]||0)<=0.05&&m[i]>0.4)cast=true;if(trMm0<=0.05&&(P.mmcd||0)>0.4)cast=true;
+ if(cast&&now>=(P.trChT||0)){P.trChT=now+16;trClockFx(P.x,P.y,300);for(const n of trNear(P.x,P.y,300)){const T=n.type==='boss'?1:2.5;n.stun=Math.max(n.stun||0,T);trFrozenFx(n,T);}float(P.x,P.y-50,'⏳ TIME STOP','#cfeeff');}
+ trCd0=m.slice();trMm0=P.mmcd||0;}else trCd0=null;}else trCd0=null;}catch(_){}return r;};}
+/* --- ready indicators above the player --- */
+{const dpO=drawPrim;drawPrim=function(){const r=dpO.apply(this,arguments);try{if(trOn()&&state==='play'){const t=trCur();if(t&&t.pa){const x=P.x,y=P.y-34+Math.sin(now*4)*2;ctx.save();
+ if(t.id==='olympian'&&now>=(P.trOlyT||0)){ctx.globalAlpha=0.9;ctx.fillStyle='#ffe66a';ctx.strokeStyle='#4aa8ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+2,y-9);ctx.lineTo(x-4,y+1);ctx.lineTo(x,y+1);ctx.lineTo(x-2,y+9);ctx.lineTo(x+5,y-2);ctx.lineTo(x+1,y-2);ctx.closePath();ctx.fill();ctx.stroke();}
+ else if(t.id==='chronos'&&now>=(P.trChT||0)){ctx.globalAlpha=0.9;ctx.strokeStyle='#cfeeff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,7,0,6.283);ctx.stroke();ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y-5);ctx.moveTo(x,y);ctx.lineTo(x+Math.cos(now*3)*5,y+Math.sin(now*3)*5);ctx.stroke();}
+ else if(t.id==='phoenix'&&!P.trRev){ctx.globalAlpha=0.85;const g=ctx.createRadialGradient(x,y,0,x,y,8);g.addColorStop(0,'#fff3b0');g.addColorStop(.5,'#ff9a2a');g.addColorStop(1,'rgba(255,60,20,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x,y-9);ctx.quadraticCurveTo(x+7,y,x,y+7);ctx.quadraticCurveTo(x-7,y,x,y-9);ctx.fill();}
+ else if(t.id==='godslayer'){const n=P.trGsN||0;if(n){ctx.globalAlpha=0.85;ctx.fillStyle='#ff4a5a';for(let i=0;i<6;i++){ctx.globalAlpha=i<n?0.95:0.25;ctx.fillRect(x-14+i*5,y+2,3.5,3.5);}}}
+ ctx.restore();}}}catch(_){}return r;};}
+
 /*DEV*/
 /* ================= Developer panel (unlocked by a secret code) ================= */
 const DEVF={god:false,ohk:false,nocd:false};
 function devPanel(back,note){if(!prog.dev)return;if(state==='play')state='pause';back=back||(()=>{if(P&&(state==='pause'))showPause?showPause():showTitle();else showTitle();});
  const S=STYLES.slice().sort((a,b)=>b.r-a.r||a.name.localeCompare(b.name)),cur=prog.style;
  const num=(id,lab,v)=>`<label style="display:flex;gap:6px;align-items:center;justify-content:space-between;margin:3px 0"><span style="min-width:120px;text-align:left">${lab}</span><input id="dv_${id}" type="number" value="${v}" style="width:110px;padding:4px"><button type="button" data-a="set_${id}" class="ghost" style="padding:3px 8px;margin:0">Set</button><button type="button" data-a="add_${id}" class="ghost" style="padding:3px 8px;margin:0">+</button><button type="button" data-a="sub_${id}" class="ghost" style="padding:3px 8px;margin:0">−</button></label>`;
- const F=[['spins','Free spins',prog.spins],['lucky','Lucky spins',prog.lucky],['dr','Drachmae',prog.dr],['mp','Mastery points',prog.mp||0],['sp','Skill points',prog.sp||0],['trophies','Trophies',prog.trophies||0],['lvl','Level',prog.lvl],['pm','Mythic pity',prog.pm||0]];
+ const F=[['spins','Free spins',prog.spins],['lucky','Lucky spins',prog.lucky],['dr','Drachmae',prog.dr],['mp','Mastery points',prog.mp||0],['sp','Skill points',prog.sp||0],['trophies','Trophies',prog.trophies||0],['lvl','Level',prog.lvl],['pm','Mythic pity',prog.pm||0],['tc','Trait crystals',prog.tc||0]];
  const sty=S.map(s=>{const own=prog.owned.includes(s.id);return `<div style="display:flex;gap:6px;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,0,0,.08);padding:2px 0"><span style="color:${RAR[s.r].c};font-weight:700;min-width:150px;text-align:left">${esc(s.name)}${s.id===cur?' ★':''}</span><span style="font-size:12px">M${(prog.mastery||{})[s.id]||0}</span><button type="button" data-a="tog_${s.id}" class="ghost" style="padding:2px 8px;margin:0">${own?'Take':'Give'}</button><button type="button" data-a="eq_${s.id}" class="ghost" style="padding:2px 8px;margin:0" ${own?'':'disabled'}>Equip</button><button type="button" data-a="ml_${s.id}" class="ghost" style="padding:2px 8px;margin:0">Mastery +1</button><button type="button" data-a="tr_${s.id}" class="ghost" style="padding:2px 8px;margin:0">Reset tree</button></div>`;}).join('');
  const tg=(k,lab)=>`<button type="button" data-a="flag_${k}" class="${DEVF[k]?'':'ghost'}" style="margin:3px">${lab}: ${DEVF[k]?'ON':'off'}</button>`;
  show(`<h2>🛠 Developer panel</h2><p class="sub">Changes apply to this account straight away and are saved.</p>${note?`<p class="res" style="font-weight:700">${esc(note)}</p>`:''}
@@ -6893,13 +7059,13 @@ function devPanel(back,note){if(!prog.dev)return;if(state==='play')state='pause'
  <div><button type="button" data-a="max">Max everything</button><button type="button" data-a="zero" class="ghost">Zero all currencies</button></div>
  <h3>Styles</h3><div><button type="button" data-a="allst">Give every style</button><button type="button" data-a="nost" class="ghost">Take every style</button><button type="button" data-a="allm">Max all mastery</button><button type="button" data-a="nom" class="ghost">Reset all mastery</button></div>
  <div style="max-height:260px;overflow:auto;max-width:700px;margin:6px auto;text-align:left">${sty}</div>
- <h3>Missions, trees and codes</h3><div><button type="button" data-a="allmis">Clear every mission</button><button type="button" data-a="nomis" class="ghost">Reset missions</button><button type="button" data-a="notree" class="ghost">Reset every skill tree</button><button type="button" data-a="nocode" class="ghost">Forget redeemed codes</button><button type="button" data-a="ekbest" class="ghost">Reset Endless records</button></div>
+ <h3>Missions, trees and codes</h3><div><button type="button" data-a="allmis">Clear every mission</button><button type="button" data-a="nomis" class="ghost">Reset missions</button><button type="button" data-a="notree" class="ghost">Reset every skill tree</button><button type="button" data-a="nocode" class="ghost">Forget redeemed codes</button><button type="button" data-a="ekbest" class="ghost">Reset Endless records</button><button type="button" data-a="dqr" class="ghost">New daily quests</button><button type="button" data-a="dqf" class="ghost">Complete daily quests</button></div>
  <h3>In-game cheats</h3><div>${tg('god','God mode')}${tg('ohk','One-hit kills')}${tg('nocd','No cooldowns')}<button type="button" data-a="ult" class="ghost" style="margin:3px">Fill ultimate</button><button type="button" data-a="heal" class="ghost" style="margin:3px">Full heal</button><button type="button" data-a="win" class="ghost" style="margin:3px">Win current mission</button></div>
  <h3>Danger zone</h3><div><button type="button" data-a="wipe" class="ghost">Wipe this account</button><button type="button" data-a="lock" class="ghost">Lock dev panel</button></div>
  <button data-a="back">Done</button>`,1,(()=>{const A={back};const re=n=>{save();devPanel(back,n);};
   for(const f of F){const k=f[0],g=()=>Math.round(+document.getElementById('dv_'+k).value||0);A['set_'+k]=()=>{prog[k]=Math.max(k==='lvl'?1:0,g());re(f[1]+' set to '+prog[k]);};A['add_'+k]=()=>{prog[k]=(prog[k]||0)+Math.max(1,g()||1);re(f[1]+': '+prog[k]);};A['sub_'+k]=()=>{prog[k]=Math.max(k==='lvl'?1:0,(prog[k]||0)-Math.max(1,g()||1));re(f[1]+': '+prog[k]);};}
-  A.max=()=>{prog.spins=9999;prog.lucky=9999;prog.dr=9999999;prog.mp=9999;prog.sp=999;prog.lvl=Math.max(prog.lvl,50);prog.owned=STYLES.map(s=>s.id);prog.mastery={};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=4;re('Everything maxed.');};
-  A.zero=()=>{prog.spins=0;prog.lucky=0;prog.dr=0;prog.mp=0;prog.sp=0;re('Currencies set to zero.');};
+  A.max=()=>{prog.spins=9999;prog.lucky=9999;prog.tc=9999;prog.dr=9999999;prog.mp=9999;prog.sp=999;prog.lvl=Math.max(prog.lvl,50);prog.owned=STYLES.map(s=>s.id);prog.mastery={};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=4;re('Everything maxed.');};
+  A.zero=()=>{prog.spins=0;prog.lucky=0;prog.tc=0;prog.dr=0;prog.mp=0;prog.sp=0;re('Currencies set to zero.');};
   A.allst=()=>{prog.owned=STYLES.map(s=>s.id);re('Every style given.');};
   A.nost=()=>{prog.owned=[];prog.style=null;re('Every style taken.');};
   A.allm=()=>{prog.mastery=prog.mastery||{};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=4;re('All mastery maxed.');};
@@ -6912,7 +7078,7 @@ function devPanel(back,note){if(!prog.dev)return;if(state==='play')state='pause'
   A.nomis=()=>{prog.mis=ISLANDS.map(()=>0);prog.cleared=[];prog.unlocked=1;re('Missions reset.');};
   A.notree=()=>{prog.trees={};re('Every skill tree reset.');};
   A.nocode=()=>{prog.redeemed=[];try{localStorage.removeItem(LEDGER);}catch(e){}prog.codeLock=0;re('Redeemed codes forgotten. They can be used again.');};
-  A.ekbest=()=>{prog.endlessBest=0;prog.endlessMs=[];re('Endless records reset.');};
+  A.dqr=()=>{prog.dq=null;dqGet();re('New daily quests rolled.');};A.dqf=()=>{const D=dqGet();for(const q of D.q)q.n=q.goal;re('Daily quests completed — claim them in Daily quests.');};A.ekbest=()=>{prog.endlessBest=0;prog.endlessMs=[];re('Endless records reset.');};
   for(const k of Object.keys(DEVF))A['flag_'+k]=()=>{DEVF[k]=!DEVF[k];devPanel(back,k+' '+(DEVF[k]?'on':'off'));};
   A.ult=()=>{if(P){P.awk=100;P.ultCD=0;}re('Ultimate filled.');};
   A.heal=()=>{if(P)P.hp=maxHP();re('Healed.');};
@@ -6930,7 +7096,7 @@ const hD9=e=>{try{hitE(e,{dmg:(e.hp||0)+5});}catch(_){}};{const hD=hitE;hitE=fun
 addEventListener('keydown',e=>{if(e.key==='`'&&prog&&prog.dev){e.preventDefault();devPanel();}});
 setTimeout(()=>{try{if(prog.dev&&state==='menu'&&[...document.querySelectorAll('button')].some(b=>b.dataset.a==='sc')&&![...document.querySelectorAll('button')].some(b=>/Dev panel/.test(b.textContent)))showTitle();}catch(e){}},300);
 
-if(navigator.webdriver)window.__game={devPanel:b=>devPanel(b),DEVF,awaken:()=>awaken(),showBuffPick:()=>showBuffPick(),dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
+if(navigator.webdriver)window.__game={devPanel:b=>devPanel(b),DEVF,trSpin:(a,n)=>trSpin(a,n),endlessOver:c=>endlessOver(c),showTraits:b=>showTraits(b),showDaily:b=>showDaily(b),maxHP:()=>maxHP(),hitE:(e,o)=>hitE(e,o),hurtPlayer:(d,x,y)=>hurtPlayer(d,x,y),showIslands:()=>showIslands(),save:()=>save(),dqAdd:(a,b)=>dqAdd(a,b),awaken:()=>awaken(),showBuffPick:()=>showBuffPick(),dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
 }
 </script>
 </body></html>
