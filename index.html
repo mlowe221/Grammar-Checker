@@ -205,7 +205,7 @@ const SIGN=['Blade Storm','Comet Strike','Starburst','Heroic Nova','Mythic Catac
 const OLDCOST={s1:1,s2:1,s3:2,s4:3,b1:1,b2:1,b3:2,b4:3,v1:1,v2:1,v3:2,v4:3};
 function tMigrate(o){if(!o)return o;if(!o.trees||typeof o.trees!=='object'||Array.isArray(o.trees))o.trees={};for(const sid in o.trees){const arr=Array.isArray(o.trees[sid])?o.trees[sid]:[];const st=(typeof STYLES!=='undefined')&&STYLES.find(x=>x.id===sid);let back=0;const keep=[];for(const n of arr){if(TNODES.includes(n)||/^(q\d+_[a-z]+|v[67]_[a-z]+_\w+)$/.test(n)){keep.push(n);continue;}if(/^k[1-6][abc]$/.test(n)){back+=OLDB[st?st.r:0][+n[1]-1];continue;}for(const b of TBR){const t=b.ids.indexOf(n);if(t>=0)back+=TCOST[st?st.r:0][t];}}o.sp=(o.sp||0)+back;o.trees[sid]=keep;}if(Array.isArray(o.skills)&&o.skills.length){let back=0;for(const k of o.skills)back+=OLDCOST[k]||0;o.sp=(o.sp||0)+back;o.skills=[];}return o;}
 
-const RAR=[{n:'Common',c:'#c9c3b5',p:50.82},{n:'Rare',c:'#4a9be8',p:28},{n:'Epic',c:'#b36ef0',p:14},{n:'Legendary',c:'#f0a030',p:6.5},{n:'Mythic',c:'#ff3a5a',p:0.6},{n:'Limited',c:'#ff5ae0',p:0.08}];
+const RAR=[{n:'Common',c:'#c9c3b5',p:50.87},{n:'Rare',c:'#4a9be8',p:28},{n:'Epic',c:'#b36ef0',p:14},{n:'Legendary',c:'#f0a030',p:6.5},{n:'Mythic',c:'#ff3a5a',p:0.6},{n:'Limited',c:'#ff5ae0',p:0.03}];
 const STYLES=[
  {id:'fisher',r:0,name:"Fisher's Wrap",d:'Move 10% faster.',cl:'#5c6f7a',hd:'#76909c',tr:'#d9c9a0'},
  {id:'shepherd',r:0,name:"Shepherd's Cloak",d:'+20 maximum health.',cl:'#7a6a50',hd:'#94836a',tr:'#e9e0c8'},
@@ -230,12 +230,13 @@ const STYLES=[
  {id:'midas',r:5,name:'King Midas',d:'TIED FOR BEST IN THE GAME. The king whose touch turns everything to gold. Every strike gilds an enemy, and three gildings turn them into a solid gold statue.',cl:'#5a3e0c',hd:'#ffd84a',tr:'#ffe9a0'},
  {id:'pitbull',r:5,name:'Pitbull',d:'A loyal pit bull chases nearby enemies and bites them. You take 35% less damage, move 25% faster, and your strikes hit everything close around you.',cl:'#2a2626',hd:'#4a4444',tr:'#ff5ae0'},
  {id:'grandmaster',r:5,name:'The Grandmaster',d:'A living knight piece hops to nearby enemies and strikes them. Every 14 seconds you call CHECK!, briefly freezing guards nearby. You take 25% less damage and move 25% faster.',cl:'#151515',hd:'#f2f2f2',tr:'#d9b34a'},
- {id:'hooligan',r:5,name:'Hooligan',d:'A masked rogue with a wild heart. Swaps between four elemental masks, Curse, Inferno, Frost and Volt, to cast spells, fights with a dagger, revolver and grappling hook, and finishes stunned foes with a flashy Showtime! Fighting fills an Alter Ego bar that unleashes Riot, a spirit that brawls and casts spells beside you.',cl:'#2b2f3a',hd:'#e8c39e',tr:'#ff3b5c'},
+ {id:'hooligan',r:5,nospin:1,name:'OG Hooligan',d:'A masked rogue with a wild heart. Swaps between four elemental masks, Curse, Inferno, Frost and Volt, to cast spells, fights with a dagger, revolver and grappling hook, and finishes stunned foes with a flashy Showtime! Fighting fills an Alter Ego bar that unleashes Riot, a spirit that brawls and casts spells beside you.',cl:'#2b2f3a',hd:'#e8c39e',tr:'#ff3b5c'},
+ {id:'jester',r:5,name:'Jester',d:'A travelling trickster with a bag of cheap tricks: fans of cards, a jack-in-the-box, juggling knives and a trapdoor hook. Stuns set up his Punchline for extra damage.',cl:'#5a4a6a',hd:'#d8d0c0',tr:'#8a7a9a'},
  {id:'archmage',r:5,name:'The Ageless Archmage',d:'A sorceress who has spent a thousand years quietly collecting spells. Piercing bolts, mana barriers, fields of binding flowers and a grimoire of forgotten magic.',cl:'#e9e4f5',hd:'#cfd8ff',tr:'#7fd8ff'},
  {id:'robo',r:5,name:'Robo Crusher',d:'A walking war machine. Rocket fists, hydraulic slams, missile swarms and a magnet that drags enemies into its piston.',cl:'#5a6470',hd:'#8a96a4',tr:'#ffb02a',trail:['spark','#ffb02a']}
 ];
 const MYTHICS=STYLES.filter(s=>s.r===4);
-const LIMITED=STYLES.filter(s=>s.r===5);
+const LIMITED=STYLES.filter(s=>s.r===5&&!s.nospin);
 const STYLE_X={
  fisher:{d:'Net Toss: strikes have a 30% chance to tangle an enemy in a net for 1.5 seconds. Leaves wet footprints.',trail:['foot','#5a7f95']},
  shepherd:{d:'Shepherd\u2019s Rest: +20 maximum health, and you heal quickly while hiding in tall grass.',trail:['mist','#f4f0e6']},
@@ -255,6 +256,7 @@ const STYLE_X={
  drakon:{trail:['spark','#ffb347']},
  midas:{trail:['spark','#ffd84a']},
  hooligan:{trail:['spark','#ff3b5c']},
+ jester:{trail:['dust','#9a8aa8']},
  archmage:{trail:['mist','#7fd8ff']},
  pitbull:{d:'A loyal pit bull chases nearby enemies and bites them. Every takedown summons a ghost pup that nips at enemies for 6 seconds (up to 2 at once). You take 35% less damage, move 25% faster, and your strikes hit everything close around you.',trail:['spark','#ff5ae0']},
  grandmaster:{d:'Your dodge is Castling: you swap places with your knight. Every capture is written in chess notation, and an evaluation bar tracks how winning you are. A living knight hops to nearby enemies and strikes them. Every 10 captures it promotes to a Queen for 5 seconds. Every 14 seconds you call CHECK! and briefly freeze nearby guards. You take 25% less damage and move 25% faster.',trail:['foot','chess']}
@@ -268,17 +270,27 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'}};
+const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'6a12f79cbbf98e679610a547':{style:'hooligan',rel:1795632735912,t:'OG Hooligan unlocked!'}};
 const SPIN_COST=150;
-const LUCK=[0,45,35,17,2.5,0.5];
+const LUCK=[0,45,35.3,17,2.5,0.2];
 const SAVEKEY='kerkos-save-v3';
 let endless=null;
 let wiped=false;try{const o=localStorage.getItem('kerkos-save-v2');if(o!==null){localStorage.setItem('kerkos-save-v2-archive',o);localStorage.removeItem('kerkos-save-v2');wiped=true;}}catch(e){}
 const fresh=()=>({unlocked:1,cleared:[],lvl:1,xp:0,dr:0,sp:1,skills:[],owned:[],style:null,spins:10,redeemed:[],lastDay:'',quick:false,lucky:5,luck:0,mp:0,trophies:0,trophyClaimed:[],mastery:{},bossKills:0});
+const SVK=(()=>{let a='';for(let i=0;i<32;i++)a+=String.fromCharCode(40+((i*37+11)*(i+7)+i*i*13)%80);return a;})();
+const svSig=d=>sha256('sv9|'+SVK+'|'+d+'|'+SVK.length).slice(0,26);let svTamper=false;
+function svWrite(o){const d=JSON.stringify(o),g=svSig(d);localStorage.setItem(SAVEKEY,d);localStorage.setItem(SAVEKEY+'-s',g);localStorage.setItem(SAVEKEY+'-b',d);localStorage.setItem(SAVEKEY+'-bs',g);localStorage.setItem('kerkos-sv9','1');}
+function svRead(){const d=localStorage.getItem(SAVEKEY);if(d===null)return null;const g=localStorage.getItem(SAVEKEY+'-s');
+ if(g===null&&!localStorage.getItem('kerkos-sv9'))return JSON.parse(d);
+ if(g===svSig(d))return JSON.parse(d);
+ const b=localStorage.getItem(SAVEKEY+'-b'),bs=localStorage.getItem(SAVEKEY+'-bs');svTamper=true;
+ if(b&&bs===svSig(b))return JSON.parse(b);
+ const o=JSON.parse(d);if(o&&typeof o==='object'){o.lucky=0;o.spins=0;}return o;}
 let prog=fresh();let duel=null;
-try{const s=JSON.parse(localStorage.getItem(SAVEKEY));if(s&&s.lvl)prog=Object.assign(fresh(),s);}catch(e){}
+try{const s=svRead();if(s&&s.lvl)prog=Object.assign(fresh(),s);}catch(e){}
 let hasSave=prog.lvl>1||prog.cleared.length>0||prog.skills.length>0||prog.owned.length>0;
-let dailyMsg='';{const d=new Date(),today=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const dn=x=>{const m=/^(\d+)-(\d+)-(\d+)$/.exec(x||'');return m?(+m[1])*10000+(+m[2])*100+(+m[3]):0;};if(dn(today)>dn(prog.lastDay)){if(prog.lastDay)dailyMsg='Daily login bonus: +1 free style spin!';prog.lastDay=today;if(dailyMsg)prog.spins++;try{localStorage.setItem(SAVEKEY,JSON.stringify(prog));}catch(e){}}}
+let dailyMsg='';{const d=new Date(),today=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();const dn=x=>{const m=/^(\d+)-(\d+)-(\d+)$/.exec(x||'');return m?(+m[1])*10000+(+m[2])*100+(+m[3]):0;};if(dn(today)>dn(prog.lastDay)){if(prog.lastDay)dailyMsg='Daily login bonus: +1 free style spin!';prog.lastDay=today;if(dailyMsg)prog.spins++;try{svWrite(prog);}catch(e){}}}
+if(svTamper){dailyMsg='Your save data was changed outside the game, so it was restored from the last valid copy.';try{svWrite(prog);}catch(e){}}
 if(wiped){dailyMsg='Fresh start! All progress has been reset. You begin again with 10 spins and 5 Lucky spins.';save();}
 const LEDGER='kerkos-ledger-v1';function ledgerGet(){try{const o=JSON.parse(localStorage.getItem(LEDGER));if(o&&typeof o==='object')return{red:Array.isArray(o.red)?o.red:[],lkU:+o.lkU||0,spU:+o.spU||0};}catch(e){}return{red:[],lkU:0,spU:0};}
 function ledgerSync(){if(!prog)return;const L=ledgerGet();let ch=false;for(const c of prog.redeemed||[])if(!L.red.includes(c)){L.red.push(c);ch=true;}if((prog.lkU||0)>L.lkU){L.lkU=prog.lkU;ch=true;}if((prog.spU||0)>L.spU){L.spU=prog.spU;ch=true;}if(ch)try{localStorage.setItem(LEDGER,JSON.stringify({red:L.red.slice(-600),lkU:L.lkU,spU:L.spU}));}catch(e){}}
@@ -286,7 +298,7 @@ function ledgerApply(o){const L=ledgerGet(),fresh=!L.red.length&&!L.lkU&&!L.spU;
  if(L.lkU>(o.lkU||0)){const d=L.lkU-(o.lkU||0);lost+=Math.min(o.lucky||0,d);o.lucky=Math.max(0,(o.lucky||0)-d);o.lkU=L.lkU;}
  if(L.spU>(o.spU||0)){const d=L.spU-(o.spU||0);o.spins=Math.max(0,(o.spins||0)-d);o.spU=L.spU;}
  if(fresh){o.codeLock=Date.now()+24*3600*1000;o.lockFrom=Date.now();}else{o.codeLock=0;}return lost;}
-function save(){try{localStorage.setItem(SAVEKEY,JSON.stringify(prog));}catch(e){}try{ledgerSync();}catch(e){}}
+function save(){try{svWrite(prog);}catch(e){}try{ledgerSync();}catch(e){}}
 tMigrate(prog);
 const tSt=id=>STYLES.find(s=>s.id===(id||prog.style));
 const tPow=id=>{const st=tSt(id);return st?TPOW[st.r]:1;};
@@ -894,6 +906,7 @@ function showCodes(back,note,good){if(state==='play')state='pause';
   if(C.lucky)prog.lucky+=C.lucky;
   if(C.mp)prog.mp=(prog.mp||0)+C.mp;
   if(C.isl)prog.unlocked=ISLANDS.length;
+  if(C.style){prog.owned=prog.owned||[];if(!prog.owned.includes(C.style))prog.owned.push(C.style);prog.jmig=1;}
   let rev=null;
   if(C.sp)prog.sp+=C.sp;
   if(C.lvl)for(let i=0;i<C.lvl;i++){prog.lvl++;prog.sp++;}
@@ -1215,15 +1228,15 @@ function landFX(st){const cv=document.getElementById('reelfx');if(!cv||!cv.getCo
   if(r>=3){c.globalAlpha=(1-t);c.strokeStyle=st.tr;c.lineWidth=4;c.beginPath();c.ellipse(cx,cy,t*w*0.6,t*h*0.9,0,0,6.283);c.stroke();}
   for(const p of ps){const d=p.s*t*(DUR/1000),x=cx+Math.cos(p.a)*d,y=cy+Math.sin(p.a)*d*0.6+(kind==='mist'?-30*t:kind==='dust'?24*t*t:0);c.globalAlpha=1-t;c.fillStyle=p.c;if(kind==='spark')c.fillRect(x-2,y-2,4,4);else if(kind==='foot'){c.beginPath();c.ellipse(x,y,3,4.5,p.a,0,6.283);c.fill();}else{c.beginPath();c.arc(x,y,kind==='dust'?4.5:3,0,6.283);c.fill();}}
   c.globalAlpha=1;requestAnimationFrame(fr);};requestAnimationFrame(fr);}
-function rollStyle(lucky){const x=Math.random()*100;let acc=0,ri=4;for(let i=0;i<RAR.length;i++){acc+=lucky?LUCK[i]:RAR[i].p;if(x<acc){ri=i;break;}}const pool=STYLES.filter(t=>t.r===ri);return pool[Math.random()*pool.length|0];}
+function rollStyle(lucky){const W=RAR.map((r,i)=>lucky?LUCK[i]:r.p),tot=W.reduce((a,b)=>a+b,0),x=Math.random()*tot;let acc=0,ri=lucky?1:0;for(let i=0;i<W.length;i++){acc+=W[i];if(x<acc){ri=i;break;}}const pool=STYLES.filter(t=>t.r===ri&&!t.nospin);return pool[Math.random()*pool.length|0];}
 let reelLucky=false,spinning=false,reelHTML=null,reelX=0,spinTimer=null,spinFinish=null,autoOn=false,autoLucky=false,screen='',autoN=0;
 function pityRoll(lucky){if(!lucky)return rollStyle(false);prog.pm=(prog.pm||0)+1;prog.pl=(prog.pl||0)+1;let st,pity=0;
- if(prog.pl>=125){const L=STYLES.filter(t=>t.r===5);st=L[Math.random()*L.length|0];pity=5;}else if(prog.pm>=50){const L=STYLES.filter(t=>t.r===4);st=L[Math.random()*L.length|0];pity=4;}else st=rollStyle(true);
+ if(prog.pm>=50){const L=STYLES.filter(t=>t.r===4);st=L[Math.random()*L.length|0];pity=4;}else st=rollStyle(true);
  if(st.r>=5){prog.pl=0;prog.pm=0;}else if(st.r>=4)prog.pm=0;st.__pity=pity;return st;}
-const pityTxt=()=>'🍀 Pity: guaranteed Mythic within '+(50-(prog.pm||0))+' lucky spin'+(50-(prog.pm||0)===1?'':'s')+' · guaranteed Limited within '+(125-(prog.pl||0));
+const pityTxt=()=>'🍀 Pity: guaranteed Mythic within '+(50-(prog.pm||0))+' lucky spin'+(50-(prog.pm||0)===1?'':'s')+' (Limited styles have no pity)';
 function showSpin(back,result){if(state==='play')state='pause';
  const can=!spinning&&(prog.spins>0||prog.dr>=SPIN_COST);
- if(!reelHTML){reelHTML=Array.from({length:12},()=>cardHTML(STYLES[Math.random()*STYLES.length|0],false)).join('');reelX=0;}
+ if(!reelHTML){reelHTML=Array.from({length:12},()=>cardHTML(rollStyle(false),false)).join('');reelX=0;}
  const ward=`<button class="wcard ${!prog.style?'on':''}" data-a="eq" data-id="" style="--rc:#7a6a5a"><span><b>No style</b><small>Default cloak</small><span>No bonus.</span></span></button>`+
   STYLES.map(st=>{const own=prog.owned.includes(st.id);return `<button class="wcard ${prog.style===st.id?'on':''}" data-a="eq" data-id="${st.id}" style="--rc:${RAR[st.r].c}" ${own?'':'disabled'}>${own?cloakSvg(st):''}<span><b>${own?esc(st.name):'???'}</b><small>${RAR[st.r].n}${prog.style===st.id?' · Equipped':''}</small><span>${own?esc(st.d):'Not found yet'}</span>${own&&MOVES[st.id]?kitHTML(st):''}</span></button>`;}).join('');
  const res=result?`<b style="color:${RAR[result.st.r].c}">${RAR[result.st.r].n}: ${esc(result.st.name)}</b><br>${result.dup?(result.lucky?'Duplicate! You already own this style.':'Duplicate! You already own this style. +75 drachmae back.'):esc(result.st.d)+' (equipped)'}${result.pity?'<br><b style="color:#1f5a10;font-size:17px">🍀 Pity reward! Guaranteed '+(result.pity===5?'Limited':'Mythic')+' style.</b>':''}`:'Spin the reel for a random style. Each one gives a different power.';
@@ -1232,7 +1245,7 @@ function showSpin(back,result){if(state==='play')state='pause';
  ${spinning?'<button data-a="skip" id="skipbtn">Skip ⏭</button>':`<button data-a="spin" id="spinbtn" ${can?'':'disabled'}>${prog.spins?'Free spin ('+prog.spins+' left)':'Spin · '+SPIN_COST+' ₯'}</button><button data-a="lucky" class="lucky" ${!spinning&&!autoOn&&prog.lucky>0?'':'disabled'}>🍀 Lucky spin (${prog.lucky})</button><br><button data-a="s10" ${!spinning&&!autoOn&&prog.spins>=10?'':'disabled'}>Spin ×10${prog.spins>=10?'':' (need 10 free spins)'}</button><button data-a="l10" class="lucky" ${!spinning&&!autoOn&&prog.lucky>=10?'':'disabled'}>🍀 Lucky ×10${prog.lucky>=10?'':' (need 10)'}</button><br>`}<button data-a="quick" class="ghost" aria-pressed="${prog.quick}" ${spinning?'disabled':''}>Quick spin: ${prog.quick?'On ⚡':'Off'}</button>${autoOn?'<button data-a="auto">Stop auto-spin ■</button>':`<button data-a="auto" class="ghost" ${spinning||!can?'disabled':''}>Auto-spin ▶</button><button data-a="autoL" class="lucky" ${spinning||!(prog.lucky>0)?'disabled':''}>🍀 Auto lucky ▶</button>`}<br><button data-a="code" class="ghost" ${spinning||autoOn?'disabled':''}>Redeem code</button><button data-a="back" class="ghost" ${spinning||autoOn?'disabled':''}>Done</button>${autoOn?`<p class="note" style="margin:6px 0 0">Auto-spinning · ${autoN} spin${autoN===1?'':'s'} so far. ${autoLucky?'Using Lucky spins until they run out.':'Uses free spins first, then drachmae.'}</p>`:''}
  ${!can&&!spinning&&!prog.spins?'<p class="note">Open amphora caches on the islands for drachmae. Every mission you clear for the first time gives free spins.</p>':''}
   <div class="odds"><b style="width:100%;font-size:14px">Normal spin</b>${RAR.map(r=>`<span style="--rc:${r.c}">${r.n} ${r.p}%</span>`).join('')}</div>
- <div class="odds"><b style="width:100%;font-size:14px;color:#1f5a10">🍀 Lucky spin (no Commons, much better odds)</b><span style="width:100%;--rc:#1f5a10">${pityTxt()}. The counters reset when you get a style of that rarity.</span>${RAR.map((r,i)=>LUCK[i]?`<span style="--rc:${r.c}">${r.n} ${LUCK[i]}%</span>`:'').join('')}</div>
+ <div class="odds"><b style="width:100%;font-size:14px;color:#1f5a10">🍀 Lucky spin (no Commons, much better odds)</b><span style="width:100%;--rc:#1f5a10">${pityTxt()}. The counter resets when you get a Mythic or Limited.</span>${RAR.map((r,i)=>LUCK[i]?`<span style="--rc:${r.c}">${r.n} ${LUCK[i]}%</span>`:'').join('')}</div>
  <h3>Wardrobe · ${prog.owned.length} / ${STYLES.length}</h3><div class="ward">${ward}</div>`,1,
   {spin:()=>{if(!autoOn)doSpin(back);},lucky:()=>{if(!autoOn)doSpin(back,true);},s10:()=>doSpin10(back,false),l10:()=>doSpin10(back,true),skip:()=>{if(spinFinish)spinFinish();},quick:()=>{if(spinning)return;prog.quick=!prog.quick;save();showSpin(back,result);},auto:()=>{if(autoOn){autoOn=false;autoLucky=false;if(!spinning)showSpin(back,result);else{const b=panel.querySelector('[data-a=auto]');if(b){b.disabled=true;b.textContent='Stopping after this spin…';}}return;}if(spinning)return;autoOn=true;autoLucky=false;autoN=0;doSpin(back);},autoL:()=>{if(spinning||autoOn||!(prog.lucky>0))return;autoOn=true;autoLucky=true;autoN=0;doSpin(back,true);},code:()=>{if(!spinning&&!autoOn)showCodes(()=>showSpin(back));},back:()=>{if(!spinning&&!autoOn)back();},eq:b=>{if(spinning)return;prog.style=b.dataset.id||null;save();if(P&&P.hp>maxHP())P.hp=maxHP();showSpin(back,result);}});
  screen='spin';
@@ -1242,7 +1255,7 @@ function doSpin(back,lucky){if(spinning)return;if(lucky){if(prog.lucky>0){prog.l
  const st=pityRoll(lucky),dup=prog.owned.includes(st.id),pityHit=st.__pity;
  let meter=false;
  if(dup){if(!lucky)prog.dr+=75;}else{prog.owned.push(st.id);prog.style=st.id;}save();
- const N=46,IDX=40,cards=[];for(let i=0;i<N;i++)cards.push(i===IDX?st:i===IDX-1||i===IDX+1?STYLES[Math.random()*STYLES.length|0]:rollStyle(lucky));
+ const N=46,IDX=40,cards=[];for(let i=0;i<N;i++)cards.push(i===IDX?st:i===IDX-1||i===IDX+1?rollStyle(false):rollStyle(lucky));
  // tease: drop a mythic card right next to the result sometimes
  if(st.r<4&&Math.random()<0.5)cards[IDX+(Math.random()<0.5?1:-1)]=MYTHICS[Math.random()*MYTHICS.length|0];
  reelHTML=cards.map((c,i)=>cardHTML(c,i===IDX)).join('');reelX=0;spinning=true;reelLucky=!!lucky;
@@ -2195,6 +2208,32 @@ const AWK={
      {n:'Stalemate',f:()=>{aoe(P.x,P.y,620,{stun:6,label:'½-½',col:'#d9b34a'});buff('immune',3);}}],
   u:{d:'Simultaneous Exhibition: you play every enemy nearby at once, and each one is put in check in turn',f:()=>{foes(650).slice(0,12).forEach((e,i)=>later(i*0.1,()=>{if(e.dead)return;fxPush({k:'ring',x:e.x,y:e.y,r:50,col:i%2?'#f2f2f2':'#d9b34a',life:.5});hitE(e,{dmg:78+(i+1),col:'#ffe08a'});}));}}}
 };
+/* ================= JESTER (replaces Hooligan in the spin pool; plainer, weaker, no Riot, no masks) ================= */
+const JC='#9a8aa8',JC2='#d8d0c0';
+const jPuff=(x,y,r)=>{VX.burst(x,y,r,JC,6);};
+MOVES.jester=[
+ {n:'Card Fan',cd:5,f:()=>{const a=AIM();for(let k=-2;k<=2;k++)KB.beam(a+k*0.14,300,16,{dmg:28},JC);}},
+ {n:'Hex',cd:6,f:()=>{const[x,y]=hTarget(340);jPuff(x,y,60);aoe(x,y,70,{dmg:45,stun:0.5,col:JC});}},
+ {n:'Jack-in-the-Box',cd:9,f:()=>{const[x,y]=hTarget(320);fxPush({k:'ring',x,y,r:40,col:JC,life:1});later(1,()=>{jPuff(x,y,90);aoe(x,y,100,{dmg:80,push:70,col:JC});});}},
+ {n:'Juggling Knives',cd:10,f:()=>{for(let k=0;k<6;k++)later(k*0.5,()=>{VX.orbit(P.x,P.y,60,JC2,3,0.5,4);aoe(P.x,P.y,80,{dmg:16,col:JC});});}},
+ {n:'Trapdoor Hook',cd:8,f:()=>{const e=NEAR(340);if(!e)return;VX.beam(P.x,P.y,Math.atan2(e.y-P.y,e.x-P.x),dist(P.x,P.y,e.x,e.y),4,JC);hitE(e,{dmg:40,pull:999});}},
+ {n:'Pratfall',cd:11,f:()=>{const[x,y]=hTarget(300);fxPush({k:'ring',x,y,r:110,col:JC,life:0.6});aoe(x,y,110,{stun:1.3,col:JC});}},
+ {n:'Punchline',cd:14,f:()=>{const a=AIM();for(const e of foes(260))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<0.6)hitE(e,{dmg:e.stun>0?130:90,col:JC});VX.wave(P.x,P.y,a,240,90,JC,0.3);}}
+];
+PASS.jester=[{n:'Fool’s Luck',d:'+10% movement speed',f:{spd:0.1}},{n:'Tumbler',d:'Take 10% less damage',f:{dmgTaken:0.1}},{n:'Sleight of Hand',d:'Abilities recharge 8% faster',f:{cdr:0.08}}];
+MASTERY.jester={pa:{n:'Practised Tricks',d:'Abilities recharge 10% faster',f:{cdr:0.1}},mv:{n:'Grand Finale',cd:11,f:()=>{const L=front(380,0.8).slice(0,3);for(const e of L){fxPush({k:'ring',x:e.x,y:e.y,r:26,col:JC,life:1});later(1,()=>{if(!e.dead){jPuff(e.x,e.y,60);hitE(e,{dmg:70,col:JC});}});}}},pb:{n:'Crowd Favourite',d:'Ultimate charges 25% faster',f:{awk:0.25}}};
+AW.jester={n:'Jest',sig:'star',f:()=>{jPuff(P.x,P.y,90);aoe(P.x,P.y,120,{dmg:25,col:JC});}};
+LC.jester={n:'Knife Juggle',cdMul:0.7,dmgMul:1.2,reach:64,arc:1.3,fin:[]};
+AWK.jester={p:{n:'Awakened Jest',d:'Your abilities hit a little harder while awakened'},
+ m:[{n:'Card Storm',f:()=>{const a=AIM();for(let k=-3;k<=3;k++)KB.beam(a+k*0.12,320,16,{dmg:32},JC);}},
+    {n:'Double Hex',f:()=>{const[x,y]=hTarget(340);for(const s of[-1,1]){jPuff(x+s*40,y,60);aoe(x+s*40,y,70,{dmg:45,stun:0.6,col:JC});}}},
+    {n:'Big Box',f:()=>{const[x,y]=hTarget(320);later(0.8,()=>{jPuff(x,y,110);aoe(x,y,130,{dmg:100,push:90,col:JC});});}},
+    {n:'Knife Circus',f:()=>{for(let k=0;k<8;k++)later(k*0.4,()=>{VX.orbit(P.x,P.y,70,JC2,4,0.4,4);aoe(P.x,P.y,95,{dmg:18,col:JC});});}},
+    {n:'Double Trapdoor',f:()=>byDist(foes(340)).slice(0,2).forEach(e=>{VX.beam(P.x,P.y,Math.atan2(e.y-P.y,e.x-P.x),dist(P.x,P.y,e.x,e.y),4,JC);hitE(e,{dmg:45,pull:999});})},
+    {n:'Slapstick',f:()=>{const[x,y]=hTarget(300);aoe(x,y,140,{stun:1.6,dmg:20,col:JC});}},
+    {n:'Big Punchline',f:()=>{const a=AIM();for(const e of foes(300))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<0.7)hitE(e,{dmg:e.stun>0?150:105,col:JC});VX.wave(P.x,P.y,a,280,100,JC,0.3);}}],
+ u:{d:'Encore: you juggle a ring of knives around you that slices nearby enemies, then take a bow that stuns them',f:()=>{for(let k=0;k<8;k++)later(k*0.25,()=>{VX.orbit(P.x,P.y,120,JC2,5,0.25,5);aoe(P.x,P.y,160,{dmg:30,col:JC});});later(2.1,()=>{jPuff(P.x,P.y,140);aoe(P.x,P.y,200,{stun:1.5,dmg:40,col:JC});});}}};
+
 for(const k in AWK)if(AWK[k].u)ULT[k]=AWK[k].u;
 /* Hooligan: mastered (Ascendant) awakening upgrades every awakened move, in the current mask's element */
 function hAscBonus(i,k){const[cx,cy]=hTarget(360);
@@ -3365,8 +3404,8 @@ function showSaveCode(back,note,good,pending){if(state==='play')state='pause';le
  if(cp)cp.onclick=()=>{const done=ok=>{if(msgEl){msgEl.style.color=ok?'#1a3a10':'#3a0a05';msgEl.textContent=ok?'Copied! Paste it somewhere safe, or into the game on your other device.':'Couldn’t copy automatically. Select the code and copy it yourself.';}};try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(()=>done(true),()=>{if(out&&out.select)out.select();done(false);});else{if(out&&out.select)out.select();done(false);}}catch(e){if(out&&out.select)out.select();done(false);}};
  const inp=document.getElementById('scin');if(pending&&inp)inp.value=pending.raw;
  const ld=document.getElementById('scload');if(ld)ld.onclick=()=>{const raw=inp?inp.value:'';try{const o=scDecode(raw);showSaveCode(back,'',false,{raw,o,sum:`Level ${o.lvl} · ${o.owned.length} styles · ${o.spins} spins · ${o.lucky} Lucky · ${o.mp} Mastery`});}catch(e){showSaveCode(back,e.message||'That save code could not be read.');}};
- const y=document.getElementById('scyes');if(y)y.onclick=()=>{const o=pending.o;try{localStorage.setItem('kerkos-undo-load',JSON.stringify({t:Date.now(),p:prog}));}catch(e){}ledgerApply(o);prog=o;save();hasSave=true;showSaveCode(back,o.codeLock>Date.now()?'Save loaded! This is a new browser for this save, so older promo codes are locked here for 24 hours (new codes still work).':'Save loaded! Welcome back. Codes already used in this browser stay used.',true);};
- const un=document.getElementById('scundo');if(un)un.onclick=()=>{try{const u=JSON.parse(localStorage.getItem('kerkos-undo-load'));if(u&&u.p&&u.p.lvl){const o=scClean(u.p);ledgerApply(o);o.codeLock=u.p.codeLock||0;o.lockFrom=u.p.lockFrom||0;prog=o;localStorage.removeItem('kerkos-undo-load');save();showSaveCode(back,'Undone! Your progress from before the load is back.',true);}}catch(e){showSaveCode(back,'Nothing to undo.');}};
+ const y=document.getElementById('scyes');if(y)y.onclick=()=>{const o=pending.o;try{const pj=JSON.stringify(prog);localStorage.setItem('kerkos-undo-load',JSON.stringify({t:Date.now(),p:prog,s:svSig('undo|'+pj)}));}catch(e){}ledgerApply(o);prog=o;save();hasSave=true;showSaveCode(back,o.codeLock>Date.now()?'Save loaded! This is a new browser for this save, so older promo codes are locked here for 24 hours (new codes still work).':'Save loaded! Welcome back. Codes already used in this browser stay used.',true);};
+ const un=document.getElementById('scundo');if(un)un.onclick=()=>{try{const u=JSON.parse(localStorage.getItem('kerkos-undo-load'));if(u&&u.p&&u.p.lvl&&u.s===svSig('undo|'+JSON.stringify(u.p))){const o=scClean(u.p);ledgerApply(o);o.codeLock=u.p.codeLock||0;o.lockFrom=u.p.lockFrom||0;prog=o;localStorage.removeItem('kerkos-undo-load');save();showSaveCode(back,'Undone! Your progress from before the load is back.',true);}}catch(e){showSaveCode(back,'Nothing to undo.');}};
  const n=document.getElementById('scno');if(n)n.onclick=()=>showSaveCode(back);}
 
 /* ---------- direct player-to-player duels (for hosting outside claude.ai) ---------- */
@@ -6565,7 +6604,74 @@ const EN9={dmg:0.8,hp:2.2,boss:1.4};
 {const si9=startIsland;startIsland=function(){const r=si9.apply(this,arguments);if(!duel)for(const e of enemies)if(e&&e.type==='boss'&&!e.__h9){e.__h9=1;e.hp=Math.round(e.hp*EN9.boss);e.max=Math.round(e.max*EN9.boss);}return r;};}
 {const sb9=spawnBoss;spawnBoss=function(){const r=sb9.apply(this,arguments);if(!duel)for(const e of enemies)if(e&&e.type==='boss'&&!e.__h9){e.__h9=1;e.hp=Math.round(e.hp*EN9.boss);e.max=Math.round(e.max*EN9.boss);}return r;};}
 {const hp9=hurtPlayer;hurtPlayer=function(d){if(!duel&&typeof d==='number')arguments[0]=d*EN9.dmg;return hp9.apply(this,arguments);};}
-window.__game={dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
+/*JESTER*/
+/* ================= JESTER: left click, awakened versions, tree, migration, OG code ================= */
+{const JC='#9a8aa8',JC2='#d8d0c0';
+PRIM.jester={n:'Knife Juggle',d:'A quick two-knife jab. Plain, but reliable.',k:'melee',m:2.1,rng:66,arc:1.1,rl:1.1,cd:0.34,col:JC};
+PTAG.jester='Close · Quick';
+AWLC.jester={a:{n:'Awakened Knife Juggle',d:'Slightly longer knife jabs.',o:{rng:76,arc:1.2,mm:1.2,col:JC2}},m:{n:'Ascended Knife Juggle',d:'Longer, wider knife jabs.',o:{rng:84,arc:1.35,mm:1.35,col:JC2}}};
+MMAW.jester={a:{n:'Bigger Finale',d:'Marks up to four enemies in front of you; the marks pop a moment later.',f:()=>{for(const e of front(400,0.9).slice(0,4)){fxPush({k:'ring',x:e.x,y:e.y,r:26,col:JC,life:1});later(1,()=>{if(!e.dead){VX.burst(e.x,e.y,60,JC,6);hitE(e,{dmg:85,col:JC});}});}}},
+  m:{n:'Grandest Finale',d:'Marks up to five enemies in front of you; the marks pop twice.',f:()=>{for(const e of front(420,1).slice(0,5)){fxPush({k:'ring',x:e.x,y:e.y,r:26,col:JC,life:0.9});later(0.9,()=>{if(!e.dead){VX.burst(e.x,e.y,60,JC,6);hitE(e,{dmg:80,col:JC});}});later(1.5,()=>{if(!e.dead)hitE(e,{dmg:50,col:JC});});}}}};
+{const M=MASTERY.jester,base=M.mv;Object.defineProperty(M,'mv',{configurable:true,enumerable:true,get(){if(P&&P.awT>0&&prog.style==='jester'){const L=MMAW.jester[P.ascAw?'m':'a'];return{n:L.n,d:L.d,cd:base.cd,f:()=>{try{L.f();}catch(err){}},aw:P.ascAw?2:1,base};}return base;},set(v){}});}
+const jj=(n,p)=>L9.d(n,p);
+T7.jester={
+ r:[['Smoke Bomb','vanish in a puff of smoke for 1.5 seconds (guarded) and reappear a short way toward your aim',11,p=>{X.bu('immune',1.5);const[x,y]=X.at(160);later(0.8,()=>X.tp(x,y));VX.burst(P.x,P.y,70,JC,6);}],
+    ['Pie in the Face','throw a pie at the nearest enemy for {70}, blinding it for 1.5 seconds',8,p=>{const e=X.near(320);if(e)X.hit(e,70,{stun:1.5});}],
+    ['Cartwheel','cartwheel toward your aim, knocking aside enemies for {50}',8,p=>{const[x,y]=X.at(220);X.dash(x,y,50);}],
+    ['Rubber Chicken','bonk every enemy near you for {60}',9,p=>X.nv(120,60,{push:50})],
+    ['Coin Flip','flip a coin: heads heals you 10%, tails deals {80} around you',12,p=>{if(rnd()<0.5)X.he(0.1);else X.nv(140,80);}]],
+ lc:[['Wider Juggle','Knife Juggle covers a wider arc.',{arc:0.25}],['Longer Knives','Knife Juggle reaches a little further.',{rng:12}],['Sharper Knives','Knife Juggle deals 20% more damage.',{m:0.4}],
+     ['Nimble Hands','Knife Juggle recovers 15% faster.',{rl:0.85}],['Jab Stun','Knife Juggle stuns briefly now and then.',{on:e=>{if(rnd()<0.1)hitE(e,{stun:0.4});}}],['Cheap Shot Jab','Knife Juggle deals {8} more to stunned enemies.',{on:(e,p)=>{if(e.stun>0)hitE(e,{dmg:jj(8,p)});}}],
+     ['Tossed Knife','Every 5th jab tosses a knife at the nearest enemy for {15}.',{fire:(()=>{const f=L9.ev(5);return(a,p)=>{if(!f())return;const e=awNear(P.x,P.y,280);if(e)hitE(e,{dmg:jj(15,p)});};})()}],['Juggler’s Rhythm','Each jab that hits gives a tiny burst of speed.',{on:L9once(()=>buff('speed',0.3),0.5)}],['Pocket Change','Knife Juggle takedowns drop 2 drachmae.',{on:e=>later(0.05,()=>{if(e.dead)prog.dr+=2;})}],
+     ['Card Tuck','Jab hits deal {6} to an enemy next to the target.',{on:(e,p)=>{if(awIn)return;const o=awNear(e.x,e.y,70,[e]);if(o)hitE(o,{dmg:jj(6,p)});}}],['Prank','Jabs have a small chance to make enemies trip for 1 second.',{on:e=>{if(rnd()<0.05)hitE(e,{stun:1});}}],['Tumble Jab','Every 4th jab hops you a step backwards.',{fire:(()=>{const f=L9.ev(4);return a=>{if(f()){P.x-=Math.cos(a)*30;P.y-=Math.sin(a)*30;}};})()}],
+     ['Heckle','Jabs deal {10} more to enemies that haven’t spotted you.',{on:(e,p)=>{if(e.st!=='alert')hitE(e,{dmg:jj(10,p)});}}],['Encore Jab','Every 6th jab repeats a moment later for {12}.',{on:(()=>{let c=0,t=0;return(e,p)=>{if(now-t>0.2){t=now;c++;}if(c%6===0)later(0.25,()=>{if(!e.dead)hitE(e,{dmg:jj(12,p)});});};})()}],['Final Bow','Jab takedowns heal you 2%.',{on:e=>later(0.05,()=>{if(e.dead)heal(maxHP()*0.02);})}],
+     ['Fumble Proof','Each jab that hits guards you for a split second.',{on:L9once(()=>buff('immune',0.08),0.6)}],['Slapstick Jab','Jabs push enemies back a little.',{on:e=>hitE(e,{push:16})}],
+     ['Sleeve Card','Every 5th jab flicks a card in a line for {14}.',{fire:(()=>{const f=L9.ev(5);return(a,p)=>{if(f())awLine(a,240,20,e=>hitE(e,{dmg:jj(14,p)}));};})()}],['Juggle Combo','Jabs within a second of each other deal {3} more (up to 3 stacks).',{fire:(()=>{let t=0;return()=>{P.__jc=(now-t<1)?Math.min(3,(P.__jc||0)+1):0;t=now;};})(),on:(e,p)=>{if(P.__jc)hitE(e,{dmg:jj(3*P.__jc,p)});}}],
+     ['Bad Joke','Jabs deal {15} more to enemies below a quarter of their health.',{on:(e,p)=>{if(e.hp<e.max*0.25)hitE(e,{dmg:jj(15,p)});}}],['Confetti Jab','Every 8th jab bursts confetti that blinds enemies next to you for 0.6 seconds.',{fire:(()=>{const f=L9.ev(8);return()=>{if(f())X.st(P.x,P.y,90,0.6);};})()}],
+     ['Tip Jar','Every 10th jab takedown drops 10 drachmae.',{on:(()=>{const f=L9.ev(10);return e=>later(0.05,()=>{if(e.dead&&f())prog.dr+=10;});})()}],['Showman','Each jab that hits takes 0.05 seconds off all your abilities.',{on:L9once(()=>{for(let i=0;i<P.mcd.length;i++)P.mcd[i]=Math.max(0,P.mcd[i]-0.05);})}],
+     ['Big Top','Every 10th jab spins you around, hitting everything near you for {25}.',{fire:(()=>{const f=L9.ev(10);return(a,p)=>{if(f())for(const e of primTargets(80))hitE(e,{dmg:jj(25,p)});};})()}],['Last Laugh','Jabs deal {12} more while you are below half health.',{on:(e,p)=>{if(P.hp<maxHP()*0.5)hitE(e,{dmg:jj(12,p)});}}]],
+ mv:[[['Wide Fan','Card Fan throws two more cards.',p=>{for(const s of[-0.42,0.42])X.be(P.face+s,300,16,25);}],['Sharp Cards','Card Fan deals {15} more to the first enemy hit.',p=>{const e=X.near(300);if(e)X.hit(e,15);}],['Quick Shuffle','Card Fan recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Sticky Cards','Card Fan stuns enemies it hits for 0.5 seconds.',p=>awCone(P.face,300,0.3,e=>hitE(e,{stun:0.5}))],['Card Return','Card Fan cards fly back to you, hitting again for {15}.',p=>later(0.5,()=>X.be(P.face+Math.PI,300,16,15))]],
+     [['Stronger Hex','Hex deals {20} more.',p=>{const[x,y]=X.at(340);X.bl(x,y,70,20);}],['Lasting Hex','Hex stuns for 0.5 seconds longer.',p=>{const[x,y]=X.at(340);X.st(x,y,70,0.5);}],['Fast Hex','Hex recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Wide Hex','Hex covers a wider area.',p=>{const[x,y]=X.at(340);X.bl(x,y,110,15);}],['Hex Heal','Hex heals you 3%.',p=>X.he(0.03)]],
+     [['Spring-Loaded','Jack-in-the-Box pops sooner and deals {20} more.',p=>{const[x,y]=X.at(320);later(0.7,()=>X.bl(x,y,100,20));}],['Two Boxes','Jack-in-the-Box drops a second box nearby.',p=>{const[x,y]=X.at(320);later(1.2,()=>X.bl(x+70,y,80,50,{push:50}));}],['Box Stun','Jack-in-the-Box stuns for 1 second.',p=>{const[x,y]=X.at(320);later(1,()=>X.st(x,y,100,1));}],['Quick Box','Jack-in-the-Box recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Confetti Box','Jack-in-the-Box leaves confetti that blinds enemies for 0.6 seconds.',p=>{const[x,y]=X.at(320);later(1.1,()=>X.st(x,y,120,0.6));}]],
+     [['More Knives','Juggling Knives lasts 1 second longer.',p=>later(3,()=>X.nv(80,16))],['Sharper Juggle','Juggling Knives deals {5} more each hit.',p=>{for(let k=0;k<6;k++)later(k*0.5,()=>X.nv(80,5));}],['Wide Juggle','Juggling Knives hits a little further out.',p=>{for(let k=0;k<6;k++)later(k*0.5,()=>X.nv(110,6));}],['Fast Juggle','Juggling Knives recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Guarded Juggle','Juggling Knives guards you for 1 second.',p=>X.bu('immune',1)]],
+     [['Long Hook','Trapdoor Hook reaches further.',p=>{const e=X.near(420);if(e)hitE(e,{pull:999});}],['Hook Stun','Trapdoor Hook stuns for 1 second.',p=>{const e=X.near(340);if(e)later(0.2,()=>hitE(e,{stun:1}));}],['Heavy Hook','Trapdoor Hook deals {25} more.',p=>{const e=X.near(340);if(e)X.hit(e,25);}],['Quick Hook','Trapdoor Hook recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Hook Heal','Trapdoor Hook heals you 3%.',p=>X.he(0.03)]],
+     [['Bigger Fall','Pratfall covers a wider area.',p=>{const[x,y]=X.at(300);X.st(x,y,150,1);}],['Longer Fall','Pratfall stuns 0.5 seconds longer.',p=>{const[x,y]=X.at(300);X.st(x,y,110,0.5);}],['Painful Fall','Pratfall deals {30}.',p=>{const[x,y]=X.at(300);X.bl(x,y,110,30);}],['Quick Fall','Pratfall recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Banana Trail','Pratfall leaves a slippery patch that stuns enemies who walk in for 2 seconds.',p=>{const[x,y]=X.at(300);for(let k=0;k<4;k++)later(0.5+k*0.5,()=>X.st(x,y,90,0.4));}]],
+     [['Better Timing','Punchline deals {25} more.',p=>awCone(P.face,260,0.6,e=>X.hit(e,25))],['Wide Punchline','Punchline covers a wider cone.',p=>awCone(P.face,260,0.9,e=>X.hit(e,20))],['Quick Wit','Punchline recharges 20% faster.',(p,i)=>X.cd(i,0.8)],['Stunning Joke','Punchline stuns for 0.8 seconds.',p=>awCone(P.face,260,0.6,e=>hitE(e,{stun:0.8}))],['Applause','Punchline heals you 2% per enemy hit.',p=>X.he(0.02*Math.min(5,foes(260).length))]]],
+ ul:[['Longer Encore','Your ultimate juggles for 1 second longer.','ult',()=>{for(let k=0;k<4;k++)later(2+k*0.25,()=>X.nv(160,25));}],['Opening Bow','Awakening stuns enemies near you for 1 second.','aw',()=>X.st(P.x,P.y,200,1)],['Busker','While awakened, every second a knife hits the nearest enemy for {20}.','awt',()=>{const e=X.near(300);if(e)X.hit(e,20);}],['Showtime Speed','Awakening gives you speed for 4 seconds.','aw',()=>X.bu('speed',4)],['Stage Fright Guard','Awakening guards you for 1 second.','aw',()=>X.bu('immune',1)],
+     ['Bigger Bow','Your ultimate’s bow stuns 0.5 seconds longer.','ult',()=>later(2.2,()=>X.st(P.x,P.y,200,0.5))],['Tip the Jester','Your ultimate heals you 10%.','ult',()=>X.he(0.1)],['Heckler Guard','While awakened, getting hit heals you 0.5%.','hurt',()=>{if(T9H.aw())heal(maxHP()*0.005);}],['Crowd Work','While awakened, abilities deal 10% more damage.','dmg',()=>T9H.aw()?1.1:1],['Curtain','When awakening ends, heal 8%.','tick',(dt,p,S)=>B9.end(S,()=>X.he(0.08))]],
+ ms2:[['Extra Mark','Your mastery move marks one more enemy.','mm',()=>{const e=byDist(foes(380))[3];if(e)later(1,()=>{if(!e.dead)X.hit(e,60);});}],['Finale Stun','Your mastery move’s marks stun for 0.6 seconds when they pop.','mm',()=>later(1,()=>{for(const e of front(380,0.8))hitE(e,{stun:0.6});})],['Practised Finale','Your mastery move recharges 15% faster.','mm',()=>{if(P.mmcd>0)P.mmcd*=0.85;}],['Finale Guard','Your mastery move guards you for 1 second.','mm',()=>X.bu('immune',1)],['Finale Heal','Your mastery move heals you 5%.','mm',()=>X.he(0.05)],
+     ['Bigger Pop','Your mastery move’s marks deal {25} more.','mm',()=>later(1,()=>{for(const e of front(380,0.8).slice(0,3))X.hit(e,25);})],['Confetti Finale','Your mastery move blinds enemies near you for 0.6 seconds.','mm',()=>X.st(P.x,P.y,140,0.6)],['Seasoned Performer','With mastery level 2, takedowns shave 0.5 seconds off your mastery move.','kill',()=>{if(MM('jester')&&P.mmcd>0)P.mmcd=Math.max(0,P.mmcd-0.5);}],['Steady Nerves','While your mastery move is ready, getting hit heals you 0.5%.','hurt',()=>{if(MM('jester')&&!(P.mmcd>0))heal(maxHP()*0.005);}],['Grand Tour','While awakened, your mastery move marks one extra enemy.','mm',()=>{if(!T9H.aw())return;const e=byDist(foes(400))[4];if(e)later(1,()=>{if(!e.dead)X.hit(e,60);});}]]
+};
+delete BLAYOUT.jester;
+}
+/* ---------- move everyone's Hooligan to Jester (once); OG Hooligan only from the code ---------- */
+function jMig(o){if(!o||typeof o!=='object'||o.jmig)return o;o.jmig=1;o.owned=o.owned||[];
+ if(o.owned.includes('hooligan')){o.owned=o.owned.filter(x=>x!=='hooligan');if(!o.owned.includes('jester'))o.owned.push('jester');
+  if(o.trees&&o.trees.hooligan&&o.trees.hooligan.length){let back=0;try{const L=bLayout('hooligan'),own=new Set(o.trees.hooligan);for(const T of L)if(T.opts.some(x=>own.has(x)))back+=T.cost||1;}catch(e){back=o.trees.hooligan.length;}o.sp=(o.sp||0)+back;}
+  if(o.trees)delete o.trees.hooligan;
+  if(o.mastery&&o.mastery.hooligan!==undefined){o.mastery.jester=Math.max(o.mastery.jester||0,o.mastery.hooligan);delete o.mastery.hooligan;}}
+ if(o.style==='hooligan')o.style='jester';return o;}
+{const sc9=scClean;scClean=function(){return jMig(sc9.apply(this,arguments));};}
+if(prog&&!prog.jmig){const had=(prog.owned||[]).includes('hooligan');jMig(prog);save();if(had)setTimeout(()=>{try{toast('Hooligan has been replaced by Jester. Your Hooligan is now Jester and your Hooligan skill points were refunded.');}catch(e){}},1200);}
+
+/* Jester awakening: a modest stage act (deliberately simpler than OG Hooligan's) */
+AWFX.jester=function(c,t,x,y,k,W,H){const E=v=>v<0?0:v>1?1:1-Math.pow(1-v,3),out=t>2.8?Math.max(0,1-(t-2.8)/0.5):1;
+ /* curtains slide in, then part */
+ const shut=E(t/0.45)*(1-E((t-0.7)/0.6)),cw=W*0.5*(0.25+0.75*shut);
+ for(const s of[0,1]){c.save();c.globalAlpha=0.85*out;const g=c.createLinearGradient(s?W-cw:0,0,s?W:cw,0);g.addColorStop(0,'#5a2a34');g.addColorStop(1,'#3a1a22');c.fillStyle=g;c.fillRect(s?W-cw:0,0,cw,H);c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=3;for(let f=1;f<6;f++){const fx=s?W-cw*f/6:cw*f/6;c.beginPath();c.moveTo(fx,0);c.lineTo(fx,H);c.stroke();}c.restore();}
+ /* soft spotlight */
+ const sp=E((t-0.6)/0.5)*out;if(sp>0){c.save();c.globalAlpha=0.28*sp;c.fillStyle='#fff6d8';c.beginPath();c.moveTo(x-30*k,0);c.lineTo(x+30*k,0);c.lineTo(x+90*k,y+10*k);c.lineTo(x-90*k,y+10*k);c.closePath();c.fill();c.globalAlpha=0.35*sp;c.beginPath();c.ellipse(x,y+12*k,90*k,22*k,0,0,6.283);c.fill();c.restore();}
+ /* three juggled cards */
+ const jg=E((t-0.8)/0.4)*out;if(jg>0)for(let i=0;i<3;i++){const ph=t*3.2+i*2.094,cx=x+Math.cos(ph)*34*k,cy=y-52*k-Math.abs(Math.sin(ph))*26*k;c.save();c.globalAlpha=jg;c.translate(cx,cy);c.rotate(Math.sin(ph)*0.5);c.fillStyle='#2a2430';c.fillRect(-8*k,-11*k,16*k,22*k);c.fillStyle='#e8e2d4';c.fillRect(-7*k,-10*k,14*k,20*k);c.fillStyle=i===1?'#8a3a4a':'#4a3a5a';c.font=(10*k)+'px serif';c.textAlign='center';c.textBaseline='middle';c.fillText(['♠','♥','♣'][i],0,0);c.restore();}
+ /* jester hat pops up with bells */
+ const hp=E((t-1.3)/0.35)*out;if(hp>0){const hy=y-34*k-hp*18*k;c.save();c.globalAlpha=hp;c.translate(x,hy);c.scale(hp*k,hp*k);
+  c.fillStyle='#6a4a7a';c.beginPath();c.moveTo(-18,6);c.quadraticCurveTo(-26,-18,-34,-10);c.lineTo(-6,4);c.fill();c.fillStyle='#8a3a4a';c.beginPath();c.moveTo(18,6);c.quadraticCurveTo(26,-18,34,-10);c.lineTo(6,4);c.fill();c.fillStyle='#5a5a6a';c.beginPath();c.moveTo(-6,4);c.quadraticCurveTo(0,-28,6,4);c.fill();
+  c.fillStyle='#c8b070';for(const[bx,by]of[[-34,-10],[34,-10],[0,-26]]){c.beginPath();c.arc(bx,by+Math.sin(t*12+bx)*1.5,3.5,0,6.283);c.fill();}c.fillStyle='#3a3040';c.fillRect(-20,4,40,5);c.restore();}
+ /* a little muted confetti */
+ if(t>1.6&&t<3.1)for(let i=0;i<18;i++){const f=(t-1.6)/1.5,a=i*0.349,r=f*140*k,cx=x+Math.cos(a)*r,cy=y-40*k+Math.sin(a)*r*0.7+f*f*90*k;c.save();c.globalAlpha=(1-f)*0.8;c.fillStyle=['#9a8aa8','#8a3a4a','#c8b070','#5a7a8a'][i%4];c.translate(cx,cy);c.rotate(t*6+i);c.fillRect(-3*k,-1.5*k,6*k,3*k);c.restore();}
+};
+
+if(navigator.webdriver)window.__game={awaken:()=>awaken(),dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
 }
 </script>
 </body></html>
