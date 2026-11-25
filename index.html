@@ -6938,7 +6938,7 @@ function showTraits(back,sid,res){if(state==='play')state='pause';back=back||sho
  {back,keep:()=>{prog.trKeep=prog.trKeep===false;save();showTraits(back,sid);},
   s1:()=>trAnim(back,sid,1),s10:()=>trAnim(back,sid,10)});
  const sel=document.getElementById('trSel');if(sel)sel.onchange=()=>showTraits(back,sel.value);}
-function trAnim(back,sid,n){if(trBusy||(prog.tc||0)<1)return;trBusy=true;const res=trSpin(sid,n),best=res.reduce((a,b)=>b.t.r>a.t.r?b:a,res[0]);const el=document.getElementById('trReel');document.querySelectorAll('#ov button,.ov button').forEach(b=>b.disabled=true);
+function trAnim(back,sid,n){if(trBusy||(prog.tc||0)<1||prog.trPend)return;trBusy=true;const res=trSpin(sid,n),best=res.reduce((a,b)=>b.t.r>a.t.r?b:a,res[0]);const el=document.getElementById('trReel');document.querySelectorAll('#ov button,.ov button').forEach(b=>b.disabled=true);
  let i=0;const T=n>1?650:950,st=performance.now();const iv=setInterval(()=>{const r=TRAITS[Math.random()*TRAITS.length|0];if(el){el.textContent=r.n;el.style.color=TRR[r.r].c;}if(performance.now()-st>T){clearInterval(iv);trBusy=false;if(best.t.r>=5){try{beep&&beep(880,0.3);}catch(_){}toast('✨ UNIQUE TRAIT: '+best.t.n+'!');}else if(best.t.r>=4)toast('Legendary trait: '+best.t.n+'!');showTraits(back,sid,res);}},55);}
 /* ---- crystal sources ---- */
 const TR_ROAD={60:2,120:3,200:4,300:5,400:6,500:8,650:8,800:10,1000:12,1250:15,1500:18,2000:25};
@@ -7044,6 +7044,26 @@ let trCd0=null,trMm0=0;
  else if(t.id==='phoenix'&&!P.trRev){ctx.globalAlpha=0.85;const g=ctx.createRadialGradient(x,y,0,x,y,8);g.addColorStop(0,'#fff3b0');g.addColorStop(.5,'#ff9a2a');g.addColorStop(1,'rgba(255,60,20,0)');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x,y-9);ctx.quadraticCurveTo(x+7,y,x,y+7);ctx.quadraticCurveTo(x-7,y,x,y-9);ctx.fill();}
  else if(t.id==='godslayer'){const n=P.trGsN||0;if(n){ctx.globalAlpha=0.85;ctx.fillStyle='#ff4a5a';for(let i=0;i<6;i++){ctx.globalAlpha=i<n?0.95:0.25;ctx.fillRect(x-14+i*5,y+2,3.5,3.5);}}}
  ctx.restore();}}}catch(_){}return r;};}
+
+/*TRAITS3*/
+/* ================= Trait spins: you choose whether to replace ================= */
+trSpin=function(sid,n){prog.traits=prog.traits||{};if(prog.trPend)return [];const out=[];for(let i=0;i<n&&(prog.tc||0)>0;i++){prog.tc--;prog.tcU=(prog.tcU||0)+1;const t=trRoll();out.push({t,kept:false});dqAdd('trait',1);}
+ if(out.length)prog.trPend={sid,ids:out.map(x=>x.t.id)};save();return out;};
+{const stO=showTraits;showTraits=function(back,sid,res){back=back||showIslands;const PD=prog&&prog.trPend;if(PD&&!sid)sid=PD.sid;stO.call(this,back,sid,null);
+ try{const kb=[...document.querySelectorAll('button')].find(b=>b.dataset.a==='keep');if(kb)kb.remove();
+  const sel=document.getElementById('trSel'),cur=sel?sel.value:sid;
+  if(!PD)return;if(PD.sid!==cur){const r=document.getElementById('trReel');const S=STYLES.find(s=>s.id===PD.sid);if(r)r.insertAdjacentHTML('afterend',`<p class="res" style="font-weight:700">You still have a trait choice to make for ${esc(S?S.name:'another style')}. <button type="button" id="trGo" style="margin:0 0 0 6px;padding:3px 10px">Go</button></p>`);const g=document.getElementById('trGo');if(g)g.onclick=()=>showTraits(back,PD.sid);document.querySelectorAll('[data-a="s1"],[data-a="s10"]').forEach(b=>b.disabled=true);return;}
+  const ids=PD.ids.map((id,i)=>({t:TRBY[id],i})).filter(x=>x.t).sort((a,b)=>b.t.r-a.t.r);const curT=TRBY[(prog.traits||{})[cur]];
+  const mini=(t,lab,btn)=>`<div class="trc r${t?t.r:0}" style="--tc:${t?TRR[t.r].c:'#7a6a55'};margin:0;padding:7px 10px;flex:1 1 200px;max-width:260px;display:flex;flex-direction:column"><small>${lab}${t?' · '+TRR[t.r].n:''}</small><b style="font-size:18px">${t?esc(t.n):'No trait'}</b><span style="font-size:12.5px;flex:1">${t?esc(trDesc(t)):'—'}${t&&t.pa?`<br><b style="font-size:12.5px;color:#ffe6a0;text-shadow:none;display:inline">★ ${esc(t.pa.n)}</b>`:''}</span>${btn}</div>`;
+  const html=`<div id="trPick" style="max-width:820px;margin:8px auto"><h3 style="margin:4px 0">Choose your trait</h3><p class="sub" style="margin:2px 0 8px">Pick ${ids.length>1?'one of the new traits':'the new trait'} or keep the one you have. Nothing changes until you choose.</p>
+   <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">${mini(curT,'Current','<button type="button" data-k="keep" class="ghost" style="margin:6px 0 0;padding:4px 10px">Keep current</button>')}${ids.map(x=>mini(x.t,'New','<button type="button" data-k="'+x.i+'" style="margin:6px 0 0;padding:4px 10px">Take this</button>')).join('')}</div></div>`;
+  const reel=document.getElementById('trReel');if(reel)reel.insertAdjacentHTML('afterend',html);
+  document.querySelectorAll('[data-a="s1"],[data-a="s10"]').forEach(b=>b.disabled=true);
+  document.querySelectorAll('#trPick [data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k,P2=prog.trPend;if(!P2)return;prog.traits=prog.traits||{};let note='';
+   if(k!=='keep'){const id=P2.ids[+k];if(TRBY[id]){prog.traits[P2.sid]=id;note=TRBY[id].n;}}prog.trPend=null;save();showTraits(back,P2.sid);try{toast(note?'Trait equipped: '+note:'Kept your current trait');}catch(_){}});
+  const pk=document.getElementById('trPick');if(pk&&pk.scrollIntoView)pk.scrollIntoView({block:'nearest'});
+ }catch(e){}};}
+{const scO=scClean;scClean=function(o){const out=scO.apply(this,arguments);if(o&&o.trPend&&STYLES.some(s=>s.id===o.trPend.sid)&&Array.isArray(o.trPend.ids)){const ids=o.trPend.ids.filter(id=>TRBY[id]).slice(0,10);if(ids.length)out.trPend={sid:o.trPend.sid,ids};}return out;};}
 
 /*DEV*/
 /* ================= Developer panel (unlocked by a secret code) ================= */
