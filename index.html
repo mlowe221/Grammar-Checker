@@ -329,11 +329,11 @@ function sigArt(){const st=curStyle();if(!st)return;const c=st.tr||'#ffffff',p=t
 const xpNeed=()=>prog.lvl*120;
 const sty=id=>prog.style===id;
 const curStyle=()=>STYLES.find(s=>s.id===prog.style);
-const maxHP=()=>duel&&duel.phase!=='lobby'?DUEL_HP:Math.round((1+trF('hp')/100)*(100+15*(prog.lvl-1)+(has('b_resolve')?Math.round(25*tPow()):0)+(typeof bStat==='function'?Math.round(bStat('hp')):0)+(has('b_vital')?Math.round(40*tPow()):0)+(sty('shepherd')?20:0)+(sty('lion')?30:0)+(endless?endless.b.hp:0)));
-const EHP=()=>1.5+0.3*(prog.lvl-1);
+const maxHP=()=>duel&&duel.phase!=='lobby'?DUEL_HP:Math.round((1+trF('hp')/100)*(100+6*(prog.lvl-1)+(has('b_resolve')?Math.round(25*tPow()):0)+(typeof bStat==='function'?Math.round(bStat('hp')):0)+(has('b_vital')?Math.round(40*tPow()):0)+(sty('shepherd')?20:0)+(sty('lion')?30:0)+(endless?endless.b.hp:0)));
+const EHP=()=>1.5+0.24*(prog.lvl-1);
 const BDM=()=>EDM()*1.9;
-const EDM=()=>D*(130+20*(prog.lvl-1))/100;
-const dmgVal=()=>Math.round((26+6*(prog.lvl-1))*(has('s_honed')?1+0.25*tPow():1)*(typeof bFury==='function'?bFury():1)*(sty('kronos')?2:1)*(endless?endless.b.dmg:1));
+const EDM=()=>D*(130+16*(prog.lvl-1))/100;
+const dmgVal=()=>Math.round((26+2.4*(prog.lvl-1))*(has('s_honed')?1+0.25*tPow():1)*(typeof bFury==='function'?bFury():1)*(sty('kronos')?2:1)*(endless?endless.b.dmg:1));
 
 /* ---------- world ---------- */
 let bolts=[],puddles=[],fires=[],shake=0,lastSpin=null,rects,circles,grass,trees,chests,roads,floors,zones,enemies,arrows,parts,floats,smokes,P,cam,stats,msgs,state='menu',allDead=false,lastAlert=0,now=0,isl=0,pal=PAL.sun,D=1;
@@ -355,7 +355,7 @@ function islRole(type){if(type==='target')return 'champ';if(type!=='guard'&&type
 function G(type,pts,ang,name){const role=endless?null:islRole(type);let aff=[];
  if(role&&role!=='champ'&&(isl>=1||misM()>=3)&&Math.random()<0.03+0.07*isl+0.025*misM())aff=pickAff(isl>=3&&Math.random()<0.3+0.04*misM()?2:1);
  const base=type==='target'?170:type==='archer'?55:75;
- const hp=Math.round(role?base*(26+6*(prog.lvl-1))/26*1.6*(1+0.3*isl)*1.3*(1+0.07*misM())*(type==='target'?1:Math.min(EKS[role].hp,2.2))*(aff.length?1.3:1)*(aff.includes('giant')?1.5:1):base*D*EHP());
+ const hp=Math.round(role?base*(26+4.8*(prog.lvl-1))/26*1.6*(1+0.3*isl)*1.3*(1+0.07*misM())*(type==='target'?1:Math.min(EKS[role].hp,2.2))*(aff.length?1.3:1)*(aff.includes('giant')?1.5:1):base*D*EHP());
  enemies.push({type,name,ek:role||undefined,isl:!!role,aff,slot:Math.random()*6.283,t2:1+Math.random()*3,t3:role==='champ'?10:3+Math.random()*4,dm:aff.includes('giant')?1.3:1,x:pts[0][0],y:pts[0][1],r:type==='target'?15:role?EKS[role].r*(aff.includes('giant')?1.3:1):12,ang:ang||0,baseAng:ang||0,hp,max:hp,pts,pi:0,wait:0,st:'patrol',sus:0,seenT:0,lx:0,ly:0,wind:0,cool:0,hitF:0,searchT:0,home:[pts[0][0],pts[0][1]],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0});}
 
 function compound(type,slot,flip,name){
@@ -431,7 +431,7 @@ function build(i){
 /* ---------- boss: The Hydra King ---------- */
 let bossFx=[],bossSeen=false,bossDeath=null;
 const bossAlive=()=>enemies&&enemies.find(e=>e.type==='boss'&&!e.dead);
-function spawnBoss(){const hp=Math.round(6800*D*(1+0.14*(prog.lvl-1)));enemies.push({type:'boss',name:'The Hydra King',x:1300,y:1000,r:30,ang:Math.PI/2,baseAng:0,hp,max:hp,pts:[[1300,1000]],pi:0,wait:0,st:'alert',sus:1,seenT:0,lx:0,ly:0,wind:0,cool:2,hitF:0,searchT:0,home:[1300,1000],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0,phase:1,regrew:false,atkT:2.5,sumT:6,heads:5});bossSeen=false;bossFx=[];}
+function spawnBoss(){const hp=Math.round(6800*D*(1+0.112*(prog.lvl-1)));enemies.push({type:'boss',name:'The Hydra King',x:1300,y:1000,r:30,ang:Math.PI/2,baseAng:0,hp,max:hp,pts:[[1300,1000]],pi:0,wait:0,st:'alert',sus:1,seenT:0,lx:0,ly:0,wind:0,cool:2,hitF:0,searchT:0,home:[1300,1000],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0,phase:1,regrew:false,atkT:2.5,sumT:6,heads:5});bossSeen=false;bossFx=[];}
 function bossAttack(e){const ph=e.phase,pool=['sweep','breath','rain','bite'];if(ph>=2)pool.push('pools','wave');if(ph>=3)pool.push('barrage','bite','wave');const k=pool[Math.floor(rnd()*pool.length)],B=BDM();e.mouth=0.7;
  if(k==='sweep')bossFx.push({k:'circle',x:e.x,y:e.y,r:170+ph*25,t:0,delay:1.0-ph*0.12,dmg:12*B,col:'255,80,60',lab:'TAIL SWEEP'});
  else if(k==='breath'){const a=Math.atan2(P.y-e.y,P.x-e.x);bossFx.push({k:'cone',x:e.x,y:e.y,a,t:0,delay:0.8-ph*0.1,col:'120,230,90',fire:()=>{for(let i=-4-ph;i<=4+ph;i++){const aa=a+i*0.1;arrows.push({x:e.x+Math.cos(aa)*40,y:e.y+Math.sin(aa)*40,vx:Math.cos(aa)*380,vy:Math.sin(aa)*380,l:1.7,glob:1,dmg:4*B});}}});}
@@ -550,7 +550,7 @@ function trackPV(dt){if(!P||dt<=0)return;if(!gLP||Math.hypot(P.x-gLP.x,P.y-gLP.y
 const PVv=()=>endless?endless.pv:gPV;
 const ekBaseHP=()=>maxHP()-(endless?endless.b.hp:0);
 const ekD=pct=>{const w=EW();if(!endless)return Math.round(ekBaseHP()*Math.min(0.45,pct*3.4*(1+0.17*isl)*(1+0.05*misM())));return Math.round(ekBaseHP()*pct*1.7*(1+0.1*w+0.0035*w*w));};
-const ekHp=k=>{const w=EW();return Math.round(95*EKS[k].hp*(dmgVal()/(endless?endless.b.dmg:1))/26*(0.75+0.15*w+0.004*w*w));};
+const ekHp=k=>{const w=EW();return Math.round(95*EKS[k].hp*(dmgVal()*((26+4.8*(prog.lvl-1))/(26+2.4*(prog.lvl-1)))/(endless?endless.b.dmg:1))/26*(0.75+0.15*w+0.004*w*w));};
 const ekSp=e=>EKS[e.ek].sp*(1+Math.min(0.8,0.025*EW()))*(e.aff.includes('swift')?1.4+Math.min(0.4,0.01*EW()):1)*(now<(e.haste||0)?1.3:1)*(e.frenzy?1.25:1);
 const ekCD=e=>(1/(1+0.035*EW()))*(now<(e.haste||0)?0.7:1)*(e.frenzy?0.65:1);
 const ekDE=(e,pct)=>Math.round(ekD(pct)*(e.dm||1)*(1+(e.bl||0)));
@@ -1563,7 +1563,7 @@ function drawVfx(){ctx.save();ctx.globalCompositeOperation='lighter';
 /* ---------- style moves & awakenings ---------- */
 let projs=[],allies=[],zones2=[],cut=null,curZ=1;
 const tAim=()=>{if(joy.id!==null){const dx=joy.x-joy.bx,dy=joy.y-joy.by;if(Math.hypot(dx,dy)>14){const a=Math.atan2(dy,dx);let b=null,bd=1e9;for(const e of enemies){if(e.dead||e.cloak)continue;const d=dist(P.x,P.y,e.x,e.y);if(d>380||Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))>0.7)continue;if(d<bd){bd=d;b=e;}}return b?[b.x,b.y]:[P.x+Math.cos(a)*220,P.y+Math.sin(a)*220];}}const tg=nearest(380);return tg?[tg.x,tg.y]:[P.x+Math.cos(P.face)*220,P.y+Math.sin(P.face)*220];};
-const mwx=()=>touchMode?tAim()[0]:mx/ZOOM+cam.x,mwy=()=>touchMode?tAim()[1]:my/ZOOM+cam.y,aim=()=>Math.atan2(mwy()-P.y,mwx()-P.x),lvlK=()=>1+0.1*(prog.lvl-1);
+const mwx=()=>touchMode?tAim()[0]:mx/ZOOM+cam.x,mwy=()=>touchMode?tAim()[1]:my/ZOOM+cam.y,aim=()=>Math.atan2(mwy()-P.y,mwx()-P.x),lvlK=()=>1+0.04*(prog.lvl-1);
 function egoGain(d){if(P&&sty('hooligan')&&!(P.egoT>0)&&!duel)P.ego=Math.min(100,(P.ego||0)+d*0.12*(P.awT>0?2:1));}
 function hitE(e,o,sx,sy){if(e.dead)return;if(e.type==='rival'){rivalHit(e,o);if(o.gild)gildE(e,o.gild,o.gtok);return;}if(sx===undefined){sx=P.x;sy=P.y;}
  if(o.kill){if(o.label)float(e.x,e.y-26,o.label,o.col||'#fff');killEnemy(e,e.st!=='alert');return;}
@@ -6390,7 +6390,7 @@ function chimSpit(e,K){e.head=2;for(let i=0;i<2+e.phase;i++)later(i*0.18,()=>{if
 /* ---- generic boss AI ---- */
 function misSpawnBoss(i){const bid=ISLBOSS[i],B=BOSSDEF[bid],A=MIS.arena,cx=(A.x0+A.x1)/2+120,cy=(A.y0+A.y1)/2;
  if(bid==='hydra'){spawnBoss();const h=enemies[enemies.length-1];h.bid='hydra';h.x=cx;h.y=cy;h.home=[cx,cy];return;}
- const hp=Math.round(6800*D*(1+0.14*(prog.lvl-1))*B.hpK);enemies.push({type:'boss',bid,name:B.name,x:cx,y:cy,r:B.r,ang:Math.PI,baseAng:0,hp,max:hp,pts:[[cx,cy]],pi:0,wait:0,st:'alert',sus:1,seenT:0,lx:0,ly:0,wind:0,cool:2,hitF:0,searchT:0,home:[cx,cy],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0,phase:1,atkT:2.2,sumT:8,z:0});bossSeen=false;bossFx=[];}
+ const hp=Math.round(6800*D*(1+0.112*(prog.lvl-1))*B.hpK);enemies.push({type:'boss',bid,name:B.name,x:cx,y:cy,r:B.r,ang:Math.PI,baseAng:0,hp,max:hp,pts:[[cx,cy]],pi:0,wait:0,st:'alert',sus:1,seenT:0,lx:0,ly:0,wind:0,cool:2,hitF:0,searchT:0,home:[cx,cy],dead:false,detour:0,detA:0,swing:0,stun:0,stoned:false,poison:0,phase:1,atkT:2.2,sumT:8,z:0});bossSeen=false;bossFx=[];}
 function gBoss(e,dt){const B=BOSSDEF[e.bid];e.hitF-=dt;e.cool-=dt;e.stoned=false;e.hold=Math.max(0,(e.hold||0)-dt);e.swingT=Math.max(0,(e.swingT||0)-dt);e.roarT=Math.max(0,(e.roarT||0)-dt);if(e.poison>0){e.poison-=dt;e.hp-=10*dt;if(e.hp<=1)e.hp=1;}
  const d=dist(e.x,e.y,P.x,P.y),f=e.hp/e.max;
  if(!bossSeen){if(d<600||(MIS&&MIS.at>1.3)){bossSeen=true;BFX=[];BPJ=[];if(typeof playReveal==='function'&&FX['b_'+e.bid]){state='boss';playReveal({id:'b_'+e.bid,r:4,name:B.name,tr:B.col,cl:B.dk,hd:B.col,boss:1},()=>{state='play';msg(B.wake,4.5);});}else msg(B.wake,4.5);}return;}
@@ -7024,13 +7024,13 @@ function trFrozenFx(e,T){const seed=rnd()*6;rAdd(T,(c,f)=>{if(!e||e.dead)return;
   const h=seed+f*0.4;c.beginPath();c.moveTo(e.x,e.y);c.lineTo(e.x+Math.cos(h)*r*0.6,e.y+Math.sin(h)*r*0.6);c.moveTo(e.x,e.y);c.lineTo(e.x+Math.cos(seed*2)*r*0.85,e.y+Math.sin(seed*2)*r*0.85);c.stroke();});}
 /* --- on-hit passives --- */
 function trOnHit(e,raw){if(trInPa||!trOn()||!e||e.type==='rival')return;const t=trCur();if(!t||!t.pa)return;
- if(t.id==='olympian'&&now>=(P.trOlyT||0)&&raw>0){P.trOlyT=now+6;const d=Math.max(raw*2.5,40+8*prog.lvl),x=e.x,y=e.y;trBoltFx(x,y,120);for(const n of trNear(x,y,120)){trHit(n,d,'#bfe8ff');if(n.type!=='boss')n.stun=Math.max(n.stun||0,0.6);}float(x,y-50,'⚡ WRATH OF OLYMPUS','#bfe8ff');}
+ if(t.id==='olympian'&&now>=(P.trOlyT||0)&&raw>0){P.trOlyT=now+6;const d=Math.max(raw*2.5,40+3.2*prog.lvl),x=e.x,y=e.y;trBoltFx(x,y,120);for(const n of trNear(x,y,120)){trHit(n,d,'#bfe8ff');if(n.type!=='boss')n.stun=Math.max(n.stun||0,0.6);}float(x,y-50,'⚡ WRATH OF OLYMPUS','#bfe8ff');}
  if(t.id==='godslayer'&&!e.dead&&e.hp>0){if(e.type==='boss'){P.trGsN=(P.trGsN||0)+1;if(P.trGsN>=7&&raw>0){P.trGsN=0;trHit(e,raw*1.5,'#ff3a4a');trSlashFx(e.x,e.y,'#ff2a3a',true);float(e.x,e.y-56,'GODSPLITTER','#ff5a6a');shake=Math.max(shake||0,5);}}
   else if(e.hp<e.max*0.18){const x=e.x,y=e.y;trHit(e,e.hp+5,'#ff3a4a');if(!e.dead&&e.hp>0){try{killEnemy(e);}catch(_){}}trSlashFx(x,y,'#ff2a3a',false);float(x,y-40,'EXECUTED','#ff5a6a');}}}
 {const hO=hitE;hitE=function(e,o){const raw=o&&o.dmg||0,was=e&&!e.dead;const r=hO.apply(this,arguments);if(was)trOnHit(e,raw);return r;};}
 {const hO2=hitEnemy;hitEnemy=function(e,d){const was=e&&!e.dead;const r=hO2.apply(this,arguments);if(was&&typeof d==='number')trOnHit(e,d);return r;};}
 /* --- Phoenix: firestorm on rebirth + heal on kill --- */
-{const tpO=trPhoenix;trPhoenix=function(){const b=P&&P.trRev;tpO.apply(this,arguments);if(P&&!b&&P.trRev){trFireFx(P.x,P.y,220);const d=120+20*prog.lvl;for(const n of trNear(P.x,P.y,220)){trHit(n,d,'#ff9a2a');n.stun=Math.max(n.stun||0,1);}}};}
+{const tpO=trPhoenix;trPhoenix=function(){const b=P&&P.trRev;tpO.apply(this,arguments);if(P&&!b&&P.trRev){trFireFx(P.x,P.y,220);const d=120+8*prog.lvl;for(const n of trNear(P.x,P.y,220)){trHit(n,d,'#ff9a2a');n.stun=Math.max(n.stun||0,1);}}};}
 {const kO=killEnemy;killEnemy=function(e){const was=e&&!e.dead;const r=kO.apply(this,arguments);if(was&&e.dead&&trOn()){const t=trCur();if(t&&t.id==='phoenix'&&P.hp>0){const h=Math.round(maxHP()*0.04);heal(h);if(rnd()<0.5)float(P.x,P.y-30,'+'+h,'#ffb52e');}}return r;};}
 /* --- Chronos: Time Stop on ability use --- */
 let trCd0=null,trMm0=0;
