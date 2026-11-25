@@ -2549,7 +2549,7 @@ const CUR=r=>hTarget(r),AIM=()=>{const[x,y]=hTarget(520);return (x===P.x&&y===P.
  u:{d:'Thousand-Year Grimoire: a vast magic circle opens overhead and rains a thousand years of spells onto every enemy nearby',f:()=>{VX.rune(P.x,P.y,360,C,3,8);VX.rune(P.x,P.y,260,C2,3,5);const cols=[C,'#ff9a5a','#fff27a','#cfefff',C2];for(let k=0;k<24;k++)later(k*0.09,()=>{const L=foes(600);if(!L.length)return;const e=L[(Math.random()*L.length)|0],col=cols[k%5];VX.meteor(e.x,e.y,60,col,-80,360,0.5);later(0.28,()=>aoe(e.x,e.y,60,{dmg:45,stun:0.2,col}));});later(2.5,()=>KB.nova(P.x,P.y,320,{dmg:130,stun:1.5},'#ffffff',C));}},
  ms:{pa:{n:'Ancient Knowledge',d:'Abilities recharge 20% faster',f:{cdr:0.2}},mv:{n:'Comet',cd:10,f:()=>{const[c,d]=CUR(360);VX.meteor(c,d,160,C2,-200,520);later(0.5,()=>KB.nova(c,d,160,{dmg:140,stun:1},C2,C));}},pb:{n:'Endless Curiosity',d:'Ultimate charges 50% faster and regenerate 3 health a second',f:{awk:0.5,regen:3}}}});}
 {const C='#ffb02a',C2='#8fd8ff',S='#c8d2dc';NK('robo',{
- m:[{n:'Rocket Fist',cd:6,f:()=>{const a=AIM();VX.beam(P.x,P.y,a,440,34,C);KB.beam(a,440,34,{dmg:70,push:120,stun:0.6},C);VX.burst(P.x+Math.cos(a)*440,P.y+Math.sin(a)*440,60,C,10);}},
+ m:[{n:'Arm Cannon',cd:6,f:()=>{const a=AIM();VX.beam(P.x,P.y,a,440,34,C);KB.beam(a,440,34,{dmg:70,push:120,stun:0.6},C);VX.burst(P.x+Math.cos(a)*440,P.y+Math.sin(a)*440,60,C,10);}},
     {n:'Hydraulic Slam',cd:8,f:()=>{const[c,d]=CUR(300);tele(c,d,C);VX.crack(c,d,170,C);KB.nova(c,d,170,{dmg:90,stun:1},S,C);shake=14;}},
     {n:'Missile Swarm',cd:9,f:()=>{const L=byDist(foes(480));for(let k=0;k<8;k++){const e=L[k%Math.max(1,L.length)];const[x,y]=e?[e.x,e.y]:CUR(300);later(k*0.07,()=>{VX.meteor(x,y,55,C,-120,300,0.35);later(0.3,()=>aoe(x,y,55,{dmg:40,col:C}));});}}},
     {n:'Steel Plating',cd:14,f:()=>{buff('immune',3);buff('reflect',3);heal(maxHP()*0.1);VX.rune(P.x,P.y,80,S,3,6);VX.orbit(P.x,P.y,64,C,6,3,6);}},
@@ -2558,7 +2558,7 @@ const CUR=r=>hTarget(r),AIM=()=>{const[x,y]=hTarget(520);return (x===P.x&&y===P.
     {n:'Crusher Drill',cd:7,f:()=>{for(let k=0;k<6;k++)later(k*0.1,()=>KB.cone(P.face,170,0.55,{dmg:24},C));}}],
  aw:{n:'Full Metal Crusher',sig:'gear',f:()=>KB.nova(P.x,P.y,190,{dmg:40,push:100},C,S)},
  ap:{n:'Core Overdrive',d:'Your reactor runs hot: micro-missiles fire at the two nearest enemies every 1.5 seconds',t:dt=>{if(awE('rc',1.5,dt))byDist(foes(460)).slice(0,2).forEach((e,i)=>later(i*0.1,()=>{VX.meteor(e.x,e.y,45,C,-90,260,0.3);later(0.25,()=>aoe(e.x,e.y,45,{dmg:38,col:C}));}));}},
- am:[{n:'Mega Rocket Fist',f:()=>{const a=AIM();for(const s of[-0.12,0,0.12])KB.beam(a+s,520,40,{dmg:80,push:160,stun:0.8},C);}},
+ am:[{n:'Mega Arm Cannon',f:()=>{const a=AIM();for(const s of[-0.12,0,0.12])KB.beam(a+s,520,40,{dmg:80,push:160,stun:0.8},C);}},
      {n:'Seismic Hammer',f:()=>{const[c,d]=CUR(320);tele(c,d,C);KB.nova(c,d,240,{dmg:130,stun:1.4},S,C);later(0.4,()=>KB.nova(c,d,340,{push:140},C,S));shake=20;}},
      {n:'Missile Storm',f:()=>{const L=byDist(foes(520));for(let k=0;k<16;k++){const e=L[k%Math.max(1,L.length)];const[x,y]=e?[e.x,e.y]:CUR(300);later(k*0.05,()=>{VX.meteor(x,y,60,C,-120,320,0.35);later(0.3,()=>aoe(x,y,60,{dmg:45,col:C}));});}}},
      {n:'Fortress Mode',f:()=>{buff('immune',5);buff('reflect',5);heal(maxHP()*0.2);VX.rune(P.x,P.y,110,S,5,8);}},
@@ -4376,7 +4376,7 @@ T6S.robo=[['g1','Recoil Dampers',(p,R)=>'Every 4th strike fires a shockwave in f
  ['k1','Juggernaut','Keystone: take 20% less damage.','pass',{dr:0.2}],
  ['k2','Missile Pods',(p,R)=>'Keystone: every ability also fires two micro-missiles at nearby enemies for '+R(35)+' each.','cast',(i,p)=>byDist(foes(420)).slice(0,2).forEach((e,k)=>later(k*0.1,()=>{VX.meteor(e.x,e.y,45,'#ffb02a',-90,260,0.3);later(0.25,()=>aoe(e.x,e.y,45,{dmg:Math.round(35*p),col:'#ffb02a'}));}))],
  ['k3','Emergency Repair','Keystone: dropping below 30% health casts Steel Plating for free (every 25s).','tick',(dt,p,st)=>{st.cd=(st.cd||0)-dt;if(st.cd<=0&&P.hp<maxHP()*0.3&&MOVES.robo[3]){st.cd=25;MOVES.robo[3].f();float(P.x,P.y-50,'EMERGENCY REPAIR','#ffb02a');}}],
- ['k4','Heavy Metal','Keystone: Hydraulic Slam and Rocket Fist deal 40% more damage to stunned enemies.','dmg',(e)=>e.stun>0?1.4:1],
+ ['k4','Heavy Metal','Keystone: Hydraulic Slam and Arm Cannon deal 40% more damage to stunned enemies.','dmg',(e)=>e.stun>0?1.4:1],
  ['k5','Scrap Collector','Keystone: every 6 takedowns builds a drone that fights for 10 seconds.','kill',(e,p,st)=>{st.n=(st.n||0)+1;if(st.n%6===0)ally('echo',1,10,{dmg:Math.round(35*p),col:'#ffb02a'});}],
  ['k6','Meltdown',(p,R)=>'Keystone: while awakened, every ability you cast also explodes around you for '+R(60)+'.','cast',(i,p)=>{if(P.awT>0)KB.nova(P.x,P.y,170,{dmg:Math.round(60*p)},'#ffb02a');}]];
 
@@ -4811,9 +4811,9 @@ T7.robo={
  r:[['Ground Pound','leap up and crash down where you stand for {130}, stunning for 1.5 seconds',10,p=>{later(0.35,()=>X.nv(200,130,{stun:1.5}));X.bu('immune',0.4);}],
     ['Turret Drop','deploy a turret that shoots the nearest enemy for {30} twice a second for 6 seconds',15,p=>{const x=P.x,y=P.y;for(let k=0;k<12;k++)later(k*0.5,()=>{const e=byDist(foes(380,x,y))[0];if(e){VX.beam(x,y,Math.atan2(e.y-y,e.x-x),dist(x,y,e.x,e.y),8,'#ffb02a');X.hit(e,30);}});VX.rune(x,y,40,'#ffb02a',6,4);}],
     ['Jet Dash','blast forward on rocket boosters, burning everything you pass for {80}',8,p=>{const[x,y]=X.at(360);X.dash(x,y,80);}]],
- lc:[['Bigger Blast','Rocket Fists explode in a bigger area.',{boom:24}],['Long Range','Rocket Fists fly 30% further.',{rng:120}],['Hydraulic Force','Rocket Fists deal 20% more damage.',{m:0.25}],
-     ['Shockwave Knuckle','Rocket Fists send a small shockwave around the target.',{on:(e,p)=>{for(const o of foes(80,e.x,e.y))if(o!==e)hitE(o,{dmg:Math.round(20*p)});}}],['Fast Cycle','Rocket Fists reload 20% faster.',{rl:0.8}],['Twin Launch','Rocket Fists launch both fists at once.',{cnt:1,spread:0.16}]],
- mv:[[['Twin Fists','Rocket Fist launches both fists.',(p,i)=>X.rc(i,0.3)],['Grappling Fist','Rocket Fist pulls its target back to you.',p=>{const e=X.near(440);if(e)hitE(e,{pull:999,stun:0.6});}],['Explosive Fist','Rocket Fist explodes at the end for {60}.',p=>{const x=P.x+Math.cos(P.face)*420,y=P.y+Math.sin(P.face)*420;later(0.2,()=>X.bl(x,y,120,60));}]],
+ lc:[['Wide Swing','Rocket Fists hit a wider area in front of you.',{arc:0.25}],['Piston Reach','Rocket Fists reach 25% further.',{rng:24}],['Hydraulic Force','Rocket Fists deal 20% more damage.',{m:0.25}],
+     ['Shockwave Knuckle','Rocket Fists send a small shockwave around the target.',{on:(e,p)=>{for(const o of foes(80,e.x,e.y))if(o!==e)hitE(o,{dmg:Math.round(20*p)});}}],['Fast Cycle','Rocket Fists reload 20% faster.',{rl:0.8}],['Twin Launch','Every left click throws both fists: the second punch lands right after the first.',{fire:(a,p)=>{const P0=prim();const h=1-P.clicks%2;later(0.09,()=>{PPJ.push({k:'fx',vis:'rfist',x:P.x,y:P.y,a,t:0,T:0.4,r:P0.rng+60,arc:P0.arc||1,col:P0.col,dead:0,hand:h});for(const e of primTargets(P0.rng+80,P.x,P.y))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<=(P0.arc||1))awHit(e,0.6,{push:40});});}}]],
+ mv:[[['Double Barrel','Arm Cannon fires a second blast right after the first.',p=>later(0.25,()=>{const a=P.face;VX.beam(P.x,P.y,a,440,34,'#ffb02a');KB.beam(a,440,34,{dmg:T7D(70),push:120,stun:0.6},'#ffb02a');VX.burst(P.x+Math.cos(a)*440,P.y+Math.sin(a)*440,60,'#ffb02a',10);})],['Grapple Shot','Arm Cannon pulls its target back to you.',p=>{const e=X.near(440);if(e)hitE(e,{pull:999,stun:0.6});}],['Explosive Shell','Arm Cannon explodes at the end for {60}.',p=>{const x=P.x+Math.cos(P.face)*420,y=P.y+Math.sin(P.face)*420;later(0.2,()=>X.bl(x,y,120,60));}]],
   [['Aftershock Slam','Hydraulic Slam sends a second ring outward.',p=>later(0.4,()=>KB.nova(P.x,P.y,280,{push:120},bCol()))],['Deep Impact','Hydraulic Slam stuns for longer.',p=>X.st(P.x,P.y,170,1.8)],['Quick Hydraulics','Hydraulic Slam recharges 30% faster.',(p,i)=>X.cd(i,0.7)]],
   [['Cluster Missiles','Missile Swarm fires four more missiles.',p=>byDist(foes(480)).slice(0,4).forEach((e,k)=>later(0.3+k*0.07,()=>X.bl(e.x,e.y,55,30)))],['Napalm Warheads','Missile Swarm sets the ground on fire.',p=>{for(const e of byDist(foes(480)).slice(0,4))fires.push({x:e.x,y:e.y,t:3});}],['EMP Warheads','Missile Swarm stuns what it hits.',p=>{for(const e of byDist(foes(480)).slice(0,6))later(0.4,()=>{e.stun=Math.max(e.stun,0.8);});}]],
   [['Reactive Armour','Steel Plating knocks nearby enemies away.',p=>TA.push(P.x,P.y,170,140)],['Repair Kit','Steel Plating heals an extra 10%.',p=>X.he(0.1)],['Quick Bolts','Steel Plating recharges 30% faster.',(p,i)=>X.cd(i,0.7)]],
@@ -4943,7 +4943,7 @@ const MNAME=['Landfall','Silent Plunder','Blood Price','Broken Chains','Hold the
 const CHAMPS=['Bronze Ajax','Kyknos the Butcher','Periphetes Club-Bearer','Skiron of the Cliffs','Prokrustes the Stretcher','Sinis Pine-Bender'];
 function misM(){return MIS&&!endless&&!duel?MIS.m:0;}
 function misArr(){if(!Array.isArray(prog.mis))prog.mis=[0,0,0,0,0,0];while(prog.mis.length<ISLANDS.length)prog.mis.push(0);return prog.mis;}
-function islOpen(i){return i===0||i<prog.unlocked||misArr()[i-1]>=8;}
+function islOpen(i){return i===0||misArr()[i-1]>=8;}
 function misDef(i,m){const C=ICOMPS(i),T=MTYPE[m],B=ISLBOSS[i];
  const comps=T==='kill'?[C[m===0?0:1]]:T==='loot'?[C[1]]:T==='rescue'?[C[2]||C[0]]:T==='champ'?[C[2]||C[0]]:T==='all'?C.slice():[];
  const tn=comps.map(c=>c[3]);
@@ -5020,7 +5020,7 @@ function misTargets(){if(!MIS||endless||duel)return[];if(allDead&&MIS.type!=='bo
 /* ---- island + mission menus ---- */
 showIslands=function(){state='menu';MIS=null;const ma=misArr();
  const cards=ISLANDS.map((I,i)=>{const lock=!islOpen(i),n=ma[i],B=BOSSDEF[ISLBOSS[i]];
-  return `<button class="isle" data-a="go" data-i="${i}" style="--c:${PAL[I.pal].sea}" ${lock?'disabled':''}><b>${i+1}. ${esc(I.name)}</b><span>${esc(I.sub)} · Boss: ${esc(B.name)}</span><em>${lock?'Locked · beat the boss of '+esc(ISLANDS[i-1].name):n>=8?'✓ Freed · 8 / 8 missions':'Missions '+n+' / 8 · Danger '+'◆'.repeat(i+1)}</em></button>`;}).join('');
+  return `<button class="isle" data-a="go" data-i="${i}" style="--c:${PAL[I.pal].sea}" ${lock?'disabled':''}><b>${i+1}. ${esc(I.name)}</b><span>${esc(I.sub)} · Boss: ${esc(B.name)}</span><em>${lock?'Locked · clear all 8 missions on '+esc(ISLANDS[i-1].name):n>=8?'✓ Freed · 8 / 8 missions':'Missions '+n+' / 8 · Danger '+'◆'.repeat(i+1)}</em></button>`;}).join('');
  show(`<h2>Choose an island</h2>${who()}<div class="isles">${cards}</div><button data-a="tree">Skill trees${prog.sp?' ('+prog.sp+')':''}</button><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="code">Redeem code</button><button data-a="duel">⚔ 1v1 Duel</button><button data-a="endless">♾ Endless Mode${prog.endlessBest?' (best: wave '+prog.endlessBest+')':''}</button><button data-a="troph" class="ghost">🏆 Trophy Road</button><button data-a="fs" class="ghost">${fsLabel()}</button><button data-a="sc" class="ghost">Save code</button><button data-a="mast">Mastery${prog.mp?' ('+prog.mp+')':''}</button><button data-a="back" class="ghost">Title</button>`,1,
   {go:b=>showMissions(+b.dataset.i),tree:()=>showTree(showIslands),spin:()=>showSpin(showIslands),code:()=>showCodes(showIslands),duel:showDuel,endless:showEndless,troph:()=>showTrophies(showIslands),fs:toggleFS,sc:()=>showSaveCode(showIslands),mast:()=>showMastery(showIslands),back:showTitle});};
 function rewTxt(R){return '+'+R.spins+' spin'+(R.spins>1?'s':'')+(R.lucky?' · +'+R.lucky+' 🍀':'')+' · +'+R.sp+' skill pt'+(R.sp>1?'s':'');}
@@ -5426,6 +5426,11 @@ Object.assign(FX,{
   if(p>0.5&&p<0.85){const q=(p-0.5)/0.35;for(let i=0;i<3;i++){const a=Math.PI/2+[-0.6,0,0.6][i];c.save();c.globalAlpha=1-q;c.strokeStyle=['#ff8a3a','#d08aff','#8ae0ff'][i];c.lineWidth=30*(1-q)+4;c.beginPath();c.moveTo(cx+Math.cos(a)*sc*30,cy+Math.sin(a)*sc*30);c.lineTo(cx+Math.cos(a)*R*1.4,cy+Math.sin(a)*R*1.4);c.stroke();c.restore();}}}
 });
 
+/* islands are only played through their missions; the next island needs every mission of the one before */
+let islSpecial=0;
+{const e1=startEndless;startEndless=function(){islSpecial++;try{return e1.apply(this,arguments);}finally{islSpecial--;}};}
+{const d1=beginDuel;beginDuel=function(){islSpecial++;try{return d1.apply(this,arguments);}finally{islSpecial--;}};}
+{const s1=startIsland;startIsland=function(i){if(!islSpecial&&!duel&&!endless&&!MIS){if(!islOpen(i)){showIslands();toast&&toast('Clear every mission on '+ISLANDS[i-1].name+' first.');return;}return startMission(i,Math.min(misArr()[i],7));}return s1.apply(this,arguments);};}
 window.__game={dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
 }
 </script>
