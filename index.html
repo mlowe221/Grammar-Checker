@@ -3755,7 +3755,7 @@ const PRIM={
  archmage:{n:'Staff Arts',d:'A seeking arcane bolt.',k:'shot',m:3.0,rng:430,spd:520,r:9,home:2.4,rl:1.45,cd:0.42,col:'#c8a0ff',sh:'orb'}
 };
 const AMMO=3;
-let prim=()=>PRIM[prog.style]||PRIM._;
+let prim=()=>awPrim()||PRIM[prog.style]||PRIM._;
 const primRl=()=>{const p=prim();return p.rl/(1+(typeof bStat==='function'?bStat('atkspd'):0)/100)*(P&&P.awT>0?0.6:1)*(P&&P.buf&&P.buf.speed>0?0.85:1);};
 let PPJ=[],TAIM={id:null,bx:0,by:0,x:0,y:0,on:false},mHeld=false;
 cv.addEventListener('mousedown',e=>{if(e.button===0)mHeld=true;});addEventListener('mouseup',e=>{if(e.button===0)mHeld=false;});addEventListener('blur',()=>{mHeld=false;});
@@ -4167,6 +4167,91 @@ function mDrawRFist(c,q,f){const hand=q.hand||0,side=hand?9:-9,R=q.r,A=q.arc;
  c.save();c.translate(x,side);c.scale(1.05,1.05);drawRocketFist(c,hand,q.t);c.restore();c.globalAlpha=1;}
 MDRAW.rfist=mDrawRFist;
 {const pf7=primFire;primFire=function(a,d){const n0=PPJ.length;const r=pf7.apply(this,arguments);for(let i=n0;i<PPJ.length;i++){const q=PPJ[i];if(q.vis==='rfist'){q.hand=P.clicks%2;q.T=0.4;}}if(prog.style==='robo'){shake=Math.max(shake,2.5);for(let k=0;k<5;k++)parts.push({x:P.x+Math.cos(a)*30,y:P.y+Math.sin(a)*30,vx:Math.cos(a)*120+(rnd()-.5)*90,vy:Math.sin(a)*120+(rnd()-.5)*90,l:.35,a:0,c:rnd()<0.5?'#ffb030':'rgba(110,105,100,.55)',sz:3+rnd()*3});}return r;};}
+
+/*AWLC*/
+/* ================= Awakened & Mastered-Awakened left clicks ================= */
+let awIn=0;
+function awHit(e,mul,o){if(!e||e.dead)return;awIn++;try{primHit(e,mul);}finally{awIn--;}if(o&&!e.dead)hitE(e,o);}
+const awAt=(a,r)=>[P.x+Math.cos(a)*r,P.y+Math.sin(a)*r];
+const awCone=(a,r,arc,f,x,y)=>{x=x??P.x;y=y??P.y;for(const e of primTargets(r,x,y))if(Math.abs(angDiff(Math.atan2(e.y-y,e.x-x),a))<=arc)f(e);};
+const awLine=(a,len,w,f,x,y)=>{x=x??P.x;y=y??P.y;const ca=Math.cos(a),sa=Math.sin(a);for(const e of enemies){if(e.dead||e.cloak)continue;const dx=e.x-x,dy=e.y-y,t=dx*ca+dy*sa;if(t<0||t>len)continue;if(Math.abs(-dx*sa+dy*ca)<w/2+e.r)f(e);}};
+const awNear=(x,y,r,not)=>{let b=null,bd=r;for(const e of enemies){if(e.dead||e.cloak||(not&&not.includes(e)))continue;const d=dist(x,y,e.x,e.y);if(d<bd){bd=d;b=e;}}return b;};
+const lobT=(p,d)=>0.42+clamp(d===undefined?p.rng:d,60,p.rng)/1400;
+const lobAt=(p,a,d)=>awAt(a,clamp(d===undefined?p.rng:d,60,p.rng));
+var AWLC={
+ fisher:{a:{n:'Tidecaller Harpoon',d:'A heavier harpoon that pierces two enemies, reels them in hard and leaves a slowing pool of seawater.',o:{pierce:2,rng:480,mm:1.3,col:'#8fe0ff'},fx:(a)=>VX.wave(P.x,P.y,a,200,26,'#8fe0ff',0.4),on:e=>{hitE(e,{pull:60});puddles.push({x:e.x,y:e.y,t:2.5,r:44});}},
+  m:{n:'Leviathan Harpoon',d:'Three harpoons in a fan. Each pierces three enemies, drags them right up to you and stuns them.',o:{cnt:3,spread:0.28,pierce:3,rng:500,mm:1.25,col:'#5ad0ff'},fx:(a)=>{VX.wave(P.x,P.y,a,260,40,'#5ad0ff',0.5);VX.shock(P.x,P.y,70,'#5ad0ff','#e8fbff',0.4);},on:e=>{hitE(e,{pull:110,stun:0.4});puddles.push({x:e.x,y:e.y,t:3,r:54});}}},
+ shepherd:{a:{n:'Gale Crook',d:'A huge sweep of the crook. A gust of wind follows it, dragging everything in front of you closer.',o:{rng:104,arc:1.75,mm:1.3,col:'#f6f0dc'},fx:(a)=>{VX.slash(P.x,P.y,a,112,'#f6f0dc',3.4,18);awCone(a,190,0.9,e=>hitE(e,{pull:40}));VX.wave(P.x,P.y,a,170,60,'rgba(246,240,220,.8)',0.4);}},
+  m:{n:'Golden Crook',d:'A golden sweep with enormous reach. A second wave of light hits everything in front of you, stuns it and heals you for each enemy hit.',o:{rng:124,arc:2.0,mm:1.55,col:'#ffe08a'},fx:(a)=>{VX.slash(P.x,P.y,a,132,'#ffe08a',4,22);later(0.12,()=>{VX.slash(P.x,P.y,a,170,'#fff4c4',3.2,12);awCone(a,190,1.0,e=>{awHit(e,0.45,{stun:0.5});heal(maxHP()*0.01);});});}}},
+ dockhand:{a:{n:'Powder Keg',d:'A bigger keg of black powder. Its blast is wider and sets the ground on fire.',o:{aoe:104,mm:1.3,col:'#e09a3a'},fx:(a,d,p)=>{const[x,y]=lobAt(p,a,d);later(lobT(p,d),()=>{VX.burst(x,y,110,'#ff9a3a',14);fires.push({x,y,t:2.5});shake=Math.max(shake,5);});}},
+  m:{n:'Cannon Volley',d:'Three kegs at once: one where you aim and one either side. Each blows up in a fireball.',o:{aoe:92,mm:1.4,col:'#ff8a2a'},fx:(a,d,p)=>{const[x,y]=lobAt(p,a,d),T=lobT(p,d),px=-Math.sin(a),py=Math.cos(a);VX.rune(x,y,90,'#ff8a2a',T+0.2,8);
+   for(const s of[-1,1]){const bx=x+px*s*95,by=y+py*s*95;later(T+0.1+(s+1)*0.06,()=>{VX.burst(bx,by,100,'#ff8a2a',14);VX.shock(bx,by,90,'#ffb05a','#fff',0.45);fires.push({x:bx,y:by,t:2.5});for(const e of primTargets(88,bx,by))awHit(e,0.7,{push:30});shake=Math.max(shake,7);});}}}},
+ olive:{a:{n:'Bramble Fan',d:'Seven thorns in a wide fan. They poison harder and for longer.',o:{cnt:7,spread:0.7,mm:1.15,col:'#a8ec7a'},fx:(a)=>VX.burst(P.x+Math.cos(a)*24,P.y+Math.sin(a)*24,50,'#a8ec7a',10),on:e=>{e.poison=Math.max(e.poison||0,4);}},
+  m:{n:'Sacred Grove',d:'Seven piercing thorns. Every thorn that lands bursts into a ring of smaller thorns that hit nearby enemies.',o:{cnt:7,spread:0.7,pierce:1,mm:1.3,col:'#7aff7a'},fx:(a)=>VX.burst(P.x+Math.cos(a)*24,P.y+Math.sin(a)*24,64,'#7aff7a',14),on:e=>{e.poison=Math.max(e.poison||0,5);if(rnd()<0.45){VX.burst(e.x,e.y,70,'#7aff7a',10);for(const o of primTargets(80,e.x,e.y))if(o!==e)awHit(o,0.3,{poison:3});}}}},
+ bronze:{a:{n:'Phalanx Javelin',d:'A javelin that pierces five enemies and staggers each one it passes through.',o:{pierce:5,mm:1.3,col:'#ffcf80'},fx:(a)=>VX.beam(P.x,P.y,a,300,8,'rgba(255,207,128,.7)'),on:e=>{e.stun=Math.max(e.stun||0,0.3);}},
+  m:{n:'Spear of Achilles',d:'Three golden javelins thrown at once. Each pierces six enemies and knocks them back.',o:{cnt:3,spread:0.14,pierce:6,mm:1.25,col:'#ffe08a'},fx:(a)=>{VX.beam(P.x,P.y,a,520,14,'#ffe08a');shake=Math.max(shake,4);},on:e=>hitE(e,{push:34,stun:0.35})}},
+ runner:{a:{n:'Wind Step',d:'A much longer lunging kick that leaves a gust behind you and knocks enemies flying.',o:{lunge:115,rng:90,mm:1.3,col:'#fff0a8'},fx:(a)=>VX.wave(P.x,P.y,a+Math.PI,140,30,'#fff0a8',0.4),on:e=>hitE(e,{push:52})},
+  m:{n:'Winged Dash',d:'A huge lunging kick. A shockwave bursts out where you land, hitting and staggering everything nearby.',o:{lunge:155,rng:96,arc:1.4,mm:1.5,col:'#ffe08a'},fx:()=>later(0.02,()=>{VX.shock(P.x,P.y,120,'#ffe08a','#fff',0.45);for(const e of primTargets(115,P.x,P.y))awHit(e,0.5,{push:40,stun:0.3});}),on:e=>hitE(e,{push:60,stun:0.3})}},
+ tide:{a:{n:'Torrent',d:'Eight piercing jets of water that push enemies back and leave pools behind.',o:{cnt:8,pierce:1,mm:1.45,col:'#7ad8ff'},fx:(a,d)=>{const[x,y]=awAt(a,Math.min(d||200,260));puddles.push({x,y,t:2.5,r:50});},on:e=>hitE(e,{push:10})},
+  m:{n:'Tsunami Jet',d:'Ten heavy water jets, followed by a wall of water that crashes into everything in front of you and pushes it back.',o:{cnt:10,pierce:2,r:11,mm:1.6,col:'#4ac0ff'},fx:(a)=>{VX.wave(P.x,P.y,a,280,90,'#4ac0ff',0.6);later(0.15,()=>awCone(a,240,0.45,e=>awHit(e,0.6,{push:34})));},on:e=>hitE(e,{push:8})}},
+ viper:{a:{n:'Cobra Volley',d:'Five venom darts in a burst. The poison is far stronger.',o:{cnt:5,mm:1.2,col:'#b8ff7a'},on:e=>{e.poison=Math.max(e.poison||0,5);}},
+  m:{n:'Basilisk Fangs',d:'Five seeking, piercing darts. Hitting an already-poisoned enemy makes the venom burst for extra damage.',o:{cnt:5,home:3,pierce:1,mm:1.3,col:'#7aff5a'},on:e=>{if((e.poison||0)>0){VX.burst(e.x,e.y,46,'#7aff5a',8);awHit(e,0.35);}e.poison=Math.max(e.poison||0,6);}}},
+ ember:{a:{n:'Inferno Ball',d:'A bigger fireball. Its blast is wider and leaves a ring of fire behind.',o:{boom:82,r:14,mm:1.3,col:'#ff7a2a',onBoom:(x,y)=>{VX.burst(x,y,90,'#ff7a2a',14);for(let i=0;i<3;i++){const b=i*2.094;fires.push({x:x+Math.cos(b)*40,y:y+Math.sin(b)*40,t:2.5});}}}},
+  m:{n:'Phoenix Fireball',d:'Three fireballs in a fan. Each one erupts into a pillar of flame and leaves fire on the ground.',o:{cnt:3,spread:0.3,boom:74,r:14,mm:1.25,col:'#ff5a1a',onBoom:(x,y)=>{VX.pillar(x,y,'#ff7a2a',46,200);VX.burst(x,y,90,'#ffb03a',14);fires.push({x,y,t:3});shake=Math.max(shake,4);}}}},
+ gorgon:{a:{n:'Petrifying Glare',d:'A wider, longer glare that turns enemies to stone for a moment as well as poisoning them.',o:{w:34,rng:440,mm:1.3,col:'#b0ff7a'},fx:(a)=>VX.beam(P.x,P.y,a,440,34,'#b0ff7a'),on:e=>{e.stun=Math.max(e.stun||0,0.45);e.poison=Math.max(e.poison||0,4);}},
+  m:{n:'Medusa’s Gaze',d:'Three glares at once: a main beam and two side beams. Everything they catch is turned to stone.',o:{w:36,rng:480,mm:1.45,col:'#7aff7a'},fx:(a)=>{VX.beam(P.x,P.y,a,480,36,'#7aff7a');for(const s of[-1,1]){const b=a+s*0.38;VX.beam(P.x,P.y,b,360,20,'#b0ff7a');awLine(b,360,20,e=>awHit(e,0.55,{stun:0.6,poison:4}));}},on:e=>{e.stun=Math.max(e.stun||0,0.7);e.poison=Math.max(e.poison||0,5);}}},
+ storm:{a:{n:'Forked Lightning',d:'Lightning that jumps between four more enemies and stuns each one.',o:{jumps:4,mm:1.25,col:'#fff59a'},on:e=>{e.stun=Math.max(e.stun||0,0.2);}},
+  m:{n:'Wrath of the Sky',d:'Lightning that jumps six times. A bolt from the sky then strikes the enemy you aimed at, stunning everything around it.',o:{jumps:6,rng:400,mm:1.35,col:'#ffffff'},fx:(a)=>{const t=awNear(...awAt(a,200),260)||awNear(P.x,P.y,400);if(!t)return;VX.rune(t.x,t.y,70,'#fff59a',0.3,6);later(0.25,()=>{if(t.dead)return;VX.pillar(t.x,t.y,'#fff59a',50,260);VX.shock(t.x,t.y,90,'#fff59a','#fff',0.4);shake=Math.max(shake,6);awHit(t,1.0);for(const e of primTargets(85,t.x,t.y))hitE(e,{stun:0.5});});},on:e=>{e.stun=Math.max(e.stun||0,0.25);}}},
+ midnight:{a:{n:'Shade Fan',d:'Four shadow knives in a fan. Even deadlier against enemies that haven’t spotted you.',o:{cnt:4,spread:0.26,sneak:3.5,mm:1.25,col:'#d0b0ff'}},
+  m:{n:'Eclipse Knives',d:'Five piercing, seeking knives. Enemies that haven’t spotted you take four times the damage.',o:{cnt:5,spread:0.32,pierce:1,home:1.6,sneak:4,mm:1.3,col:'#b080ff'},fx:(a)=>VX.slash(P.x,P.y,a,60,'#b080ff',2.4,10)}},
+ titan:{a:{n:'Aftershock',d:'A wider ground slam, followed by a second shockwave that hits even further out.',o:{rng:130,mm:1.3,col:'#d8aa5a'},fx:()=>{VX.crack(P.x,P.y,140,'#8a6a3a',0,8);const x=P.x,y=P.y;later(0.3,()=>{VX.shock(x,y,170,'#d8aa5a','#fff',0.45);for(const e of primTargets(170,x,y))awHit(e,0.5,{stun:0.3});shake=Math.max(shake,6);});}},
+  m:{n:'Earthsplitter',d:'A massive slam that splits the ground in four directions, stunning everything along the cracks.',o:{rng:150,mm:1.5,col:'#ffcf6a'},fx:(a)=>{shake=Math.max(shake,9);VX.shock(P.x,P.y,160,'#ffcf6a','#fff',0.5);const x=P.x,y=P.y;for(let i=0;i<4;i++){const b=a+i*1.571;VX.crack(x+Math.cos(b)*60,y+Math.sin(b)*60,150,'#6a4a2a',b,5);later(0.12,()=>awLine(b,280,46,e=>awHit(e,0.6,{stun:0.55}),x,y));}}}},
+ helios:{a:{n:'Solar Flare',d:'A bigger sun that bursts into eight rays.',o:{split:8,r:15,mm:1.25,col:'#ffe08a'}},
+  m:{n:'Supernova',d:'A blazing sun that bursts into twelve rays and erupts in a pillar of fire where it hits.',o:{split:12,r:17,mm:1.35,col:'#fff0a0'},on:e=>{if(!awIn&&rnd()<0.5){VX.pillar(e.x,e.y,'#ffd27a',40,200);fires.push({x:e.x,y:e.y,t:2});}}}},
+ nyx:{a:{n:'Abyss Orb',d:'A larger, faster void orb with longer reach that drags enemies harder.',o:{r:20,spd:340,rng:480,mm:1.25,col:'#b08aff'},on:e=>hitE(e,{pull:14})},
+  m:{n:'Black Hole',d:'A void orb that collapses into a black hole at the end of its flight, sucking in everything nearby and crushing it.',o:{r:22,spd:320,rng:460,mm:1.3,col:'#8a5aff'},fx:(a)=>{const p=prim(),T=p.rng/p.spd;const[x,y]=awAt(a,p.rng);later(T,()=>{VX.vortex(x,y,130,'#8a5aff','#1a0a2a',0.9);for(const e of primTargets(170,x,y)){hitE(e,{pull:999},x,y);awHit(e,0.9,{stun:0.5});}shake=Math.max(shake,7);});}}},
+ tempest:{a:{n:'Storm Trident',d:'A trident that pierces four enemies. Lightning jumps from each one to another nearby.',o:{pierce:4,mm:1.25,col:'#bff8ff'},on:e=>{if(awIn)return;const o=awNear(e.x,e.y,180,[e]);if(o){VX.bolt(e.x,e.y,o.x,o.y,'#bff8ff');awHit(o,0.4,{stun:0.2});}}},
+  m:{n:'Trident of the Deep',d:'Three tridents in a fan. Each pierces four enemies, and lightning jumps from every hit to two more.',o:{cnt:3,spread:0.22,pierce:4,mm:1.25,col:'#7af0ff'},on:e=>{if(awIn)return;const hit=[e];let c=e;for(let j=0;j<2;j++){const o=awNear(c.x,c.y,200,hit);if(!o)break;VX.bolt(c.x,c.y,o.x,o.y,'#7af0ff');awHit(o,0.35,{stun:0.25});hit.push(o);c=o;}}}},
+ kronos:{a:{n:'Hourglass Blades',d:'Two spinning blades that fly out and return. Each hit freezes enemies in time for longer.',o:{cnt:2,spread:0.32,mm:1.2,col:'#d8c4ff'},on:e=>{e.stun=Math.max(e.stun||0,0.35);}},
+  m:{n:'Time Reaper',d:'Three huge clock blades. Every hit stops the enemy in time.',o:{cnt:3,spread:0.46,r:16,mm:1.3,col:'#b89aff'},fx:()=>VX.rune(P.x,P.y,62,'#b89aff',0.45,12),on:e=>{e.stun=Math.max(e.stun||0,0.55);}}},
+ lion:{a:{n:'Pride Rend',d:'A bigger, wider claw swipe that heals you more.',o:{rng:100,arc:1.5,mm:1.3,col:'#ffd04a'},fx:(a)=>{for(let k=-1;k<=1;k++)VX.slash(P.x,P.y,a+k*0.12,96+k*8,'#ffd04a',2.6,8);},on:()=>heal(maxHP()*0.015)},
+  m:{n:'Nemean Maul',d:'A crushing maul that heals you, then a roar stuns everything around you.',o:{rng:116,arc:1.6,mm:1.75,col:'#ffb020'},fx:(a)=>{for(let k=-1;k<=1;k++)VX.slash(P.x,P.y,a+k*0.12,112+k*8,'#ffb020',2.8,10);later(0.1,()=>{VX.shock(P.x,P.y,150,'#ffd04a','#fff',0.4);for(const e of primTargets(150,P.x,P.y))hitE(e,{stun:0.4});});},on:e=>{heal(maxHP()*0.02);}}},
+ psycho:{a:{n:'Frenzy Jabs',d:'Six lightning-fast punches that reload even quicker.',o:{cnt:6,rl:0.8,mm:1.15,col:'#fff6c8'}},
+  m:{n:'Thousand Fists',d:'Eight blistering punches that pierce and stagger with every hit.',o:{cnt:8,spd:920,pierce:1,rl:0.75,mm:1.25,col:'#ffffff'},fx:(a)=>VX.burst(P.x+Math.cos(a)*26,P.y+Math.sin(a)*26,44,'#fff6c8',10),on:e=>{e.stun=Math.max(e.stun||0,0.12);}}},
+ drakon:{a:{n:'Dragonfire',d:'A wider, longer cone of flame that sets the ground on fire more often.',o:{cnt:8,spread:0.7,rng:260,mm:1.2,col:'#ff7a2a'},on:e=>{if(rnd()<0.5)fires.push({x:e.x,y:e.y,t:1.8});}},
+  m:{n:'Wyrm Inferno',d:'A huge, piercing torrent of fire that sets the whole cone ablaze.',o:{cnt:10,spread:0.8,rng:290,pierce:1,mm:1.3,col:'#ff5a1a'},fx:(a)=>{for(let i=1;i<=3;i++){const[x,y]=awAt(a+(rnd()-.5)*0.6,i*85);later(i*0.08,()=>{fires.push({x,y,t:2.4});VX.glow(x,y,60,'#ff7a2a',0.5);});}},on:e=>{if(rnd()<0.5)fires.push({x:e.x,y:e.y,t:2});}}},
+ midas:{a:{n:'Golden Rain',d:'Five gold coins that gild what they hit and ricochet twice.',o:{cnt:5,spread:0.36,bounce:2,mm:1.15,col:'#ffe46a'}},
+  m:{n:'King’s Ransom',d:'Five heavy coins that ricochet three times and gild enemies twice as fast.',o:{cnt:5,spread:0.36,bounce:3,r:9,mm:1.3,col:'#fff08a'},fx:()=>VX.orbit(P.x,P.y,44,'#ffd84a',6,0.5,4),on:e=>{if(!e.dead)gildE(e,1);}}},
+ pitbull:{a:{n:'Savage Bite',d:'A bigger bite that makes enemies bleed. Your dog joins in on whatever you hit.',o:{rng:92,arc:1.3,mm:1.3,col:'#ff7ae8'},fx:(a)=>VX.slash(P.x,P.y,a,96,'#ff7ae8',2.6,14),on:e=>{e.poison=Math.max(e.poison||0,2.5);}},
+  m:{n:'Alpha Mauling',d:'A brutal double bite. The second bite lands a moment later and staggers whatever it hits.',o:{rng:104,arc:1.4,mm:1.45,col:'#ff4ad8'},fx:(a)=>{VX.slash(P.x,P.y,a,108,'#ff4ad8',2.8,16);later(0.14,()=>{VX.slash(P.x,P.y,a+Math.PI*0.04,112,'#ffb0f0',2.8,12);awCone(a,108,1.4,e=>awHit(e,0.5,{stun:0.3}));});},on:e=>{e.poison=Math.max(e.poison||0,3);}}},
+ grandmaster:{a:{n:'Bishop’s Cross',d:'Three shots in a fan, each passing through three enemies.',o:{cnt:3,spread:0.5,mm:1.15,col:'#ffffff'}},
+  m:{n:'Checkmate',d:'Three heavy shots that pass through five enemies and put each one in check, stunning it.',o:{cnt:3,spread:0.3,pierce:5,r:12,mm:1.3,col:'#ffe08a'},fx:()=>VX.rune(P.x,P.y,56,'#d9b34a',0.45,4),on:e=>{e.stun=Math.max(e.stun||0,0.4);}}},
+ hooligan:{a:{n:'Awakened Dagger Dance',d:'A longer, wider knife combo that slashes in your mask’s colour. Each hit carries your mask’s element.',o:{rng:92,arc:1.5,mm:1.3},fx:(a)=>VX.slash(P.x,P.y,a,96,(typeof HCOL!=='undefined'&&HCOL[HK()])||'#ff5a7a',3,14)},
+  m:{n:'Ascended Dagger Dance',d:'A sweeping knife combo that casts a small burst of your mask’s spell where it lands.',o:{rng:104,arc:1.7,mm:1.5},fx:(a)=>{const c=(typeof HCOL!=='undefined'&&HCOL[HK()])||'#ff5a7a';VX.slash(P.x,P.y,a,108,c,3.4,16);VX.slash(P.x,P.y,a+0.2,90,'#ffffff',2.4,8);if(typeof hSpell==='function'){const[x,y]=awAt(a,80);later(0.1,()=>hSpell(x,y,0.35,undefined,true));}}}},
+ hydra:{a:{n:'Three Heads',d:'Three venom fangs in a spread, with stronger poison.',o:{cnt:3,spread:0.26,mm:1.15,col:'#b0ffd8'},on:e=>{e.poison=Math.max(e.poison||0,4);}},
+  m:{n:'Nine Heads',d:'Five piercing fangs in a wide spread. Their venom is the strongest in the game.',o:{cnt:5,spread:0.46,pierce:1,mm:1.25,col:'#7affb8'},fx:(a)=>VX.burst(P.x+Math.cos(a)*22,P.y+Math.sin(a)*22,50,'#7affb8',10),on:e=>{e.poison=Math.max(e.poison||0,6);}}},
+ archmage:{a:{n:'Arcane Volley',d:'Two seeking arcane bolts that track harder.',o:{cnt:2,spread:0.3,home:3,mm:1.15,col:'#d8b4ff'}},
+  m:{n:'Astral Barrage',d:'Four seeking star bolts that fly out in a wide fan, then curve in on your enemies.',o:{cnt:4,spread:0.7,home:3.6,mm:1.2,col:'#b48aff'},fx:()=>VX.rune(P.x,P.y,50,'#b48aff',0.4,5)}},
+ robo:{a:{n:'Overdrive Fists',d:'Bigger rocket punches. Each one sends a shockwave further out, knocking enemies back.',o:{rng:110,arc:0.8,mm:1.3,col:'#ffc04a'},fx:(a)=>later(0.08,()=>{const[x,y]=awAt(a,70);VX.wave(x,y,a,110,70,'#ffc04a',0.35);awCone(a,170,0.5,e=>{if(dist(P.x,P.y,e.x,e.y)>100)awHit(e,0.45,{push:50});});})},
+  m:{n:'Titan Breaker',d:'Massive rocket punches that end in an explosion in front of you, hitting and staggering everything in the blast.',o:{rng:124,arc:0.9,mm:1.5,col:'#ff9a2a'},fx:(a)=>later(0.1,()=>{const[x,y]=awAt(a,115);VX.burst(x,y,100,'#ff9a2a',16);VX.shock(x,y,85,'#ffc04a','#fff',0.4);shake=Math.max(shake,7);for(const e of primTargets(85,x,y))awHit(e,0.6,{push:46,stun:0.3});})}}
+};
+const awPC={};
+function awPrim(){if(typeof AWLC==='undefined'||!P||!(P.awT>0))return null;const id=prog.style,D=AWLC[id],B=PRIM[id];if(!D||!B)return null;const lv=P.ascAw?'m':'a',L=D[lv];
+ const ck=id+lv;let c=awPC[ck];if(c&&c.B===B)return c.p;
+ const o=Object.assign({},L.o);const mm=o.mm||1;delete o.mm;const p=Object.assign({},B,o,{n:L.n,d:L.d,m:B.m*mm,awl:L,awLv:lv==='m'?2:1});
+ const bOn=B.on,xOn=L.on;if(xOn)p.on=function(e){if(bOn)bOn.apply(this,arguments);if(!awIn)xOn.apply(this,arguments);};
+ awPC[ck]={B,p};return p;}
+/* fire hook: extra effects plus aura on projectiles */
+{const pf8=primFire;primFire=function(a,d){const p=prim(),n0=PPJ.length;const r=pf8.apply(this,arguments);const lv=p.awLv;if(lv){const col=p.col;for(let i=n0;i<PPJ.length;i++){PPJ[i].aw=lv;PPJ[i].awc=col;}
+  if(p.k!=='burst')VX.glow(P.x+Math.cos(a)*16,P.y+Math.sin(a)*16,lv===2?46:32,col,0.3);
+  if(p.k==='burst'){const t0=now;for(let i=1;i<(p.cnt||1);i++)later(i*0.075+0.01,()=>{for(const q of PPJ)if(q.k!=='fx'&&!q.aw){q.aw=lv;q.awc=col;}});}
+  try{p.awl.fx&&p.awl.fx(a,d,p);}catch(_){}}return r;};}
+{const pd8=primDraw;primDraw=function(q){if(q.aw&&q.k!=='fx'&&q.k!=='lob'){const c=ctx,col=q.awc||q.col;q.tr=q.tr||[];q.tr.push(q.x,q.y);if(q.tr.length>16)q.tr.splice(0,2);
+   c.save();c.globalCompositeOperation='source-over';c.lineCap='round';const n=q.tr.length/2;for(let i=1;i<n;i++){c.globalAlpha=(i/n)*0.45;c.strokeStyle=col;c.lineWidth=(q.r||8)*(0.6+i/n)*(q.aw===2?1.5:1.1);c.beginPath();c.moveTo(q.tr[i*2-2],q.tr[i*2-1]);c.lineTo(q.tr[i*2],q.tr[i*2+1]);c.stroke();}
+   const R=(q.r||8)*(q.aw===2?3:2.3),g=c.createRadialGradient(q.x,q.y,0,q.x,q.y,R);g.addColorStop(0,'rgba(255,255,255,.55)');g.addColorStop(0.35,col);g.addColorStop(1,'rgba(0,0,0,0)');c.globalAlpha=0.5;c.fillStyle=g;c.beginPath();c.arc(q.x,q.y,R,0,6.283);c.fill();
+   if(q.aw===2){const t=now*6+(q.x+q.y)*0.01;c.globalAlpha=0.9;c.fillStyle='#fff6d0';for(let k=0;k<3;k++){const b=t+k*2.094;c.beginPath();c.arc(q.x+Math.cos(b)*R*0.75,q.y+Math.sin(b)*R*0.75,1.8,0,6.283);c.fill();}}
+   c.restore();}
+  return pd8.apply(this,arguments);};}
 
 /*TREES6*/
 /* ================= SKILL TREES v6: every option is built from the style's own kit ================= */
