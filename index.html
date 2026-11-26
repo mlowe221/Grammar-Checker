@@ -205,7 +205,7 @@ const SIGN=['Blade Storm','Comet Strike','Starburst','Heroic Nova','Mythic Catac
 const OLDCOST={s1:1,s2:1,s3:2,s4:3,b1:1,b2:1,b3:2,b4:3,v1:1,v2:1,v3:2,v4:3};
 function tMigrate(o){if(!o)return o;if(!o.trees||typeof o.trees!=='object'||Array.isArray(o.trees))o.trees={};for(const sid in o.trees){const arr=Array.isArray(o.trees[sid])?o.trees[sid]:[];const st=(typeof STYLES!=='undefined')&&STYLES.find(x=>x.id===sid);let back=0;const keep=[];for(const n of arr){if(TNODES.includes(n)||/^(q\d+_[a-z]+|v[67]_[a-z]+_\w+)$/.test(n)){keep.push(n);continue;}if(/^k[1-6][abc]$/.test(n)){back+=OLDB[st?st.r:0][+n[1]-1];continue;}for(const b of TBR){const t=b.ids.indexOf(n);if(t>=0)back+=TCOST[st?st.r:0][t];}}o.sp=(o.sp||0)+back;o.trees[sid]=keep;}if(Array.isArray(o.skills)&&o.skills.length){let back=0;for(const k of o.skills)back+=OLDCOST[k]||0;o.sp=(o.sp||0)+back;o.skills=[];}return o;}
 
-const RAR=[{n:'Common',c:'#c9c3b5',p:50.87},{n:'Rare',c:'#4a9be8',p:28},{n:'Epic',c:'#b36ef0',p:14},{n:'Legendary',c:'#f0a030',p:6.5},{n:'Mythic',c:'#ff3a5a',p:0.6},{n:'Limited',c:'#ff5ae0',p:0.03}];
+const RAR=[{n:'Common',c:'#c9c3b5',p:50.85},{n:'Rare',c:'#4a9be8',p:28},{n:'Epic',c:'#b36ef0',p:14},{n:'Legendary',c:'#f0a030',p:6.5},{n:'Mythic',c:'#ff3a5a',p:0.6},{n:'Limited',c:'#ff5ae0',p:0.05}];
 const STYLES=[
  {id:'fisher',r:0,name:"Fisher's Wrap",d:'Move 10% faster.',cl:'#5c6f7a',hd:'#76909c',tr:'#d9c9a0'},
  {id:'shepherd',r:0,name:"Shepherd's Cloak",d:'+20 maximum health.',cl:'#7a6a50',hd:'#94836a',tr:'#e9e0c8'},
@@ -270,9 +270,9 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'269b711c0606c41e506ec931':{lucky:70,rel:1795685133591,t:'+70 Lucky spins'}};
+const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'57387fc2c2fcc13b9673ac34':{lucky:50,rel:1795685494225,t:'+50 Lucky spins'}};
 const SPIN_COST=150;
-const LUCK=[0,44.4,35.3,17,2.5,0.8];
+const LUCK=[0,44,35.3,17,2.5,1.2];
 const SAVEKEY='kerkos-save-v3';
 let endless=null;
 let wiped=false;try{const o=localStorage.getItem('kerkos-save-v2');if(o!==null){localStorage.setItem('kerkos-save-v2-archive',o);localStorage.removeItem('kerkos-save-v2');wiped=true;}}catch(e){}
