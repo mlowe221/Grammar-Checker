@@ -270,9 +270,9 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'c72659248619ad87dbaee0a9':{lucky:50,rel:1795684207538,t:'+50 Lucky spins'}};
+const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'b53d76cf43e1508bba022d76':{lucky:50,rel:1795684596821,t:'+50 Lucky spins'}};
 const SPIN_COST=150;
-const LUCK=[0,45,35.3,17,2.5,0.2];
+const LUCK=[0,44.4,35.3,17,2.5,0.8];
 const SAVEKEY='kerkos-save-v3';
 let endless=null;
 let wiped=false;try{const o=localStorage.getItem('kerkos-save-v2');if(o!==null){localStorage.setItem('kerkos-save-v2-archive',o);localStorage.removeItem('kerkos-save-v2');wiped=true;}}catch(e){}
@@ -297,7 +297,7 @@ function ledgerSync(){if(!prog)return;const L=ledgerGet();let ch=false;for(const
 function ledgerApply(o){const L=ledgerGet(),fresh=!L.red.length&&!L.lkU&&!L.spU;o.redeemed=[...new Set([...(o.redeemed||[]),...L.red])].slice(-600);let lost=0;
  if(L.lkU>(o.lkU||0)){const d=L.lkU-(o.lkU||0);lost+=Math.min(o.lucky||0,d);o.lucky=Math.max(0,(o.lucky||0)-d);o.lkU=L.lkU;}
  if(L.spU>(o.spU||0)){const d=L.spU-(o.spU||0);o.spins=Math.max(0,(o.spins||0)-d);o.spU=L.spU;}
- if(fresh){o.codeLock=Date.now()+24*3600*1000;o.lockFrom=Date.now();}else{o.codeLock=0;}return lost;}
+ o.codeLock=0;return lost;}
 function save(){try{svWrite(prog);}catch(e){}try{ledgerSync();}catch(e){}}
 tMigrate(prog);
 const tSt=id=>STYLES.find(s=>s.id===(id||prog.style));
@@ -7065,6 +7065,7 @@ trSpin=function(sid,n){prog.traits=prog.traits||{};if(prog.trPend)return [];cons
  }catch(e){}};}
 {const scO=scClean;scClean=function(o){const out=scO.apply(this,arguments);if(o&&o.trPend&&STYLES.some(s=>s.id===o.trPend.sid)&&Array.isArray(o.trPend.ids)){const ids=o.trPend.ids.filter(id=>TRBY[id]).slice(0,10);if(ids.length)out.trPend={sid:o.trPend.sid,ids};}return out;};}
 
+try{if(prog&&prog.codeLock){prog.codeLock=0;save();}}catch(e){}
 /*DEV*/
 /* ================= Developer panel (unlocked by a secret code) ================= */
 const DEVF={god:false,ohk:false,nocd:false};
@@ -7116,7 +7117,7 @@ const hD9=e=>{try{hitE(e,{dmg:(e.hp||0)+5});}catch(_){}};{const hD=hitE;hitE=fun
 addEventListener('keydown',e=>{if(e.key==='`'&&prog&&prog.dev){e.preventDefault();devPanel();}});
 setTimeout(()=>{try{if(prog.dev&&state==='menu'&&[...document.querySelectorAll('button')].some(b=>b.dataset.a==='sc')&&![...document.querySelectorAll('button')].some(b=>/Dev panel/.test(b.textContent)))showTitle();}catch(e){}},300);
 
-if(navigator.webdriver)window.__game={devPanel:b=>devPanel(b),DEVF,trSpin:(a,n)=>trSpin(a,n),endlessOver:c=>endlessOver(c),showTraits:b=>showTraits(b),showDaily:b=>showDaily(b),maxHP:()=>maxHP(),hitE:(e,o)=>hitE(e,o),hurtPlayer:(d,x,y)=>hurtPlayer(d,x,y),showIslands:()=>showIslands(),save:()=>save(),dqAdd:(a,b)=>dqAdd(a,b),awaken:()=>awaken(),showBuffPick:()=>showBuffPick(),dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
+if(navigator.webdriver)window.__game={devPanel:b=>devPanel(b),DEVF,rollStyle:l=>rollStyle(l),trSpin:(a,n)=>trSpin(a,n),endlessOver:c=>endlessOver(c),showTraits:b=>showTraits(b),showDaily:b=>showDaily(b),maxHP:()=>maxHP(),hitE:(e,o)=>hitE(e,o),hurtPlayer:(d,x,y)=>hurtPlayer(d,x,y),showIslands:()=>showIslands(),save:()=>save(),dqAdd:(a,b)=>dqAdd(a,b),awaken:()=>awaken(),showBuffPick:()=>showBuffPick(),dbg:()=>({BUFFS,takeBuff,MOVES,bLayout,TA,BTW,bOpt,STHEME,ELM,AW,AWK,PASS,LC,MASTERY,ULT}),endScreen:w=>endScreen(w),startMission,showMissions,misDef,misReward,BOSSDEF,ISLBOSS,get MIS(){return MIS},get BFX(){return BFX},get BPJ(){return BPJ},riotFigure:(...a)=>riotFigure(...a),get P(){return P},get enemies(){return enemies},get prog(){return prog},update:dt=>update(dt),attack:a=>{P.face=a;playerAttack();},startIsland,get state(){return state},keys,get touchMode(){return touchMode},setTouch:v=>{touchMode=v},joy,held,touchBtns,tStart,tMove,tEnd,showTree,whirl,smoke,showSpin,doSpin,rollStyle,STYLES,RAR,MOVES,AW,PASS,LC,ULT,toggleFS,fsSupported,isFS,TROPHY_ROAD,claimTrophyRoad,showTrophies,trophyRank,scEncode,scDecode,showSaveCode,setProg:v=>{prog=v},get duel(){return duel},joinDuel,duelTick,rivalHit,showDuel,leaveDuel,MASTERY,AWFX2,MFX,playMastery,showMastery,useMM,mlv,get bossFx(){return bossFx},ISLANDS,EXTRA,drawIntro,drawHero,useMove,awaken,get cut(){return cut},showCodes,CODES:CODES_H,codeKey,playReveal,FX,get revealOn(){return revealOn},gildE,gildN,goldify,midasFx,playerAttack,kitHTML0,LIMITED,AWFX,get allies(){return allies},AWK,ULT,awMoves,get tq(){return tq},startEndless,showEndless,takeBuff,ekSpawn,EKS,BUFFS,get endless(){return endless}};
 }
 </script>
 </body></html>
