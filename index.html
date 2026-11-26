@@ -3583,7 +3583,7 @@ function scClean(o){const f=fresh(),num=(v,d,lo,hi)=>{v=+v;return isFinite(v)?Ma
  out.skills=Array.isArray(o.skills)?[...new Set(o.skills.filter(s=>skills.has(s)))]:[];out.owned=Array.isArray(o.owned)?[...new Set(o.owned.filter(s=>ids.has(s)))]:[];out.style=ids.has(o.style)&&out.owned.includes(o.style)?o.style:null;
  out.redeemed=Array.isArray(o.redeemed)?[...new Set(o.redeemed.filter(s=>typeof s==='string'&&s.length<40))].slice(0,500):[];out.quick=!!o.quick;out.lastDay=typeof o.lastDay==='string'?o.lastDay.slice(0,12):'';
  out.trees={};if(o.trees&&typeof o.trees==='object')for(const k in o.trees)if(ids.has(k)&&Array.isArray(o.trees[k]))out.trees[k]=[...new Set(o.trees[k].filter(n=>TNODES.includes(n)))];tMigrate(Object.assign(out,{skills:Array.isArray(o.skills)?o.skills.filter(x=>OLDCOST[x]):[]}));
- out.pm=num(o.pm,0,0,50);out.pl=num(o.pl,0,0,125);out.lkU=num(o.lkU,0,0,1e9);out.spU=num(o.spU,0,0,1e9);out.codeLock=num(o.codeLock,0,0,9e15);out.lockFrom=num(o.lockFrom,0,0,9e15);out.treeV=o.treeV;out.mastery={};if(o.mastery&&typeof o.mastery==='object')for(const k in o.mastery)if(ids.has(k)&&MASTERY[k])out.mastery[k]=num(o.mastery[k],0,0,k==='harold'?6:k==='wukong'?7:4);return out;}
+ out.pm=num(o.pm,0,0,50);out.pl=num(o.pl,0,0,125);out.lkU=num(o.lkU,0,0,1e9);out.spU=num(o.spU,0,0,1e9);out.codeLock=num(o.codeLock,0,0,9e15);out.lockFrom=num(o.lockFrom,0,0,9e15);out.treeV=o.treeV;out.mastery={};if(o.mastery&&typeof o.mastery==='object')for(const k in o.mastery)if(ids.has(k)&&MASTERY[k])out.mastery[k]=num(o.mastery[k],0,0,k==='harold'?7:k==='wukong'?7:4);return out;}
 function showSaveCode(back,note,good,pending){if(state==='play')state='pause';let code='';try{code=scEncode();}catch(e){code='';}
  const sum=`Level ${prog.lvl} · ${prog.owned.length} styles · ${prog.spins} spins · ${prog.lucky} Lucky · ${prog.mp} Mastery`;
  show(`<h2>Save Code</h2><p class="sub">Move your progress to another device or browser.</p>
@@ -8440,7 +8440,7 @@ const HDA=(()=>{
 {const mn56=mNodes;mNodes=function(id){const L=mn56.apply(this,arguments);if(id!=='harold')return L;return L.concat([
  {n:'Unstoppable Body',d:'Enemies and bosses can no longer hurt you just by touching you: no damage from running into them or their charges',k:'Passive'},
  {n:'Hunter’s Lock',d:'New ability on key 2: lock on to the closest enemy for 7 seconds (or until it dies). Harold always faces it and keeps charging straight through it',k:'New ability'}]);};}
-{const sm56=showMastery;showMastery=function(){const r=sm56.apply(this,arguments);try{for(const h of document.querySelectorAll('.branch h3'))if(h.textContent.trim().startsWith('Harold')){const p=h.nextElementSibling;if(p)p.innerHTML=p.innerHTML.replace('/4','/6');}}catch(_){}return r;};}
+{const sm56=showMastery;showMastery=function(){const r=sm56.apply(this,arguments);try{for(const h of document.querySelectorAll('.branch h3'))if(h.textContent.trim().startsWith('Harold')){const p=h.nextElementSibling;if(p)p.innerHTML=p.innerHTML.replace('/4','/7');}}catch(_){}return r;};}
 window.hdNoContact=()=>!!(P&&prog&&prog.style==='harold'&&hdLv()>=5&&!duel);
 window.hdLockOn=()=>!!(P&&prog&&prog.style==='harold'&&P.hdLk&&!duel&&state==='play');
 function hdLockStart(){if(!P)return;if(hdLv()<6){float(P.x,P.y-46,'Unlocks at Mastery 6','#ffb0bc');return;}
@@ -8499,6 +8499,30 @@ window.hdTreeTheme=()=>{const bt=panel.querySelector('.btree.th-sealed');if(!bt)
 /* Harold: keep his skill-tree picks when the save is loaded (the generic loader only knew the standard trees) */
 {const scT=scClean;scClean=function(o){const out=scT.apply(this,arguments);try{const src=o&&o.trees&&o.trees.harold;if(Array.isArray(src)){const keep=[];for(const T of HDTREE){const pick=T.o.find(x=>src.includes(x.id));if(pick)keep.push(pick.id);}out.trees=out.trees||{};out.trees.harold=keep;}}catch(_){}return out;};}
 
+/* ================= Harold: Hunter's Lock strikes like a collision; mastery 7 Speed Blitz (key 8) ================= */
+window.hdLockHit=e=>{if(!e||e.dead||e.hp<=0||e.hdCd>now)return;e.hdCd=now+0.35;hdCollide(e,hdSpeed());};
+function hdTrailFx(ax,ay,bx,by,w){rAdd(0.35,(c,f)=>{c.save();c.globalCompositeOperation='lighter';c.lineCap='round';for(let k=0;k<3;k++){c.globalAlpha=(1-f)*(0.7-k*0.2);c.strokeStyle=k===2?'#ffffff':'hsl('+((now*400+k*90)%360)+',100%,60%)';c.lineWidth=(w||10)*(1-f)*(1-k*0.3)+1;c.beginPath();c.moveTo(ax,ay);c.lineTo(bx,by);c.stroke();}c.restore();});}
+/* Hunter's Lock: opening dash-strike + guaranteed hit on every pass */
+{const ls0=hdLockStart;hdLockStart=function(){const had=P&&P.hdLk;ls0.apply(this,arguments);try{const L=P&&P.hdLk;if(!L||L===had)return;const e=L.e,a=Math.atan2(e.y-P.y,e.x-P.x),ox=P.x,oy=P.y;
+ P.x=clamp(e.x+Math.cos(a)*((e.r||14)+34),L0+20,L1x-20);P.y=clamp(e.y+Math.sin(a)*((e.r||14)+34),L0+20,L1y-20);if(!(typeof hdPhase==='function'&&hdPhase()))resolve(P);L.a=a;L.thru=now+0.15;
+ hdTrailFx(ox,oy,P.x,P.y,14);e.hdCd=0;hdLockHit(e);shake=Math.max(shake||0,6);}catch(err){console.error(err);}};}
+{const ld0=hdLockDir;hdLockDir=function(){const a=ld0.apply(this,arguments);try{const L=P&&P.hdLk;if(L&&L.e&&!L.e.dead&&dist(L.e.x,L.e.y,P.x,P.y)<(L.e.r||14)+P.r+18)hdLockHit(L.e);}catch(_){}return a;};}
+/* Speed Blitz */
+function hdBlitz(){if(!P)return;const S=hdSpeed();const pool=enemies.filter(e=>!e.dead&&e.hp>0&&!e.ally&&!e.friendly&&e.type!=='rival'&&dist(e.x,e.y,P.x,P.y)<720);
+ if(!pool.length){float(P.x,P.y-46,'No targets nearby','#ffb0bc');return;}
+ const path=[];let cx=P.x,cy=P.y;while(path.length<8&&pool.length){let bi=0,bd=1e9;pool.forEach((e,i)=>{const d=dist(e.x,e.y,cx,cy);if(d<bd){bd=d;bi=i;}});const e=pool.splice(bi,1)[0];path.push(e);cx=e.x;cy=e.y;}
+ const bonus=1+Math.min(2.5,0.75*Math.max(0,Math.log10(Math.max(1,S/1000))));const step=0.065;
+ try{hdSay(['Eight. Didn’t even break a sweat.','Blink.','Too slow, all of you.'][Math.random()*3|0],true);}catch(_){}
+ path.forEach((e,i)=>later(step*i,()=>{if(!P||e.dead||e.hp<=0)return;const ox=P.x,oy=P.y,a=Math.atan2(e.y-P.y,e.x-P.x);
+  P.x=clamp(e.x+Math.cos(a)*((e.r||14)+26),L0+20,L1x-20);P.y=clamp(e.y+Math.sin(a)*((e.r||14)+26),L0+20,L1y-20);P.face=a;
+  hdTrailFx(ox,oy,P.x,P.y,12);e.hdCd=0;e.hdCd=now+0.35;hdCollide(e,S);if(!e.dead&&e.hp>0)hitE(e,{dmg:S*0.15*0.5*bonus,col:'#ffffff'});
+  rAdd(0.3,(c,f)=>{c.save();c.translate(e.x,e.y);c.globalCompositeOperation='lighter';c.globalAlpha=1-f;c.strokeStyle='#fff';c.lineWidth=4*(1-f)+1;const r=(e.r||14)+10+f*24;c.beginPath();c.moveTo(-r,-r);c.lineTo(r,r);c.moveTo(r,-r);c.lineTo(-r,r);c.stroke();c.strokeStyle='#ff2a4a';c.beginPath();c.arc(0,0,r*1.2,0,6.283);c.stroke();c.restore();});
+  shake=Math.max(shake||0,4);if(i===path.length-1){if(!(typeof hdPhase==='function'&&hdPhase()))resolve(P);shake=Math.max(shake||0,12);hitstop=Math.max(hitstop||0,0.06);float(P.x,P.y-56,'SPEED BLITZ ×'+path.length,'#ffffff');
+   rAdd(0.5,(c,f)=>{c.save();c.globalCompositeOperation='lighter';c.globalAlpha=(1-f)*0.8;c.strokeStyle='hsl('+((now*300)%360)+',100%,65%)';c.lineWidth=10*(1-f)+1;c.beginPath();c.arc(P.x,P.y,20+f*160,0,6.283);c.stroke();c.restore();});}}));}
+{const M7=MASTERY.harold.mv;Object.defineProperty(M7,'none',{configurable:true,get(){return hdLv()<7;},set(v){}});Object.defineProperty(M7,'n',{configurable:true,get(){return hdLv()>=7?'Speed Blitz':'Seal 2';},set(v){}});
+ Object.defineProperty(M7,'cd',{configurable:true,get(){return +(14*hdCdMul()).toFixed(2);},set(v){}});M7.f=()=>hdBlitz();}
+{const mn7=mNodes;mNodes=function(id){const L=mn7.apply(this,arguments);if(id!=='harold')return L;return L.concat([{n:'Speed Blitz',d:'New ability on key 8: blitz up to 8 nearby enemies in an instant, hitting each like a collision at your current speed plus bonus damage that grows the faster you are',k:'Mastery move'}]);};}
+
 /*DEV*/
 /* ================= Developer panel (unlocked by a secret code) ================= */
 const DEVF={god:false,ohk:false,nocd:false};
@@ -8518,22 +8542,22 @@ function devPanel(back,note){if(!prog.dev)return;if(state==='play')state='pause'
  <h3>Danger zone</h3><div><button type="button" data-a="wipe" class="ghost">Wipe this account</button><button type="button" data-a="lock" class="ghost">Lock dev panel</button></div>
  <button data-a="back">Done</button>`,1,(()=>{const A={back};const re=n=>{save();devPanel(back,n);};
   for(const f of F){const k=f[0],g=()=>Math.round(+document.getElementById('dv_'+k).value||0);A['set_'+k]=()=>{prog[k]=Math.max(k==='lvl'?1:0,g());re(f[1]+' set to '+prog[k]);};A['add_'+k]=()=>{prog[k]=(prog[k]||0)+Math.max(1,g()||1);re(f[1]+': '+prog[k]);};A['sub_'+k]=()=>{prog[k]=Math.max(k==='lvl'?1:0,(prog[k]||0)-Math.max(1,g()||1));re(f[1]+': '+prog[k]);};}
-  A.max=()=>{prog.spins=9999;prog.lucky=9999;prog.tc=9999;prog.dr=9999999;prog.mp=9999;prog.sp=999;prog.lvl=Math.max(prog.lvl,50);prog.owned=STYLES.map(s=>s.id);prog.mastery={};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=s.id==='wukong'?7:s.id==='harold'?6:4;re('Everything maxed.');};
+  A.max=()=>{prog.spins=9999;prog.lucky=9999;prog.tc=9999;prog.dr=9999999;prog.mp=9999;prog.sp=999;prog.lvl=Math.max(prog.lvl,50);prog.owned=STYLES.map(s=>s.id);prog.mastery={};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=s.id==='wukong'?7:s.id==='harold'?7:4;re('Everything maxed.');};
   A.zero=()=>{prog.spins=0;prog.lucky=0;prog.tc=0;prog.dr=0;prog.mp=0;prog.sp=0;re('Currencies set to zero.');};
   A.allst=()=>{prog.owned=STYLES.map(s=>s.id);re('Every style given.');};
   A.nost=()=>{prog.owned=[];prog.style=null;re('Every style taken.');};
-  A.allm=()=>{prog.mastery=prog.mastery||{};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=s.id==='wukong'?7:s.id==='harold'?6:4;re('All mastery maxed.');};
+  A.allm=()=>{prog.mastery=prog.mastery||{};for(const s of STYLES)if(MASTERY[s.id])prog.mastery[s.id]=s.id==='wukong'?7:s.id==='harold'?7:4;re('All mastery maxed.');};
   A.nom=()=>{prog.mastery={};re('All mastery reset.');};
   for(const s of STYLES){A['tog_'+s.id]=()=>{if(prog.owned.includes(s.id)){prog.owned=prog.owned.filter(x=>x!==s.id);if(prog.style===s.id)prog.style=prog.owned[0]||null;}else prog.owned.push(s.id);re(s.name+(prog.owned.includes(s.id)?' given.':' taken.'));};
    A['eq_'+s.id]=()=>{prog.style=s.id;re(s.name+' equipped.');};
-   A['ml_'+s.id]=()=>{prog.mastery=prog.mastery||{};prog.mastery[s.id]=((prog.mastery[s.id]||0)+1)%(s.id==='wukong'?8:s.id==='harold'?7:5);re(s.name+' mastery level '+prog.mastery[s.id]+'.');};
+   A['ml_'+s.id]=()=>{prog.mastery=prog.mastery||{};prog.mastery[s.id]=((prog.mastery[s.id]||0)+1)%(s.id==='wukong'?8:s.id==='harold'?8:5);re(s.name+' mastery level '+prog.mastery[s.id]+'.');};
    A['tr_'+s.id]=()=>{prog.trees=prog.trees||{};delete prog.trees[s.id];re(s.name+' skill tree reset.');};}
   const csRun=(list,i)=>{const ov=document.getElementById('ov');if(i>=list.length||list.stop){if(ov)ov.style.display='';devPanel(back,list.stop?'Stopped the cutscenes.':list.length>1?'Played '+list.length+' cutscenes.':'Played '+list[0].name+'.');return;}if(ov)ov.style.display='none';const pe=fx.style.pointerEvents,tap=e=>{e.preventDefault();if(revealEnd)revealEnd();},esc=e=>{if(e.key==='Escape'){list.stop=1;if(revealEnd)revealEnd();}else if(e.key===' '||e.key==='Enter'){if(revealEnd)revealEnd();}};fx.style.pointerEvents='auto';fx.addEventListener('pointerdown',tap);addEventListener('keydown',esc);playReveal(list[i],()=>{fx.removeEventListener('pointerdown',tap);removeEventListener('keydown',esc);fx.style.pointerEvents=pe;csRun(list,i+1);});};
   for(const s of STYLES)A['cs_'+s.id]=()=>{if(FX[s.id])csRun([s],0);};
   A.csplay=()=>{const v=document.getElementById('dv_cs').value,st=STYLES.find(x=>x.id===v);if(st)csRun([st],0);};
   A.csall=()=>{csRun(STYLES.filter(x=>FX[x.id]).sort((a,b)=>a.r-b.r||a.name.localeCompare(b.name)),0);};
   A.hcplay=()=>{const v=document.getElementById('dv_hc').value,ov=document.getElementById('ov');if(ov)ov.style.display='none';const end=()=>{if(ov)ov.style.display='';devPanel(back,'Played Harold cutscene.');};if(v==='freeze')hdCinema(end);else if(v==='seal')HDA.sealBreak([{label:'SEAL II BROKEN',sub:'He phases through walls'}],end);else if(v==='seals')HDA.sealBreak([{label:'SEAL III BROKEN',sub:'Speed gain starts at 30'},{label:'THE LAST SEAL · 5 / 8',sub:'Hunt the Lion'},{label:'THE LAST SEAL · 6 / 8',sub:'Light Speed'}],end);else if(v==='unseal')HDA.unseal(end);else hdBossCut(v,end);};
-  A.hdfull=()=>{if(!prog.owned.includes('harold'))prog.owned.push('harold');prog.mastery=prog.mastery||{};prog.mastery.harold=6;prog.trees=prog.trees||{};const own=(prog.trees.harold||[]).slice();HDTREE.forEach(T=>{if(!T.o.some(x=>own.includes(x.id)))own.push(T.o[0].id);});prog.trees.harold=own;prog.hdq={maxS:Math.max(1e6,(prog.hdq&&prog.hdq.maxS)||0),ob:1000,lim:300,ew:20,bosses:Object.keys(HDBOSS)};prog.hdUnl=true;re('Harold fully completed: owned, full mastery (all four seals plus Unstoppable Body and Hunter’s Lock), full skill tree, every trial done, and the Unbound Tree unlocked. Buy its upgrades with skill points from his style card.');};
+  A.hdfull=()=>{if(!prog.owned.includes('harold'))prog.owned.push('harold');prog.mastery=prog.mastery||{};prog.mastery.harold=7;prog.trees=prog.trees||{};const own=(prog.trees.harold||[]).slice();HDTREE.forEach(T=>{if(!T.o.some(x=>own.includes(x.id)))own.push(T.o[0].id);});prog.trees.harold=own;prog.hdq={maxS:Math.max(1e6,(prog.hdq&&prog.hdq.maxS)||0),ob:1000,lim:300,ew:20,bosses:Object.keys(HDBOSS)};prog.hdUnl=true;re('Harold fully completed: owned, full mastery (all four seals, Unstoppable Body, Hunter’s Lock and Speed Blitz), full skill tree, every trial done, and the Unbound Tree unlocked. Buy its upgrades with skill points from his style card.');};
   A.hdqall=()=>{prog.hdq={maxS:1e6,ob:1000,lim:300,ew:20,bosses:Object.keys(HDBOSS)};re('Harold’s six trials are complete. He still needs all four seals and a full skill tree to unlock the Unbound Tree.');};
   A.hdqno=()=>{prog.sp=(prog.sp||0)+HDU.reduce((a,T)=>a+T.o.filter(x=>(prog.hdU||[]).includes(x.id)).length*T.cost,0);prog.hdq={};prog.hdU=[];prog.hdUnl=false;re('Harold’s trials and Unbound Tree reset (skill points refunded).');};
   A.allmis=()=>{prog.mis=ISLANDS.map(()=>8);prog.cleared=ISLANDS.map((_,i)=>i);prog.unlocked=ISLANDS.length;re('Every mission cleared.');};
