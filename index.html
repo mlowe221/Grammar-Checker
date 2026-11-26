@@ -1367,7 +1367,7 @@ function playerAttack(){if(duelLocked())return;if(duel)duel.a++;{const A=awA();i
  if(!hit)burst(P.x+Math.cos(P.face)*30,P.y+Math.sin(P.face)*30,'#e9d3a2',3,40);
  while(fq.length)fq.shift()();}
 
-function hurtPlayer(d,fromX,fromY){if(P.inv>0||state!=='play')return;const hard=!!endless||(bossSeen&&!!bossAlive());const guard=P.buf.immune>0;if(guard){burst(P.x,P.y,'#ffd77a',6,80);}d=Math.round(d*(guard?0.35:1)*(1-pf('dmgTaken'))*(sty('grandmaster')?0.75:1)*(P.egoT>0?[0.7,0.55,0.4][P.rTier||0]-(HK()===2&&sty('hooligan')?0.1:0):1)*(P.awT>0?0.4:1));if(guard)float(P.x,P.y-34,'Guarded','#ffd77a');P.hp-=d;P.hurt=0.25;P.inv=0.35;const a=Math.atan2(P.y-fromY,P.x-fromX);P.x+=Math.cos(a)*14;P.y+=Math.sin(a)*14;resolve(P);float(P.x,P.y-20,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);
+function hurtPlayer(d,fromX,fromY){if(P.inv>0||state!=='play')return;const d0=d;const hard=!!endless||(bossSeen&&!!bossAlive());const guard=P.buf.immune>0;if(guard){burst(P.x,P.y,'#ffd77a',6,80);}d=Math.round(d*(guard?0.35:1)*(1-Math.min(0.75,pf('dmgTaken')))*(sty('grandmaster')?0.75:1)*(P.egoT>0?[0.7,0.55,0.4][P.rTier||0]-(HK()===2&&sty('hooligan')?0.1:0):1)*(P.awT>0?0.4:1));{const fl=Math.max(1,Math.round(d0*0.15));if(d<fl)d=fl;}if(guard)float(P.x,P.y-34,'Guarded','#ffd77a');P.hp-=d;P.hurt=0.25;P.inv=0.35;const a=Math.atan2(P.y-fromY,P.x-fromX);P.x+=Math.cos(a)*14;P.y+=Math.sin(a)*14;resolve(P);float(P.x,P.y-20,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);
  if(P.hp<=0)trPhoenix();if(P.hp<=0){if(sty('hydra')&&!P.hydraRev){P.hydraRev=true;P.hp=maxHP();P.inv=1.8;msg('The Hydra King regrows!',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#9effc8',life:.7});burst(P.x,P.y,'#9effc8',40,180);return;}if(endless&&endless.b.rev>0){endless.b.rev--;P.hp=Math.round(maxHP()*0.5);P.inv=1.5;msg('Phoenix Feather! You rise again.',3);fxPush({k:'ring',x:P.x,y:P.y,r:160,col:'#ff9a3a',life:.7});return;}if(P.phoenix){P.phoenix=false;P.hp=maxHP()*Math.min(1,0.5*tPow());P.inv=1.5;msg('Phoenix! You rise again.',3);burst(P.x,P.y,'#ffb040',40,180);return;}P.hp=0;endScreen(false);}}
 
 function stone(e){if(sty('gorgon')&&!(P.stoneT>now)&&e.type!=='boss'){P.stoneT=now+12;e.poison=Math.max(e.poison,4);float(e.x,e.y-30,'Venom!','#9cff6a');}}
@@ -3223,7 +3223,7 @@ function updMoves(dt){
  if(pf('regen')&&P.hp<maxHP())P.hp=Math.min(maxHP(),P.hp+pf('regen')*dt);
  if(pf('arrowproof'))for(const a of arrows)if(!a.apc&&dist(a.x,a.y,P.x,P.y)<36){a.apc=1;if(Math.random()<0.5){a.l=0;burst(a.x,a.y,'#ff9a2a',5,60);}}for(const k in P.buf)P.buf[k]-=dt;
  P.histT-=dt;if(P.histT<=0){P.histT=0.1;P.hist.push([P.x,P.y]);if(P.hist.length>30)P.hist.shift();}
- if(P.buf.reflect>0)for(const a of arrows)if(dist(a.x,a.y,P.x,P.y)<40){a.l=0;burst(a.x,a.y,'#ffd04a',5,60);}
+ if(P.buf.reflect>0)for(const a of arrows)if(!a.rfx&&dist(a.x,a.y,P.x,P.y)<40){a.rfx=1;if(Math.random()<0.5){a.l=0;burst(a.x,a.y,'#ffd04a',5,60);}}
  if(P.awT>0){P.awT-=dt;P.awTick-=dt;const S=curStyle();if(rnd()<0.6&&S)parts.push({x:P.x+(rnd()-.5)*30,y:P.y+(rnd()-.5)*30,vx:0,vy:-60,l:.6,a:0,c:rnd()<.5?S.tr:S.cl,sz:6,sh:1});
   {const A=S&&AWK[S.id];if(A){P.ak=P.ak||{};if(!P.ak.__){P.ak.__=1;msg('Awakened passive: '+A.p.n+'. '+A.p.d,4);}if(A.p.t)A.p.t(dt);}}
   if(P.awTick<=0&&S){P.awTick=1;P.awPulse++;if(P.ascAw){fxPush({k:'ring',x:P.x,y:P.y,r:230,col:S.tr,life:.55});fxPush({k:'ring',x:P.x,y:P.y,r:150,col:'#ffe08a',life:.45});}}if(P.awT<=0)msg('Your awakening fades.',2);}
@@ -3677,7 +3677,7 @@ function duelRound(){tq.length=0;if(P)P.awTouch=0;enemies=[];arrows=[];projs=[];
 const duelLocked=()=>!!(duel&&(duel.phase!=='fight'||P.stunT>0));
 function rivalHit(e,o){if(!duel||duel.phase!=='fight')return;let d=(o.dmg||0)*0.45+(o.kill?30:0)+(o.poison?6:0);d=Math.round(Math.min(45,Math.max(o.kill||o.dmg?4:0,d)));const s=Math.min(1.2,o.stun||0);if(d<=0&&s<=0)return;
  duel.seq++;duel.hits.push({i:duel.seq,r:duel.round,d,s:Math.round(s*10)/10});if(duel.hits.length>12)duel.hits.shift();e.hitF=0.15;fxPush({k:'flash',x:e.x,y:e.y,r:30,col:'#ff9a7a',rot:rnd()*3,life:.2});float(e.x,e.y-26,String(d),'#ffb0a0');P.awk=Math.min(100,P.awk+d*0.5);lastAlert=now;duelPush();}
-function duelHurt(h,rx,ry){if(P.inv>0&&!(h.s>0))return;let d=h.d*(1-pf('dmgTaken')*0.5);if(P.buf.immune>0)d*=0.3;d=Math.round(d);if(d<=0&&!(h.s>0))return;P.hp-=d;P.hurt=0.25;P.inv=0.2;lastAlert=now;
+function duelHurt(h,rx,ry){if(P.inv>0&&!(h.s>0))return;let d=h.d*(1-Math.min(0.75,pf('dmgTaken'))*0.5);if(P.buf.immune>0)d*=0.3;d=Math.max(h.d>0?1:0,Math.round(d));if(d<=0&&!(h.s>0))return;P.hp-=d;P.hurt=0.25;P.inv=0.2;lastAlert=now;
  const a=Math.atan2(P.y-ry,P.x-rx);P.x+=Math.cos(a)*10;P.y+=Math.sin(a)*10;resolve(P);if(h.s>0)P.stunT=Math.max(P.stunT||0,h.s);float(P.x,P.y-24,'-'+d,'#ff7a6a');burst(P.x,P.y,'#7a1a12',6,70);P.awk=Math.min(100,P.awk+d*0.3);}
 function duelAwaken(S){P.awk=0;P.ascAw=!!(MASTERY[S.id]&&mlv(S.id)>=4);P.awT=P.ascAw?22:15;P.ult2=P.ascAw?1:0;P.awTick=0;P.awPulse=0;P.ak={};shake=14;for(let i=0;i<4;i++)fxPush({k:'ring',x:P.x,y:P.y,r:120+i*80,col:i%2?'#ffe08a':S.tr,life:.6+i*0.1});fxPush({k:'pillar',x:P.x,y:P.y,col:S.tr,life:.8});if(ULT[S.id])ULT[S.id].f();duel.m++;duel.mn='ULTIMATE: '+AW[S.id].n;msg('ULTIMATE: '+AW[S.id].n+'!',2);}
 function duelTick(dt){if(!duel)return;const rv=duelRival(),me=enemies.find(e=>e.type==='rival');
@@ -5113,7 +5113,7 @@ const LC9={
   ['Shadow Pierce','Knives pass through one enemy.',{pierce:1}],['Smoke Knife','Every 4th throw bursts into shadow for {30} around the target.',{on:(()=>{const f=L9.ev(4);return(e,p)=>{if(f())L9.sp(e,80,L9.d(30,p),'#c3a3ff',{stun:0.3});};})()}],['Homing Blades','Knives curve toward enemies.',{home:1.8}]],
  titan:[['Heavy Fists','Quakes deal 25% more damage.',{m:0.35}],['Wider Quake','Quakes reach further around you.',{rng:22}],['Fast Tremor','Quakes recover 20% faster.',{rl:0.8}],
   ['Lingering Tremor','Quaked enemies stay stunned longer.',{on:e=>hitE(e,{stun:0.3})}],['Rubble','Quake hits leave rubble that deals {10} nearby.',{on:(e,p)=>L9.sp(e,40,L9.d(10,p),'#c49a4a')}],['Shove','Quakes knock enemies back.',{on:e=>hitE(e,{push:40})}],
-  ['Stone Armour','Each quake that hits makes you invulnerable for a split second.',{on:()=>{if(typeof buff==='function')buff('immune',0.15);}}],['Fault Line','Every 3rd quake cracks the ground ahead for {45}.',{fire:(()=>{const f=L9.ev(3);return(a,p)=>{if(f()){VX.crack(P.x,P.y,200,'#8a6a3a',a,5);awLine(a,240,50,e=>hitE(e,{dmg:L9.d(45,p),stun:0.4}));}};})()}],['Mountain’s Weight','Stunned enemies take {30} more from quakes.',{on:(e,p)=>{if(e.stun>0)hitE(e,{dmg:L9.d(30,p)});}}]],
+  ['Stone Armour','Each quake that hits guards you for a split second.',{on:()=>{if(typeof buff==='function')buff('immune',0.15);}}],['Fault Line','Every 3rd quake cracks the ground ahead for {45}.',{fire:(()=>{const f=L9.ev(3);return(a,p)=>{if(f()){VX.crack(P.x,P.y,200,'#8a6a3a',a,5);awLine(a,240,50,e=>hitE(e,{dmg:L9.d(45,p),stun:0.4}));}};})()}],['Mountain’s Weight','Stunned enemies take {30} more from quakes.',{on:(e,p)=>{if(e.stun>0)hitE(e,{dmg:L9.d(30,p)});}}]],
  helios:[['Brighter Sun','Sunbursts deal 25% more damage.',{m:0.3}],['More Rays','Sunbursts split into two more rays.',{split:2}],['Solar Wind','Sunbursts fly 25% further.',{rng:95}],
   ['Blinding Light','Sunburst hits blind enemies briefly.',{on:e=>{if(rnd()<0.3)hitE(e,{stun:0.35});}}],['Sunspot','Sunburst hits leave burning ground.',{on:e=>{if(rnd()<0.4)fires.push({x:e.x,y:e.y,t:1.8});}}],['Quick Dawn','Sunbursts reload 20% faster.',{rl:0.8}],
   ['Corona','Sunburst hits deal {12} around the target.',{on:(e,p)=>L9.sp(e,60,L9.d(12,p),'#ffd27a')}],['Bigger Sun','Sunbursts are larger and easier to land.',{r:5}],['Solar Pillar','Every 4th sunburst calls a column of light on the target for {50}.',{on:(()=>{const f=L9.ev(4);return(e,p)=>{if(f()){VX.pillar(e.x,e.y,'#ffd27a',42,220);for(const x of foes(70,e.x,e.y))hitE(x,{dmg:L9.d(50,p)});}};})()}]],
@@ -7209,7 +7209,7 @@ PRIM.wukong={n:'Ruyi Staff',d:'A long, wide staff sweep. Every 3rd strike extend
 PTAG.wukong='Close · Sweep · Thrust';
 AWLC.wukong={a:{n:'Golden Ruyi Staff',d:'Longer, wider golden sweeps. Every 3rd strike thrusts twice as far and bursts at the tip.',o:{rng:114,arc:1.38,mm:1.3,col:WK.g2}},
  m:{n:'Heavenly Ruyi Staff',d:'Huge golden sweeps that leave cloud trails. Every 3rd strike thrusts across the screen and bursts twice.',o:{rng:128,arc:1.5,mm:1.5,col:'#fff7d0'}}};
-MMAW.wukong={a:{n:'Seventy-Two Transformations: Stone Monkey',d:'Tiger, eagle and bee forms strike in turn, then you turn to stone (you cannot be hurt) and crack out, stunning everything near you.',f:()=>wForms(1)},
+MMAW.wukong={a:{n:'Seventy-Two Transformations: Stone Monkey',d:'Tiger, eagle and bee forms strike in turn, then you turn to stone (taking much less damage) and crack out, stunning everything near you.',f:()=>wForms(1)},
  m:{n:'Seventy-Two Transformations: Great Sage',d:'Bigger tiger, eagle and bee forms, the stone body, then you burst out of Laozi’s furnace in a blaze that stuns.',f:()=>wForms(2)}};
 {const M=MASTERY.wukong,base=M.mv;Object.defineProperty(M,'mv',{configurable:true,enumerable:true,get(){if(P&&P.awT>0&&prog.style==='wukong'){const L=MMAW.wukong[P.ascAw?'m':'a'];return{n:L.n,d:L.d,cd:base.cd,f:()=>{try{L.f();}catch(err){}},aw:P.ascAw?2:1,base};}return base;},set(v){}});}
 RWK.wukong=1.6;STHEME.wukong=['gold','Great Sage'];
@@ -7289,7 +7289,7 @@ AWFX2.wukong=function(c,t,x,y,k0,W,H){const k=Math.min(k0,H/560,W/700),out=t>1.2
 {const C=WK.g,wj=(n,p)=>L9.d(n,p);
 T7.wukong={
  r:[['Sleep Bugs','release sleep insects that drift to up to four nearby enemies and put them to sleep for 4 seconds',12,p=>wSleep(4,4)],
-    ['Protective Circle','draw a circle on the ground with your staff: for 5 seconds you cannot be hurt inside it and enemies are pushed out',16,p=>wCircle(5,110)],
+    ['Protective Circle','draw a circle on the ground with your staff: for 5 seconds you are guarded inside it and enemies are pushed out',16,p=>wCircle(5,110)],
     ['Become a Fly','turn into a fly for 3 seconds: you vanish from sight and move faster',13,p=>{wPoof(P.x,P.y,1);X.bu('speed',3);P.vanish=Math.max(P.vanish||0,3);float(P.x,P.y-30,'BZZZ','#d0d0d0');}],
     ['Peach Feast','eat a peach of immortality: heal 20% and gain speed for 3 seconds',12,p=>{X.he(0.2);X.bu('speed',3);wPeach(P.x,P.y);}],
     ['Book of Life and Death','strike names from the register of the dead: nearby enemies below 30% health die at once and the rest take {90}',14,p=>{float(P.x,P.y-44,'BOOK OF LIFE AND DEATH','#e8d8b0');for(const e of foes(300)){wInk(e.x,e.y,rnd()*6.283,0.7);if(e.type!=='boss'&&e.hp<e.max*0.3)hitE(e,{dmg:e.hp+5,col:WK.ink});else X.hit(e,90);}}]],
@@ -7510,6 +7510,74 @@ AW.wukong.f=()=>{wFurnace(P.x,P.y,190,1.4);wRing(P.x,P.y,190,0.6,'#ff7a1a',10);w
 {const pdV=primDraw;primDraw=function(q){if(q&&q.k==='fx'&&q.vis==='staff'&&prog.style==='wukong'){try{const c=ctx,f=Math.min(1,(q.t||0)/(q.T||0.24)),e=wE(f*1.3),A=q.a-q.arc+2*q.arc*e,L=q.r||98,fm=wkForm();c.save();c.lineCap='round';
  const inkCol=fm==='stone'?'#5a4a3a':fm==='cloud'?'#6ec8ff':P.awT>0?'#ff6a1a':WK.ink;for(let k=0;k<3;k++){c.globalAlpha=(1-f)*(0.7-k*0.2);c.strokeStyle=k?WK.r:inkCol;c.lineWidth=(12-k*4)*(1-f*0.6);c.beginPath();c.arc(P.x,P.y,L*(0.86-k*0.05),Math.max(q.a-q.arc,A-1.1),A);c.stroke();}c.restore();
  if(fm==='stone'&&f>0.85&&!q.__d){q.__d=1;wDust(P.x+Math.cos(q.a)*L*0.7,P.y+Math.sin(q.a)*L*0.7,60);}}catch(_){}}return pdV.apply(this,arguments);};}
+}
+
+/*LCVIS*/
+/* ================= Left-click upgrades change the left click itself (all styles) ================= */
+{
+let LCT=null,LCN=0,LCF=-1;
+const lcBudget=()=>{const f=Math.floor(now*60);if(f!==LCF){LCF=f;LCN=0;}return LCN++<14;};
+function lcLevel(){try{let n=0;for(const q of t7Owned()){const D=t7Def(q.id,q.c);if(D&&D.kind==='lc')n++;}return Math.min(5,n);}catch(_){return 0;}}
+function lcCol(){try{const p=prim();return p&&p.col||'#ffe08a';}catch(_){return '#ffe08a';}}
+/* track what an upgrade actually did */
+{const hT=hitE;hitE=function(e,o){if(LCT&&e)LCT.h.push([e,o||{}]);return hT.apply(this,arguments);};}
+{const hT2=hitEnemy;hitEnemy=function(e,d){if(LCT&&e)LCT.h.push([e,{dmg:d}]);return hT2.apply(this,arguments);};}
+const snap=()=>({h:[],hp:P?P.hp:0,dr:prog.dr,bk:P&&P.buf?JSON.stringify(Object.keys(P.buf).filter(k=>P.buf[k]>0)):'',pp:PPJ.length+(typeof PFX!=='undefined'?PFX.length:0)});
+/* little effects */
+function fxStars(e){rAdd(0.7,(c,f)=>{if(!e||e.dead)return;const al=f>0.7?(1-f)/0.3:1;for(let i=0;i<3;i++){const a=now*5+i*2.094,x=e.x+Math.cos(a)*12,y=e.y-(e.r||12)-10+Math.sin(a)*4;c.globalAlpha=al;c.fillStyle='#ffe66a';c.beginPath();for(let k=0;k<10;k++){const r=k%2?1.8:4.2,b=-Math.PI/2+k*Math.PI/5;c.lineTo(x+Math.cos(b)*r,y+Math.sin(b)*r);}c.closePath();c.fill();}});}
+function fxRing(x,y,col){rAdd(0.3,(c,f)=>{c.globalAlpha=(1-f)*0.9;c.strokeStyle=col||'#ffffff';c.lineWidth=4*(1-f)+1;c.beginPath();c.arc(x,y,10+f*40,0,6.283);c.stroke();});}
+function fxSlash(x,y,col){const a0=rnd()*3;rAdd(0.22,(c,f)=>{const g=Math.min(1,f*4),al=1-f,L=16;c.lineCap='round';for(const s of[0,1.6]){const a=a0+s;c.globalAlpha=al*0.5;c.strokeStyle=col;c.lineWidth=6;c.beginPath();c.moveTo(x-Math.cos(a)*L*g,y-Math.sin(a)*L*g);c.lineTo(x+Math.cos(a)*L*g,y+Math.sin(a)*L*g);c.stroke();c.globalAlpha=al;c.strokeStyle='#fff';c.lineWidth=1.8;c.stroke();}});}
+function fxChain(a,b,col){rAdd(0.28,(c,f)=>{if(!a||!b)return;const al=1-f;c.lineCap='round';const mx=(a.x+b.x)/2+(rnd()-.5)*14,my=(a.y+b.y)/2+(rnd()-.5)*14;for(const [w,cl,aa] of [[7,col,0.35],[2,'#fff',1]]){c.globalAlpha=al*aa;c.strokeStyle=cl;c.lineWidth=w;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(mx,my);c.lineTo(b.x,b.y);c.stroke();}});}
+function fxComet(tx,ty,col,big){const sx=P.x,sy=P.y;rAdd(0.24,(c,f)=>{const k=Math.min(1,f/0.75),x=sx+(tx-sx)*k,y=sy+(ty-sy)*k,bx=sx+(tx-sx)*Math.max(0,k-0.35),by=sy+(ty-sy)*Math.max(0,k-0.35);c.lineCap='round';const g=c.createLinearGradient(bx,by,x,y);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,col);c.globalAlpha=1-Math.max(0,(f-0.75)/0.25);c.strokeStyle=g;c.lineWidth=big?7:5;c.beginPath();c.moveTo(bx,by);c.lineTo(x,y);c.stroke();c.fillStyle='#fff';c.beginPath();c.arc(x,y,big?4:3,0,6.283);c.fill();
+ if(f>0.72){const q=(f-0.72)/0.28;c.globalAlpha=1-q;c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.arc(tx,ty,6+q*16,0,6.283);c.stroke();}});}
+function fxPlus(x,y){for(let i=0;i<3;i++){const ox=(rnd()-.5)*20;rAdd(0.7,(c,f)=>{c.globalAlpha=1-f;c.fillStyle='#6aff8a';const px=x+ox,py=y-14-f*26-i*6;c.fillRect(px-4,py-1.3,8,2.6);c.fillRect(px-1.3,py-4,2.6,8);});}}
+function fxCoins(x,y){for(let i=0;i<5;i++){const a=rnd()*6.283,v=60+rnd()*80;parts.push({x,y,vx:Math.cos(a)*v,vy:-80-rnd()*60,l:0.6,a:0,c:rnd()<0.5?'#ffd24a':'#fff1a8',sz:3});}}
+function flourish(e,tr,mode){if(!P||!lcBudget())return;const col=lcCol();
+ if(P.hp>tr.hp+0.5)fxPlus(P.x,P.y);if(prog.dr>tr.dr&&e)fxCoins(e.x,e.y);
+ const bk=P.buf?JSON.stringify(Object.keys(P.buf).filter(k=>P.buf[k]>0)):'';if(bk!==tr.bk)fxRing(P.x,P.y,col);
+ const own=(PPJ.length+(typeof PFX!=='undefined'?PFX.length:0))>tr.pp;let shown=0;
+ for(const [t,o] of tr.h){if(shown>=4)break;if(!t||!o)continue;shown++;
+  if(mode==='fire'&&!own&&(!e||t!==e))fxComet(t.x,t.y,col,o.dmg>40);
+  else if(e&&t!==e)fxChain(e,t,col);
+  if(o.stun)fxStars(t);if(o.push)fxRing(t.x,t.y,'#ffffff');if(o.dmg&&(mode!=='fire'||own))fxSlash(t.x+(rnd()-.5)*8,t.y-6,col);}}
+const wrapOn=f=>{if(!f||f.__lcw)return f;const g=function(e,p){const tr=snap(),prev=LCT;LCT=tr;try{return f.apply(this,arguments);}finally{LCT=prev;try{flourish(e,tr,'on');}catch(_){}}};g.__lcw=1;return g;};
+const wrapFire=f=>{if(!f||f.__lcw)return f;const g=function(a,p){const tr=snap(),prev=LCT;LCT=tr;try{return f.apply(this,arguments);}finally{LCT=prev;try{flourish(null,tr,'fire');}catch(_){}}};g.__lcw=1;return g;};
+function lcWrapAll(){for(const id in T7){const D=T7[id];if(!D||!Array.isArray(D.lc))continue;for(const x of D.lc){if(!x||!x[2]||typeof x[2]!=='object')continue;const m=x[2];if(m.on)m.on=wrapOn(m.on);if(m.fire)m.fire=wrapFire(m.fire);}}}
+lcWrapAll();
+/* Robo: Twin Launch throws both fists at once */
+{const D=T7.robo;if(D&&D.lc)for(const x of D.lc)if(x&&x[0]==='Twin Launch'){x[1]='Every left click throws both fists at once.';x[2]={fire:(a,p)=>{const P0=prim();const h=1-P.clicks%2;PPJ.push({k:'fx',vis:'rfist',x:P.x,y:P.y,a,t:0,T:0.42,r:P0.rng+60,arc:P0.arc||1,col:P0.col,dead:0,hand:h,lcL:P.lcL||0});for(const e of primTargets(P0.rng+80,P.x,P.y))if(Math.abs(angDiff(Math.atan2(e.y-P.y,e.x-P.x),a))<=(P0.arc||1))awHit(e,0.6,{push:40});}};}delete BLAYOUT.robo;}
+/* tag every left-click visual with the upgrade tier */
+{const pfL=primFire;primFire=function(a){const n0=PPJ.length;P.lcL=lcLevel();P.__lcT=now;const r=pfL.apply(this,arguments);for(let i=n0;i<PPJ.length;i++){const q=PPJ[i];if(q.lcL==null)q.lcL=P.lcL;}return r;};}
+/* draw upgraded models */
+{const pdL=primDraw;primDraw=function(q){const L=(q&&q.lcL)||0;if(!L||!q)return pdL.apply(this,arguments);const c=ctx,col=q.col||lcCol();
+ if(q.k!=='fx'){const R=(q.r||8);
+  c.save();c.globalCompositeOperation='lighter';c.globalAlpha=0.18+0.07*L;const g=c.createRadialGradient(q.x,q.y,0,q.x,q.y,R*(1.6+0.35*L));g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(q.x,q.y,R*(1.6+0.35*L),0,6.283);c.fill();c.restore();
+  if(L>=2&&rnd()<0.6)parts.push({x:q.x,y:q.y,vx:-(q.vx||0)*0.12+(rnd()-.5)*30,vy:-(q.vy||0)*0.12+(rnd()-.5)*30,l:0.35,a:0,c:rnd()<0.5?col:'#ffffff',sz:1.5+L*0.4});
+  const s=1+0.07*L;c.save();c.translate(q.x,q.y);c.scale(s,s);c.translate(-q.x,-q.y);const r=pdL.apply(this,arguments);c.restore();
+  if(L>=3){c.save();for(let i=0;i<(L>=5?3:2);i++){const a=now*9+i*6.283/(L>=5?3:2);c.fillStyle=i%2?'#ffffff':col;c.globalAlpha=0.9;c.beginPath();c.arc(q.x+Math.cos(a)*R*1.7,q.y+Math.sin(a)*R*1.7,1.6+L*0.3,0,6.283);c.fill();}c.restore();}
+  if(L>=4){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=0.7;c.fillStyle='#ffffff';c.beginPath();c.arc(q.x,q.y,R*0.35,0,6.283);c.fill();c.restore();}
+  return r;}
+ const r=pdL.apply(this,arguments);
+ try{const f=Math.min(1,(q.t||0)/(q.T||0.3)),R=q.r||80,A=q.arc||1,a=q.a||0,x=q.x??P.x,y=q.y??P.y;c.save();c.translate(x,y);c.rotate(a);c.lineCap='round';
+  for(let k=0;k<Math.min(3,L);k++){const rr=R*(1.04+k*0.07)*(0.6+0.4*Math.min(1,f*2.2));c.globalAlpha=(1-f)*(0.5-k*0.12);c.strokeStyle=k%2?'#ffffff':col;c.lineWidth=(3+L)*(1-f)-k;if(c.lineWidth<=0)continue;c.beginPath();c.arc(0,0,rr,-A*(0.95-k*0.1),A*(0.95-k*0.1));c.stroke();}
+  if(L>=4&&f<0.5&&!q.__lcs){q.__lcs=1;for(const s of[-1,1]){const px=x+Math.cos(a+s*A)*R,py=y+Math.sin(a+s*A)*R;for(let i=0;i<5;i++)parts.push({x:px,y:py,vx:(rnd()-.5)*140,vy:(rnd()-.5)*140,l:0.3,a:0,c:i%2?'#fff':col,sz:2.5});}}
+  if(L>=5){c.globalCompositeOperation='lighter';c.globalAlpha=(1-f)*0.35;const g=c.createRadialGradient(0,0,R*0.5,0,0,R*1.15);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(.8,col);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.moveTo(0,0);c.arc(0,0,R*1.15,-A,A);c.closePath();c.fill();}
+  c.restore();}catch(_){}
+ return r;};}
+/* Robo's fists get upgraded models */
+if(MDRAW&&MDRAW.rfist){const rf=MDRAW.rfist;MDRAW.rfist=function(c,q,f){const r=rf.apply(this,arguments);const L=q.lcL||0;if(!L)return r;try{
+ const side=(q.hand||0)?9:-9,R=q.r,eo=t=>1-Math.pow(1-t,3),out=f<0.28?eo(f/0.28):f<0.55?1:1-((f-0.55)/0.45),x=14+out*(R-26),fade=f<0.7?1:1-(f-0.7)/0.3;c.save();c.globalAlpha=fade;
+ if(L>=2){for(let i=0;i<3;i++){const fl=8+Math.random()*10+L*2;const g=c.createLinearGradient(x-8,side,x-8-fl,side);g.addColorStop(0,'rgba(255,240,180,.95)');g.addColorStop(.5,'rgba(255,140,30,.8)');g.addColorStop(1,'rgba(255,60,10,0)');c.fillStyle=g;c.beginPath();c.moveTo(x-8,side-3-i);c.lineTo(x-8-fl,side+(Math.random()-.5)*4);c.lineTo(x-8,side+3+i);c.fill();}}
+ if(L>=3){c.fillStyle='#e8eef2';c.strokeStyle='#3a3e42';c.lineWidth=1;for(let k=-1;k<=1;k++){c.beginPath();c.moveTo(x+6,side+k*4-2);c.lineTo(x+13+L,side+k*4);c.lineTo(x+6,side+k*4+2);c.closePath();c.fill();c.stroke();}}
+ if(L>=4){c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,180,60,.9)';c.beginPath();c.arc(x,side,3.5+Math.sin(now*30),0,6.283);c.fill();c.strokeStyle='rgba(255,210,120,.8)';c.lineWidth=1.5;c.beginPath();c.arc(x,side,8,0,6.283);c.stroke();}
+ if(L>=5){c.globalCompositeOperation='lighter';const g=c.createRadialGradient(x,side,2,x,side,20);g.addColorStop(0,'rgba(140,220,255,.7)');g.addColorStop(1,'rgba(60,140,255,0)');c.fillStyle=g;c.beginPath();c.arc(x,side,20,0,6.283);c.fill();}
+ c.restore();}catch(_){}return r;};}
+/* the player's weapon glows with upgrades */
+{const dpL=drawPlayer;drawPlayer=function(){const r=dpL.apply(this,arguments);try{if(!P||state!=='play')return r;if(!P.__lcT||now-P.__lcT>1){P.lcL=lcLevel();P.__lcT=now;}const L=P.lcL||0;if(!L)return r;const c=ctx,col=lcCol();
+ c.save();c.translate(P.x,P.y);c.rotate(P.face+(P.spin>0?(0.35-P.spin)*18:0));const sw=P.atk>0?(1-P.atk/0.18):0;c.rotate(P.atk>0?-1.1+sw*2.2:0.5);const tip=P.atk>0||P.spin>0?34:22;
+ c.globalCompositeOperation='lighter';c.globalAlpha=0.2+0.1*L;c.strokeStyle=col;c.lineWidth=3+L*1.4;c.lineCap='round';c.beginPath();c.moveTo(8,6);c.lineTo(tip,8);c.stroke();
+ c.globalAlpha=0.6+0.4*Math.sin(now*8);c.fillStyle=L>=4?'#ffffff':col;c.beginPath();c.arc(tip,8,1.5+L*0.6,0,6.283);c.fill();c.restore();
+ if(L>=3&&rnd()<0.08*L){const a=P.face+0.5;parts.push({x:P.x+Math.cos(a)*20,y:P.y+Math.sin(a)*20,vx:(rnd()-.5)*20,vy:-25,l:0.4,a:0,c:col,sz:2});}}catch(_){}return r;};}
 }
 
 /*DEV*/
