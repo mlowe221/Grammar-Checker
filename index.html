@@ -272,7 +272,7 @@ function sha256(s){s=unescape(encodeURIComponent(String(s)));const rr=(v,a)=>(v>
   const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}for(let i=0;i<8;i++)h[i]=(h[i]+old[i])|0;}
  for(let i=0;i<8;i++)for(let j=3;j+1;j--){const b=(h[i]>>(j*8))&255;out+=(b<16?'0':'')+b.toString(16);}return out;}
 const codeKey=c=>sha256('kerkos-v1:'+c).slice(0,24);
-const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'57387fc2c2fcc13b9673ac34':{lucky:50,rel:1795685494225,t:'+50 Lucky spins'},'b25dc465fc223dbeb4e4b12c':{lucky:50,rel:1795693286608,t:'+50 Lucky spins'},'419cbfda00bfadbe8d3784f8':{lucky:150,rel:1795776922937,t:'+150 Lucky spins'},'1bc1d613111fb25127e004a1':{lucky:50,rel:1795786442217,any:1,t:'+50 Lucky spins'},'db7d9c74e88e2806da966ea0':{style:'kwong',rel:1795787595006,t:'King Kwong, the Antinomy'}};
+const CODES_H={'250f57e1f836a219d151a348':{lucky:15,rel:1795595550440,t:'+15 Lucky spins'},'3e5c49cd712a1c4067807e7a':{lucky:25,spins:30,rel:1795614883834,t:'+25 Lucky spins and +30 spins'},'57387fc2c2fcc13b9673ac34':{lucky:50,rel:1795685494225,t:'+50 Lucky spins'},'b25dc465fc223dbeb4e4b12c':{lucky:50,rel:1795693286608,t:'+50 Lucky spins'},'419cbfda00bfadbe8d3784f8':{lucky:150,rel:1795776922937,t:'+150 Lucky spins'},'1bc1d613111fb25127e004a1':{lucky:50,rel:1795786442217,any:1,t:'+50 Lucky spins'},'db7d9c74e88e2806da966ea0':{style:'kwong',rel:1795787595006,any:1,t:'King Kwong, the Antinomy'}};
 const SPIN_COST=150;
 const LUCK=[0,44,35.3,17,2.5,1.2];
 const SAVEKEY='kerkos-save-v3';
@@ -895,7 +895,7 @@ function showIslands(){state='menu';
   {go:b=>startIsland(+b.dataset.i),tree:()=>showTree(showIslands),spin:()=>showSpin(showIslands),code:()=>showCodes(showIslands),duel:showDuel,endless:showEndless,troph:()=>showTrophies(showIslands),fs:toggleFS,sc:()=>showSaveCode(showIslands),mast:()=>showMastery(showIslands),back:showTitle});}
 function showCodes(back,note,good){if(state==='play')state='pause';
  show(`<h2>Redeem a Code</h2>${who()}<form id="codef" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:0 0 10px"><label for="codein" style="position:absolute;left:-9999px">Code</label><input id="codein" autocomplete="off" spellcheck="false" maxlength="24" placeholder="Enter code" style="font:700 18px Cinzel,serif;padding:10px 14px;border-radius:6px;border:3px solid var(--ink);background:#f6ead0;color:var(--ink);width:min(280px,100%);text-transform:uppercase;letter-spacing:.08em"><button type="submit">Redeem</button></form>
- <p class="res" style="font-weight:700;color:${good?'#1a3a10':'#3a0a05'}">${note?esc(note):prog.lvl<7?'Most codes unlock at level 7 (you are level '+prog.lvl+'), but one starter code works right away.':'Codes can be used once each.'}</p><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="back" class="ghost">Done</button>`,0,
+ <p class="res" style="font-weight:700;color:${good?'#1a3a10':'#3a0a05'}">${note?esc(note):prog.lvl<7?'Most codes unlock at level 7 (you are level '+prog.lvl+'), but a couple of codes work right away.':'Codes can be used once each.'}</p><button data-a="spin">Style Spinner${prog.spins?' ('+prog.spins+' free)':''}</button><button data-a="back" class="ghost">Done</button>`,0,
   {spin:()=>showSpin(back),back});
  const f=document.getElementById('codef'),inp=document.getElementById('codein');if(inp&&inp.focus)inp.focus();
  if(f)f.onsubmit=ev=>{ev.preventDefault();const c=(inp.value||'').trim().toUpperCase().replace(/\s+/g,''),C=c?CODES_H[codeKey(c)]:null;
@@ -9941,7 +9941,7 @@ KKV.X.kill=[...KKV.X,'Struck out.','Rewritten.','Noted.','Lesson learned. By you
 /* ================= KING KWONG: personalised boss-kill cutscenes (3 philosophers × 6 bosses) ================= */
 const KKBL3={minotaur:'Lines on a floor never held anyone. Off you go.',laestry:'Big? I just drew you smaller.',nemean:'Invulnerable was only ever a word. I crossed it out.',chimera:'Three heads. Three crosses. Done.',cerberus:'No guard. No gate. Just a blank page.',hydra:'I counted every head. Then I erased the count.'};
 /* boss silhouettes */
-function kkBossFig(c,id,x,y,s,t,col,mod){mod=mod||{};c.save();c.translate(x+(mod.dx||0),y+(mod.dy||0));c.rotate(mod.rot||0);c.scale(s*(mod.sc||1),s*(mod.sc||1));const body=mod.chalk?'rgba(0,0,0,0)':'#14101a',rim=mod.chalk?'#f4ece0':col;c.fillStyle=body;c.strokeStyle=rim;c.lineWidth=mod.chalk?3:2.5;c.lineJoin='round';
+function kkBossFig(c,id,x,y,s,t,col,mod){mod=mod||{};c.save();c.translate(x+(mod.dx||0),y+(mod.dy||0));c.rotate(mod.rot||0);c.scale(s*(mod.sc||1),s*(mod.sc||1));let body='rgba(0,0,0,0)';if(!mod.chalk){body=c.createLinearGradient(0,-130,0,90);body.addColorStop(0,'#3a2c48');body.addColorStop(0.5,'#1a1424');body.addColorStop(1,'#08060c');if(col!=='#000'){c.shadowColor=col;c.shadowBlur=18;}else body='#000';}const rim=mod.chalk?'#f4ece0':col;c.fillStyle=body;c.strokeStyle=rim;c.lineWidth=mod.chalk?3:2.5;c.lineJoin='round';
  const P2=pts=>{c.beginPath();pts.forEach(([a,b],i)=>i?c.lineTo(a,b):c.moveTo(a,b));c.closePath();c.fill();c.stroke();};
  const eyes=(pts,r)=>{c.save();c.globalCompositeOperation='lighter';for(const [a,b] of pts){const g=c.createRadialGradient(a,b,0,a,b,r*3);g.addColorStop(0,'#fff');g.addColorStop(0.3,col);g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.beginPath();c.arc(a,b,r*3,0,6.283);c.fill();}c.restore();};
  const sw=Math.sin(t*2)*3;
@@ -10023,6 +10023,48 @@ let svRev0=(prog&&prog.rev)||0;
 addEventListener('storage',e=>{try{if(e.key!==SAVEKEY||!e.newValue||!prog)return;const cur=JSON.parse(e.newValue);if((cur.rev||0)>svRev0){vMergeInto(prog,cur);prog.lvl=Math.max(prog.lvl||1,cur.lvl||1);svRev0=cur.rev||svRev0;}}catch(_){}});
 /* on load: anything in the vault the save is missing comes back */
 try{const v=vRead();if(v&&prog&&vMergeInto(prog,v)){save();dailyMsg=(dailyMsg?dailyMsg+' ':'')+'Restored styles that were missing from your save.';}else if(prog)vWrite(prog);}catch(_){}
+
+/* ================= KING KWONG: boss-kill cutscenes, cinematic pass (camera, impact frame, close-up) ================= */
+const KKEPI={minotaur:'LORD OF THE LABYRINTH',laestry:'KING OF THE GIANTS',nemean:'THE UNPIERCEABLE',chimera:'THREE-HEADED HORROR',cerberus:'WARDEN OF THE DEAD',hydra:'THE ENDLESS SERPENT'};
+kkBossCut=function(id,done){const B=HDBOSS[id]||HDBOSS.hydra,bid=HDBOSS[id]?id:'hydra',side=P.kkSlate?'X':kkSide(),sd=side==='S'||side==='L'||side==='X'?side:'S',F=KKFIN[sd][bid],L=KKBL[bid]||['Pain ends.','As foreseen.'],line=sd==='X'?KKBL3[bid]:sd==='S'?L[0]:L[1],T=6.4,pc=sd==='S'?KK.s:sd==='L'?KK.l:LK.r,pc2=sd==='S'?KK.s2:sd==='L'?KK.l2:LK.ch,who=sd==='S'?'SCHOPENHAUER':sd==='L'?'LEIBNIZ':'JOHN LOCKE',stamp=sd==='X'?'ERASED':sd==='S'?'BROKEN':'RESOLVED';
+ let h=11+bid.length*17;const R=()=>{h=(h*1103515245+12345)%2147483648;return h/2147483648;};const sh=[];for(let i=0;i<90;i++)sh.push({a:R()*6.283,v:140+R()*620,s:5+R()*24,r:R()*6.283,vr:(R()-.5)*9,k:R()});const sl=[];for(let i=0;i<40;i++)sl.push([R()*6.283,R(),R()]);
+ const ez=x=>1-Math.pow(1-Math.max(0,Math.min(1,x)),3);
+ hdStage(T,(c,t,W,H)=>{const M=Math.min(W,H),cx=W/2,bx=W*0.63,by=H*0.47,bs=M/190;
+  const fk=Math.min(1,Math.max(0,(t-1.25)/1.5)),imp=t>2.78&&t<2.96,after=t>2.75,cu=Math.max(0,Math.min(1,(t-3.55)/0.6));
+  /* camera: slow push-in on the boss, a punch on impact, pull back for the close-up */
+  let zoom=1+0.16*ez(fk);if(after)zoom=1+0.32*Math.max(0,1-(t-2.75)/0.5)+0.06;zoom*=1-0.06*cu;let shk=0;if(t>0.5&&t<0.9)shk=M*0.008*(0.9-t)/0.4;if(t>2.75&&t<3.3)shk=M*0.03*(1-(t-2.75)/0.55);
+  c.save();c.translate((Math.random()-.5)*shk,(Math.random()-.5)*shk);c.translate(bx,by);c.scale(zoom,zoom);c.translate(-bx,-by);
+  kkEnv(c,B.env,W,H,t,sd==='X',B);
+  if(sd==='S'){c.globalAlpha=Math.min(0.45,t*0.3);c.fillStyle='#3a0402';c.fillRect(-W,-H,W*3,H*3);c.globalAlpha=1;kkEmbers(c,W,H,t,'#ff8a3a',30,3);}
+  if(sd==='L'){c.save();c.globalCompositeOperation='lighter';c.globalAlpha=Math.min(0.5,t*0.3);kkHex(c,bx,by,M*0.55,t*0.1,KK.l,0.35,1);kkHex(c,bx,by,M*0.38,-t*0.15,KK.l2,0.35,1);kkHex(c,bx,by,M*0.22,t*0.25,KK.l,0.35,1);c.restore();kkEmbers(c,W,H,t*0.4,'#ffe08a',24,5);}
+  if(sd==='X'){c.save();for(let i=0;i<30;i++){const x=(i*97+t*15)%W,y=(i*61+t*8)%H;c.fillStyle='rgba(244,236,224,.25)';c.fillRect(x,y,2,2);}c.restore();}
+  /* speed lines toward the boss during the finisher */
+  if(t>1.2&&t<2.8&&sd!=='X'){c.save();c.globalCompositeOperation='lighter';for(const [a,r1,r2] of sl){const r0=M*(0.35+r1*0.4),len=M*(0.15+r2*0.25)*fk;c.globalAlpha=0.25*fk;c.strokeStyle=pc2;c.lineWidth=1+r2*2;c.beginPath();c.moveTo(bx+Math.cos(a)*(r0+len),by+Math.sin(a)*(r0+len));c.lineTo(bx+Math.cos(a)*r0,by+Math.sin(a)*r0);c.stroke();}c.restore();}
+  /* boss: rises in, roars, takes the finisher */
+  const X={W,H,M,bx,by,bs,px:W*0.22,py:H*0.5,t,fs:bs*0.6,fy:by+bs*26+Math.max(0,1-t/0.9)*M*0.12};const mod=F.m(fk);if(sd==='X')mod.chalk=1;
+  if(!after||(mod.dy&&mod.dy<-H)){kkGlow(c,bx,by,bs*120,B.col,0.4+0.3*Math.max(0,Math.sin((t-0.5)*6))*(t>0.5&&t<1.1?1:0));if(!(mod.dy&&mod.dy<-H))kkBossFig(c,bid,bx,X.fy,X.fs,t,sd==='X'?'#f4ece0':B.col,mod);}
+  if(t>0.5&&t<1.2){const u=(t-0.5)/0.7;for(let k=0;k<3;k++){const uu=u-k*0.15;if(uu<=0||uu>1)continue;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=(1-uu)*0.6;c.strokeStyle=B.col;c.lineWidth=4*(1-uu)+1;c.beginPath();c.arc(bx,X.fy-bs*20,M*0.08+uu*M*0.4,0,6.283);c.stroke();c.restore();}}
+  if(t>1.25&&t<2.85)F.d(c,fk,X);
+  /* break apart */
+  if(after){const u=t-2.75;for(const s of sh){const d=s.v*u*(sd==='L'?0.55:1),x=bx+Math.cos(s.a)*d,y=by+Math.sin(s.a)*d+(sd==='S'?260*u*u:sd==='X'?80*u*u:0);c.save();c.translate(x,y);c.rotate(s.r+s.vr*u);c.globalAlpha=Math.max(0,1-u/2.4);if(sd==='X'){c.fillStyle=s.k<0.5?'#f4ece0':LK.r2;c.fillRect(-s.s/4,-s.s/4,s.s/2,s.s/2);}else if(sd==='L'&&s.k<0.5){kkHex(c,0,0,s.s*0.5,0,KK.l,1,1.6);}else{c.fillStyle=s.k<0.4?B.col:sd==='S'?(s.k<0.7?KK.s:KK.s2):KK.l;c.beginPath();c.moveTo(0,-s.s/2);c.lineTo(s.s/3,s.s/2);c.lineTo(-s.s/3,s.s/3);c.closePath();c.fill();}c.restore();}
+   for(let k=0;k<3;k++){const uu=(u-k*0.1)/1.1;if(uu<=0||uu>1)continue;c.save();c.globalCompositeOperation='lighter';c.globalAlpha=(1-uu)*0.9;c.strokeStyle=k?pc2:pc;c.lineWidth=12*(1-uu)+1;c.beginPath();c.arc(bx,by,M*0.05+uu*M*0.75,0,6.283);c.stroke();c.restore();}
+   if(sd==='X'){const wk=Math.min(1,u/0.6);c.save();c.globalAlpha=0.7*(1-Math.max(0,u-1));c.fillStyle='#16201c';c.fillRect(bx-M*0.4,by-M*0.45,M*0.8*wk,M*0.9);c.restore();}else kkGlow(c,bx,by,M*0.6*Math.max(0,1-u),sd==='S'?'rgba(255,120,60,.95)':'rgba(255,230,150,.95)',1);}
+  c.restore();
+  /* the philosopher: whips in with a slash wipe, lunges on the strike, then takes the close-up */
+  const enter=ez((t-0.95)/0.35),lunge=sd==='S'?Math.sin(Math.max(0,Math.min(1,(t-2.45)/0.5))*Math.PI)*W*0.08:0;let px=-W*0.2+enter*W*0.42+lunge,py=H*0.52,ps=M/370;px+=(W*0.3-px)*ez(cu);ps*=1+0.3*ez(cu);
+  if(cu>0){c.save();c.fillStyle='rgba(4,2,8,'+0.6*ez(cu)+')';c.fillRect(0,0,W,H);c.restore();kkRays(c,px,py,M*0.9,sd==='S'?'rgba(255,70,30,.25)':sd==='L'?'rgba(255,215,110,.25)':'rgba(255,40,60,.22)',t,12,ez(cu));}
+  if(t>0.95){if(sd==='S'&&lunge>2){for(let k=1;k<4;k++){c.save();c.globalAlpha=0.18/k;(kkSchop)(c,px-k*W*0.03,py,ps,t,false,true);c.restore();}}(sd==='S'?kkSchop:sd==='L'?kkLeib:kkLocke)(c,px,py,ps,t,t>3.9&&t<5.7,sd==='S');}
+  if(t>0.95&&t<1.25){const u=(t-0.95)/0.3;c.save();c.globalCompositeOperation='lighter';c.strokeStyle='#fff';c.lineWidth=M*0.012*(1-u)+1;c.beginPath();c.moveTo(W*(0.05+u*0.4),H*1.05);c.lineTo(W*(0.25+u*0.4),-H*0.05);c.stroke();c.restore();}
+  /* IMPACT FRAME */
+  if(imp){c.save();c.fillStyle='#fff';c.fillRect(0,0,W,H);c.translate(bx,by);for(let i=0;i<36;i++){const a=i*0.1745+(i%2)*0.05;c.fillStyle=i%3?'#000':pc;c.beginPath();c.moveTo(Math.cos(a)*M*0.12,Math.sin(a)*M*0.12);c.lineTo(Math.cos(a+0.03)*M*1.3,Math.sin(a+0.03)*M*1.3);c.lineTo(Math.cos(a-0.03)*M*1.3,Math.sin(a-0.03)*M*1.3);c.closePath();c.fill();}c.translate(-bx,-by);kkBossFig(c,bid,bx,X.fy,X.fs*1.15,t,'#000',{chalk:0});c.restore();}
+  kkVig(c,W,H,0.7);
+  /* titles */
+  if(t>0.45&&t<1.5){const a=Math.min(1,(t-0.45)*4,(1.5-t)*4),sx=(1-ez((t-0.45)/0.4))*W*0.2;c.save();c.globalAlpha=a;c.textAlign='center';c.font='900 '+Math.round(M*0.058)+'px Cinzel,serif';c.fillStyle='#fff';c.fillText(B.name.toUpperCase(),bx+sx,H*0.15);c.fillStyle=B.col;c.fillRect(bx+sx-M*0.25*ez((t-0.6)/0.4),H*0.17,M*0.5*ez((t-0.6)/0.4),3);c.font='700 '+Math.round(M*0.02)+'px sans-serif';c.fillStyle=B.col;c.fillText(KKEPI[bid]||'',bx+sx,H*0.21);c.restore();}
+  if(t>1.3&&t<2.75){const a=Math.min(1,(t-1.3)*4,(2.75-t)*4);c.save();c.globalAlpha=a;c.textAlign='center';c.font='800 '+Math.round(M*0.028)+'px sans-serif';c.fillStyle=pc;c.fillText(who+' · '+F.cap,cx,H*0.14);c.restore();}
+  if(t>3.0&&t<5.9){const u=t-3.0,a=Math.min(1,(5.9-t)*3),sc=1+Math.max(0,0.25-u)*6;c.save();c.globalAlpha=a;c.translate(W*0.72,H*0.42);c.rotate(-0.08);c.scale(sc,sc);c.textAlign='center';c.textBaseline='middle';c.font='900 '+Math.round(M*0.09)+'px Cinzel,serif';c.lineWidth=M*0.012;c.strokeStyle='rgba(0,0,0,.8)';c.strokeText(stamp,0,0);const g=c.createLinearGradient(-M*0.3,0,M*0.3,0);g.addColorStop(0,pc);g.addColorStop(0.5,'#fff');g.addColorStop(1,pc2);c.fillStyle=g;c.fillText(stamp,0,0);c.font='700 '+Math.round(M*0.022)+'px sans-serif';c.fillStyle='#fff';c.fillText(B.name.toUpperCase(),0,M*0.07);c.restore();}
+  if(t>3.85){kkSpeaker(c,who,cx,H*0.8,Math.round(M*0.026),pc);kkType(c,'“'+line+'”',cx,H*0.87,Math.round(M*0.038),t-3.95,'#fff',true);}
+  const bb=M*(0.07+Math.max(0,0.3-t)*0.6);c.fillStyle='#000';c.fillRect(0,0,W,bb);c.fillRect(0,H-bb,W,bb);if(t>T-0.4){c.fillStyle='rgba(0,0,0,'+(t-T+0.4)/0.4+')';c.fillRect(0,0,W,H);}},done);};
+window.kkBossCut=kkBossCut;
 
 /*DEV*/
 /* ================= Developer panel (unlocked by a secret code) ================= */
